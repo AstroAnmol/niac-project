@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+// units are km, s, kg, degrees
+
 namespace Constants {
     // Math constants
     constexpr double PI = 3.14159265358979323846;
@@ -31,10 +33,10 @@ namespace Constants {
     constexpr double ANGLE_MAX = 2.0 * PI;
 
     // Soliton parameters
-    constexpr double SOL_SHELL_THICKNESS = 1e-06;  // 1 cm 
+    constexpr double SOL_SHELL_THICKNESS = 10e-06;  // 10 cm 
 
     // Detection frequency (Hz)
-    constexpr double DETECTION_FREQ = 10000.0;  // 10 kHz
+    constexpr double DETECTION_FREQ = 100000.0;  // 10 kHz
 }
 
 #endif // CONSTANTS_H

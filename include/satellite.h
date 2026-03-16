@@ -2,8 +2,22 @@
 #define SATELLITE_H
 
 #include <eigen-5.0.0/Eigen/Dense>
+#include <vector>
+#include <utility>
 #include "orbit.h"
-// #include "soliton.h"
+#include "soliton.h"
+
+struct DetectionEvent {
+    int sensor_id;
+    double time;
+};
+
+struct DetectionResult {
+    int debris_id;
+    bool detected;
+    double first_detection_time;
+    std::vector<DetectionEvent> detections;
+};
 
 class Satellite {
 public:
@@ -53,9 +67,15 @@ public:
      */
     Eigen::MatrixXd generate_debris_samples(int num_samples, double search_radius_km);
 
-    // // detection functions
-    // bool detect_soliton();
-    // bool detect_soliton_over_time();
+    /**
+     * @brief Simulation to generate random debris and check if the generated soliton is detected.
+     */
+    std::pair<Eigen::MatrixXd, std::vector<DetectionResult>> detection_sim(int no_of_samples, double search_radius_km, double final_time);
+
+    /**
+     * @brief Simulation to check if the generated soliton is detected from a pre-defined array.
+     */
+    std::vector<DetectionResult> detection_sim(Eigen::MatrixXd debris_samples, double final_time);
 
 private:
     // Body frame: x: velocity, y: right, z: down
@@ -93,8 +113,8 @@ private:
     Eigen::Vector3d sat_R; // in km
     Eigen::Vector3d sat_V; // in km/s
 
-    // // Future state vectors
-    // Eigen::ArrayXXd future_state; // time, position (x,y,z), velocity (vx,vy,vz)
+    // Future state vectors
+    Eigen::ArrayXXd future_state; // time, position (x,y,z), velocity (vx,vy,vz)
     
     // Body frame in ECI frame
     Eigen::Matrix3d M_BF_to_ECI; // rotation matrix from body frame to ECI frame
@@ -138,9 +158,9 @@ private:
     // double time_to_reach_cone_base;
     // Eigen::Vector3d debris_position, debris_velocity;
 
-    // //csv read
-    // void read_propagation_csv(const std::string &filename);
-    // void read_future_state(std::string name);
+    // csv read
+    void read_propagation_csv(const std::string &filename);
+    void read_future_state(std::string name);
 
     // wake parameters
     double plane_angle; // in radians

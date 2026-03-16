@@ -31,8 +31,9 @@ clean:
 	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
 
 # Tests
-tester:
-#  $(CC) $(CFLAGS) test/tester.cpp $(INC) $(LIB) -o bin/tester
+test_detection: $(filter-out $(BUILDDIR)/main.o, $(OBJECTS)) test/test_detection.cpp
+	@mkdir -p bin
+	$(CC) $(CFLAGS) $(INC) test/test_detection.cpp $(filter-out $(BUILDDIR)/main.o, $(OBJECTS)) -o bin/test_detection $(LIB)
 
 # Spikes
 ticket:

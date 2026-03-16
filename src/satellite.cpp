@@ -358,96 +358,217 @@ Eigen::MatrixXd Satellite::generate_debris_samples(int num_samples, double searc
 //     else {return false;}
 // }
 
-// // Read a CSV file produced by orbit::propagate_2BP (header + numeric rows)
-// void Satellite::read_propagation_csv(const std::string &filename) {
-//     std::ifstream ifs(filename.c_str());
-//     if (!ifs.is_open()){
-//         std::cerr << "Satellite::read_propagation_csv: failed to open '" << filename << "'\n";
-//         return;
-//     }
+// Read a CSV file produced by orbit::propagate_2BP (header + numeric rows)
+void Satellite::read_propagation_csv(const std::string &filename) {
+    std::ifstream ifs(filename.c_str());
+    if (!ifs.is_open()){
+        std::cerr << "Satellite::read_propagation_csv: failed to open '" << filename << "'\n";
+        return;
+    }
 
-//     std::string line;
-//     // read header
-//     if (!std::getline(ifs, line)){
-//         std::cerr << "Satellite::read_propagation_csv: file empty: '" << filename << "'\n";
-//         return;
-//     }
+    std::string line;
+    // read header
+    if (!std::getline(ifs, line)){
+        std::cerr << "Satellite::read_propagation_csv: file empty: '" << filename << "'\n";
+        return;
+    }
 
-//     std::vector<std::vector<double>> rows;
+    std::vector<std::vector<double>> rows;
 
-//     while (std::getline(ifs, line)){
-//         if (line.size() == 0) continue;
-//         std::vector<double> values;
-//         std::stringstream ss(line);
-//         std::string cell;
-//         while (std::getline(ss, cell, ',')){
-//             // trim
-//             size_t start = cell.find_first_not_of(" \t\r\n");
-//             size_t end = cell.find_last_not_of(" \t\r\n");
-//             if (start == std::string::npos) { cell = ""; }
-//             else cell = cell.substr(start, end - start + 1);
+    while (std::getline(ifs, line)){
+        if (line.size() == 0) continue;
+        std::vector<double> values;
+        std::stringstream ss(line);
+        std::string cell;
+        while (std::getline(ss, cell, ',')){
+            // trim
+            size_t start = cell.find_first_not_of(" \t\r\n");
+            size_t end = cell.find_last_not_of(" \t\r\n");
+            if (start == std::string::npos) { cell = ""; }
+            else cell = cell.substr(start, end - start + 1);
 
-//             if (cell.empty()) { values.push_back(0.0); continue; }
+            if (cell.empty()) { values.push_back(0.0); continue; }
 
-//             try {
-//                 double v = std::stod(cell);
-//                 values.push_back(v);
-//             } catch (...) {
-//                 // filter non-numeric characters
-//                 std::string filtered;
-//                 for (char c: cell) if ((c>='0' && c<='9') || c=='-' || c=='+' || c=='.' || c=='e' || c=='E') filtered.push_back(c);
-//                 if (!filtered.empty()){
-//                     try { values.push_back(std::stod(filtered)); }
-//                     catch(...) { values.push_back(0.0); }
-//                 } else {
-//                     values.push_back(0.0);
-//                 }
-//             }
-//         }
-//         if (!values.empty()) rows.push_back(values);
-//     }
+            try {
+                double v = std::stod(cell);
+                values.push_back(v);
+            } catch (...) {
+                // filter non-numeric characters
+                std::string filtered;
+                for (char c: cell) if ((c>='0' && c<='9') || c=='-' || c=='+' || c=='.' || c=='e' || c=='E') filtered.push_back(c);
+                if (!filtered.empty()){
+                    try { values.push_back(std::stod(filtered)); }
+                    catch(...) { values.push_back(0.0); }
+                } else {
+                    values.push_back(0.0);
+                }
+            }
+        }
+        if (!values.empty()) rows.push_back(values);
+    }
 
-//     if (rows.empty()) {
-//         std::cerr << "Debris::read_propagation_csv: no data rows found in '" << filename << "'\n";
-//         return;
-//     }
+    if (rows.empty()) {
+        std::cerr << "Debris::read_propagation_csv: no data rows found in '" << filename << "'\n";
+        return;
+    }
 
-//     size_t cols = 0;
-//     for (auto &r: rows) if (r.size() > cols) cols = r.size();
+    size_t cols = 0;
+    for (auto &r: rows) if (r.size() > cols) cols = r.size();
 
-//     Eigen::ArrayXXd out(rows.size(), cols);
-//     out.setZero();
-//     for (size_t i=0;i<rows.size();++i){
-//         for (size_t j=0;j<rows[i].size();++j) out(i,j) = rows[i][j];
-//     }
+    Eigen::ArrayXXd out(rows.size(), cols);
+    out.setZero();
+    for (size_t i=0;i<rows.size();++i){
+        for (size_t j=0;j<rows[i].size();++j) out(i,j) = rows[i][j];
+    }
 
-//     future_state = out;
-//     return;
-// }
+    future_state = out;
+    return;
+}
 
-// // Read satellite propagation file (tries "name_file.csv" then "name") and
-// // populate internal `future_state` matrix using read_propagation_csv.
-// void Satellite::read_future_state(std::string name) {
-//     std::string fn1 = "Results/" + name + "_file.csv";
-//     std::string fn2 = "Results/" + name;
+// Read satellite propagation file (tries "name_file.csv" then "name") and
+// populate internal `future_state` matrix using read_propagation_csv.
+void Satellite::read_future_state(std::string name) {
+    std::string fn1 = "Results/" + name + "_file.csv";
+    std::string fn2 = "Results/" + name;
 
-//     // try first filename
-//     read_propagation_csv(fn1);
-//     if (future_state.size() == 0) {
-//         // try second filename
-//         read_propagation_csv(fn2);
-//     }
+    // try first filename
+    read_propagation_csv(fn1);
+    if (future_state.size() == 0) {
+        // try second filename
+        read_propagation_csv(fn2);
+    }
 
-//     if (future_state.size() == 0) {
-//         std::cerr << "Satellite::read_future_state: failed to read '" << fn1 << "' or '" << fn2 << "'\n";
-//         return;
-//     }
+    if (future_state.size() == 0) {
+        std::cerr << "Satellite::read_future_state: failed to read '" << fn1 << "' or '" << fn2 << "'\n";
+        return;
+    }
 
-//     // Basic validation
-//     if (future_state.rows() < 1 || future_state.cols() < 14) {
-//         std::cerr << "Satellite::read_future_state: unexpected CSV layout (rows=" << future_state.rows() << ", cols=" << future_state.cols() << ")\n";
-//         // still keep future_state as read, but caller should handle it
-//     }
+    // Basic validation
+    if (future_state.rows() < 1 || future_state.cols() < 14) {
+        std::cerr << "Satellite::read_future_state: unexpected CSV layout (rows=" << future_state.rows() << ", cols=" << future_state.cols() << ")\n";
+        // still keep future_state as read, but caller should handle it
+    }
 
-//     return;
-// }
+    return;
+}
+
+std::pair<Eigen::MatrixXd, std::vector<DetectionResult>> Satellite::detection_sim(int no_of_samples, double search_radius_km, double final_time) {
+    Eigen::MatrixXd debris_samples = generate_debris_samples(no_of_samples, search_radius_km);
+    std::vector<DetectionResult> results = detection_sim(debris_samples, final_time);
+    return {debris_samples, results};
+}
+
+std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_samples, double final_time) {
+    std::vector<DetectionResult> results;
+
+    std::cout << "Propagating satellite orbit up to " << final_time << " seconds...\n";
+    sat_orbit.propagate_2BP(1.0 / detection_freq, final_time, 2, "satellite_propagation");
+
+    std::cout << "Reading future state from propagation output...\n";
+    read_future_state("satellite_propagation");
+
+    int num_steps = future_state.rows();
+    if (num_steps == 0) {
+        std::cerr << "Propagation state empty!\n";
+        return results;
+    }
+
+    Eigen::ArrayXXd time_array = future_state.col(0);
+    std::cout << "Simulating detections over " << num_steps << " timesteps for " << debris_samples.rows() << " samples...\n";
+
+    #pragma omp parallel
+    {
+        std::vector<DetectionResult> local_results;
+        #pragma omp for schedule(dynamic)
+        for (int i = 0; i < debris_samples.rows(); ++i) {
+            Eigen::Vector3d debris_pos = debris_samples.row(i).segment<3>(0);
+            Eigen::Vector3d debris_vel = debris_samples.row(i).segment<3>(3);
+
+            Soliton soliton(debris_pos, debris_vel, 0.0);
+            Eigen::Vector3d sol_vel = soliton.get_velocity();
+
+            int cadence = std::max(1, (int)detection_freq); 
+            double min_dist = 1e9;
+            int t_idx_closest = 0;
+
+            for (int t_idx = 0; t_idx < num_steps; t_idx += cadence) {
+                Eigen::Vector3d sat_pos = future_state.row(t_idx).segment<3>(8);
+                double current_time = time_array(t_idx);
+                Eigen::Vector3d sol_center = debris_pos + sol_vel * current_time;
+                double dist = (sat_pos - sol_center).norm();
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    t_idx_closest = t_idx;
+                }
+            }
+
+            int search_window_steps = cadence;
+            int start_idx = std::max(0, t_idx_closest - search_window_steps);
+            int end_idx = std::min(num_steps, t_idx_closest + search_window_steps);
+
+            for (int t_idx = start_idx; t_idx < end_idx; ++t_idx) {
+                Eigen::Vector3d sat_pos = future_state.row(t_idx).segment<3>(8);
+                double current_time = time_array(t_idx);
+                Eigen::Vector3d sol_center = debris_pos + sol_vel * current_time;
+                double dist = (sat_pos - sol_center).norm();
+                if (dist < min_dist) {
+                    min_dist = dist;
+                }
+            }
+
+            if (min_dist > 12.0) {
+                continue;
+            }
+
+            bool detected = false;
+            double first_detection_time = -1.0;
+            std::vector<DetectionEvent> detections;
+
+            for (int t_idx = start_idx; t_idx < end_idx; ++t_idx) {
+                double current_time = time_array(t_idx);
+                Eigen::Vector3d sat_pos = future_state.row(t_idx).segment<3>(8);
+                Eigen::Vector3d sat_vel = future_state.row(t_idx).segment<3>(11);
+
+                Eigen::Vector3d sat_x_BF = (sat_vel.norm() != 0) ? sat_vel.normalized() : Eigen::Vector3d(1.0, 0.0, 0.0);
+                Eigen::Vector3d sat_z_BF = (sat_pos.norm() != 0) ? (-sat_pos).normalized() : Eigen::Vector3d(0.0, 0.0, 1.0);
+                Eigen::Vector3d sat_y_BF = sat_z_BF.cross(sat_x_BF);
+                if (sat_y_BF.norm() != 0) {
+                    sat_y_BF.normalize();
+                }
+
+                Eigen::Matrix3d R_mat;
+                R_mat.col(0) = sat_x_BF;
+                R_mat.col(1) = sat_y_BF;
+                R_mat.col(2) = sat_z_BF;
+
+                Eigen::Vector3d sensors_BF[4] = {sensor_1_BF, sensor_2_BF, sensor_3_BF, sensor_4_BF};
+
+                for (int sensor_id = 0; sensor_id < 4; ++sensor_id) {
+                    Eigen::Vector3d sensor_pos_ECI = R_mat * sensors_BF[sensor_id] + sat_pos;
+                    if (soliton.within_soliton_shell(sensor_pos_ECI, current_time)) {
+                        detections.push_back({sensor_id, current_time});
+                        if (!detected) {
+                            detected = true;
+                            first_detection_time = current_time;
+                        }
+                    }
+                }
+            }
+
+            if (detected) {
+                DetectionResult res;
+                res.debris_id = i;
+                res.detected = detected;
+                res.first_detection_time = first_detection_time;
+                res.detections = detections;
+                local_results.push_back(res);
+            }
+        }
+        
+        #pragma omp critical
+        {
+            results.insert(results.end(), local_results.begin(), local_results.end());
+        }
+    }
+    return results;
+}
