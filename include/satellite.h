@@ -3,7 +3,7 @@
 
 #include <eigen-5.0.0/Eigen/Dense>
 #include "orbit.h"
-#include "soliton.h"
+// #include "soliton.h"
 
 class Satellite {
 public:
@@ -11,11 +11,51 @@ public:
     Satellite();
 
     // set functions
-    void set_soliton_state(Eigen::Vector3d pos, Eigen::Vector3d vol);
+    // void set_soliton_state(Eigen::Vector3d pos, Eigen::Vector3d vol);
+    /**
+     * @brief Set the orbit of the satellite
+     * @param orbit Orbit object
+     */
+    void set_orbit(Orbit orbit);
 
-    // detection functions
-    bool detect_soliton();
-    bool detect_soliton_over_time();
+    /**
+     * @brief Set the sensor vectors
+     * @param angles Array of sensor angles in degrees [az1, el1, az2, el2, az3, el3, az4, el4]
+     */
+    void set_sensor_vectors(Eigen::ArrayXd angles);
+
+    /**
+     * @brief Set the wake angle
+     * @param angle Angle in degrees
+     */
+    void set_wake_angle(double angle);
+
+    // get functions
+
+    /**
+     * @brief Get the orbit of the satellite
+     * @return Orbit object
+     */
+    Orbit get_orbit();
+
+    /**
+     * @brief check if a given postition vector in ECI frame is in the wake of satellite at the current time
+     * @param pos Position of the point in ECI frame
+     * @return True if the point is in the wake, false otherwise
+     */
+    bool within_wake(Eigen::Vector3d pos);  
+
+    /**
+     * @brief Generate debris samples around the satellite's current position, ensuring they are outside the wake.
+     * @param num_samples Number of debris samples to generate.
+     * @param search_radius_km Radius around the satellite to sample debris positions (km).
+     * @return Matrix containing position and velocity of valid debris samples (num_samples x 6 matrix in ECI frame).
+     */
+    Eigen::MatrixXd generate_debris_samples(int num_samples, double search_radius_km);
+
+    // // detection functions
+    // bool detect_soliton();
+    // bool detect_soliton_over_time();
 
 private:
     // Body frame: x: velocity, y: right, z: down
@@ -29,6 +69,11 @@ private:
     double boom_length;
     double detection_freq; // in Hz
 
+    // sensor angles in body frame
+    double alpha_x, alpha_z;
+
+    Eigen::Vector3d sensor_vectors[4];
+
     // sensor positions in body frame (mounted at corners of front yz face)
     Eigen::Vector3d sensor_1_BF, sensor_2_BF, sensor_3_BF, sensor_4_BF;
     Eigen::Vector3d corner_1_BF, corner_2_BF, corner_3_BF, corner_4_BF;
@@ -39,25 +84,63 @@ private:
 
     Orbit sat_orbit; // satellite orbit
 
+    // initial state vectors
+    Eigen::Vector3d sat_R0; // in km
+    Eigen::Vector3d sat_V0; // in km/s
+
     // current state vectors
     double time; // in seconds
-    Eigen::Vector3d position; // in km
-    Eigen::Vector3d velocity; // in km/s
+    Eigen::Vector3d sat_R; // in km
+    Eigen::Vector3d sat_V; // in km/s
 
-    // Future state vectors
-    Eigen::ArrayXXd future_state; // time, position (x,y,z), velocity (vx,vy,vz)
+    // // Future state vectors
+    // Eigen::ArrayXXd future_state; // time, position (x,y,z), velocity (vx,vy,vz)
     
     // Body frame in ECI frame
-    Eigen::Matrix3d R_BF_to_ECI;
+    Eigen::Matrix3d M_BF_to_ECI; // rotation matrix from body frame to ECI frame
 
-    // soliton
-    Soliton soliton;
-    double time_to_reach_cone_base;
-    Eigen::Vector3d debris_position, debris_velocity;
+    /**
+     * @brief Convert body frame to ECI frame using current position and velocity vectors
+     * uses sat_R and sat_V to compute the rotation matrix
+     */
+    void BF_to_ECI();
 
-    //csv read
-    void read_propagation_csv(const std::string &filename);
-    void read_future_state(std::string name);
+    /**
+     * @brief Convert a position vector from body frame to ECI frame
+     * @param pos_BF Position vector in body frame
+     * @return Position vector in ECI frame
+     */
+    Eigen::Vector3d pos_BF2ECI(Eigen::Vector3d pos_BF);
+
+    /**
+     * @brief Convert a position vector from ECI frame to body frame
+     * @param pos_ECI Position vector in ECI frame
+     * @return Position vector in body frame
+     */
+    Eigen::Vector3d pos_ECI2BF(Eigen::Vector3d pos_ECI);
+
+    /**
+     * @brief Convert a velocity vector from body frame to ECI frame
+     * @param vel_BF Velocity vector in body frame
+     * @return Velocity vector in ECI frame
+     */
+    Eigen::Vector3d vel_BF2ECI(Eigen::Vector3d vel_BF);
+
+    /**
+     * @brief Convert a velocity vector from ECI frame to body frame
+     * @param vel_ECI Velocity vector in ECI frame
+     * @return Velocity vector in body frame
+     */
+    Eigen::Vector3d vel_ECI2BF(Eigen::Vector3d vel_ECI);
+
+    // // soliton
+    // Soliton soliton;
+    // double time_to_reach_cone_base;
+    // Eigen::Vector3d debris_position, debris_velocity;
+
+    // //csv read
+    // void read_propagation_csv(const std::string &filename);
+    // void read_future_state(std::string name);
 
     // wake parameters
     double plane_angle; // in radians
@@ -68,8 +151,6 @@ private:
     
     // Detection functions
     double detections;
-    // check if a point is in the wake of satellite
-    bool within_wake(Eigen::Vector3d pos);
 
 };
 
