@@ -1,0 +1,23 @@
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Build artifacts and directories
+build/
+bin/
+*.o
+*.out
+
+# Mac specific
+.DS_Store
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env/
+
+# Results and Data
+Results/
+*.csv
