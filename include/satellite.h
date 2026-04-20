@@ -53,6 +53,24 @@ public:
     Orbit get_orbit();
 
     /**
+     * @brief Get the detection frequency of the satellite
+     * @return Detection frequency in Hz
+     */
+    double get_detection_freq() const { return detection_freq; }
+
+    /**
+     * @brief Get the wake angle of the satellite
+     * @return Wake angle in radians
+     */
+    double get_wake_angle() const { return plane_angle; }
+
+    /**
+     * @brief Get the sensor vectors of the satellite
+     * @return Array of sensor vectors in body frame
+     */
+    const Eigen::Vector3d* get_sensor_vectors() const { return sensor_vectors; }
+    
+    /**
      * @brief check if a given postition vector in ECI frame is in the wake of satellite at the current time
      * @param pos Position of the point in ECI frame
      * @return True if the point is in the wake, false otherwise
@@ -65,7 +83,7 @@ public:
      * @param search_radius_km Radius around the satellite to sample debris positions (km).
      * @return Matrix containing position and velocity of valid debris samples (num_samples x 6 matrix in ECI frame).
      */
-    Eigen::MatrixXd generate_debris_samples(int num_samples, double search_radius_km);
+    Eigen::MatrixXd generate_debris_samples(int num_samples, double search_radius_km, int num_headings=72);
 
     /**
      * @brief Simulation to generate random debris and check if the generated soliton is detected.

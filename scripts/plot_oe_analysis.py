@@ -96,7 +96,7 @@ def plot_oe_analysis(target_dir=None, save=False):
         plt.savefig(save_path, dpi=300)
         print(f"Plot saved to: {save_path}")
         
-    plt.show()
+    # plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Analyze Orbital Elements of Generated Debris.')

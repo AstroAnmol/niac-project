@@ -40,10 +40,10 @@ int main() {
   double a, e, i, omega, Omega, theta;
   a = 750 + 6371; // km;
   e = 0.063;
-  i = 45;
+  i = 135;
   omega = 0;
   Omega = 0;
-  theta = 0;
+  theta = 45;
 
   Orbit o;
   Eigen::VectorXd OE(6);
@@ -52,10 +52,16 @@ int main() {
   o.set_mu(0);
   std::cout << "Satellite initial Cartesian state: \n";
   o.print_cartesian();
+  std::cout << "Satellite initial OE: \n";
+  o.print_OE();
 
   // Create Satellite Object
   Satellite sat;
   sat.set_orbit(o);
+
+  Eigen::VectorXd boom_angles(8);
+  boom_angles << 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180;
+  sat.set_sensor_vectors(boom_angles);
 
   // set wake angle
   // sat.set_wake_angle(270.0); // degrees
@@ -79,10 +85,17 @@ int main() {
   // Save to files in Results/ with timestamp
   auto t = std::time(nullptr);
   auto tm = *std::localtime(&t);
-  std::ostringstream oss;
-  oss << "Results/debris_samples_" << std::put_time(&tm, "%Y%m%d_%H%M%S")
-      << ".csv";
-  std::string filename_debris = oss.str();
+  std::ostringstream oss_time;
+  oss_time << std::put_time(&tm, "%Y%m%d_%H%M%S");
+  std::string timestamp = oss_time.str();
+
+  std::string result_dir = "Results/Sim_" + timestamp;
+  std::string mkdir_cmd = "mkdir -p " + result_dir;
+  if (system(mkdir_cmd.c_str()) != 0) {
+      std::cerr << "Failed to create directory: " << result_dir << "\n";
+  }
+
+  std::string filename_debris = result_dir + "/debris_samples_" + timestamp + ".csv";
 
   std::ofstream outfile(filename_debris);
   outfile << std::setprecision(15);
@@ -103,10 +116,7 @@ int main() {
   outfile.close();
   std::cout << "Debris samples saved to " << filename_debris << "\n";
 
-  std::ostringstream oss2;
-  oss2 << "Results/detection_results_" << std::put_time(&tm, "%Y%m%d_%H%M%S")
-       << ".csv";
-  std::string filename_results = oss2.str();
+  std::string filename_results = result_dir + "/detection_results_" + timestamp + ".csv";
 
   std::ofstream resfile(filename_results);
   resfile << std::setprecision(15);
@@ -125,6 +135,27 @@ int main() {
   }
   resfile.close();
   std::cout << "Detection results saved to " << filename_results << "\n";
+
+  std::string filename_readme = result_dir + "/README.txt";
+  std::ofstream readmefile(filename_readme);
+  readmefile << "Simulation Timestamp: " << timestamp << "\n\n";
+  
+  readmefile << "--- Satellite Orbit ---\n";
+  readmefile << "Initial OE [a_km, e, i_deg, omega_deg, Omega_deg, theta_deg]:\n";
+  readmefile << a << ", " << e << ", " << i << ", " << omega << ", " << Omega << ", " << theta << "\n\n";
+  readmefile << "Initial Cartesian State [x, y, z, vx, vy, vz]:\n" << sat_st.transpose() << "\n\n";
+
+  readmefile << "--- Detection Parameters ---\n";
+  readmefile << "Detection Frequency (Hz): " << sat.get_detection_freq() << "\n";
+  readmefile << "Wake Plane Angle (deg): " << (sat.get_wake_angle() * 180.0 / M_PI) << "\n\n";
+  
+  readmefile << "--- Sensor Vectors (Body Frame) ---\n";
+  const Eigen::Vector3d* sensors = sat.get_sensor_vectors();
+  for(int idx_s=0; idx_s<4; ++idx_s) {
+      readmefile << "Sensor " << (idx_s+1) << ": [" << sensors[idx_s].transpose() << "]\n";
+  }
+  readmefile.close();
+  std::cout << "Simulation metadata saved to " << filename_readme << "\n";
 
   // double time_period = sat.get_TimePeriod();
   // // propagate satellite orbit at higher time step for plot

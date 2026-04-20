@@ -21,7 +21,7 @@ Satellite::Satellite() {
     sat_z_size = 2.0*0.0001;   // 20 centimeters (2U)
 
     // boom length for sensors
-    boom_length = 0.001; // 1 meter
+    boom_length = 0.1; // 1 meter
     detection_freq = Constants::DETECTION_FREQ; // 1000 Hz
     detections = 0;
 
@@ -73,7 +73,7 @@ Satellite::Satellite() {
     BF_to_ECI();
 
     // wake parameters
-    plane_angle = 20.0 * Constants::PI / 180; // radians
+    plane_angle = 60.0 * Constants::PI / 180; // radians
     
     back_plane_normal_BF << -1, 0, 0;
     d_back_BF = sat_x_size/2;
@@ -170,10 +170,11 @@ void Satellite::set_orbit(Orbit orbit) {
 }
 
 void Satellite::set_sensor_vectors(Eigen::ArrayXd angles) {
-    sensor_vectors[0] = Eigen::Vector3d(std::cos(angles[0]), std::sin(angles[0])*std::sin(angles[1]), std::cos(angles[0])*std::sin(angles[1]));
-    sensor_vectors[1] = Eigen::Vector3d(std::cos(angles[2]),-std::sin(angles[2])*std::sin(angles[3]), std::cos(angles[2])*std::sin(angles[3]));
-    sensor_vectors[2] = Eigen::Vector3d(std::cos(angles[4]),-std::sin(angles[4])*std::sin(angles[5]),-std::cos(angles[4])*std::sin(angles[5]));
-    sensor_vectors[3] = Eigen::Vector3d(std::cos(angles[6]), std::sin(angles[6])*std::sin(angles[7]),-std::cos(angles[6])*std::sin(angles[7]));
+    // Eigen::Vector3d(std::cos(alpha_x), std::sin(alpha_z)*std::sin(alpha_x), std::cos(alpha_z)*std::sin(alpha_x));
+    sensor_vectors[0] = Eigen::Vector3d(std::cos(angles[0]), std::sin(angles[0])*std::sin(angles[1]), std::cos(angles[1])*std::sin(angles[0]));
+    sensor_vectors[1] = Eigen::Vector3d(std::cos(angles[2]),-std::sin(angles[2])*std::sin(angles[3]), std::cos(angles[3])*std::sin(angles[2]));
+    sensor_vectors[2] = Eigen::Vector3d(std::cos(angles[4]),-std::sin(angles[4])*std::sin(angles[5]),-std::cos(angles[5])*std::sin(angles[4]));
+    sensor_vectors[3] = Eigen::Vector3d(std::cos(angles[6]), std::sin(angles[6])*std::sin(angles[7]),-std::cos(angles[7])*std::sin(angles[6]));
     sensor_1_BF = corner_1_BF + boom_length*sensor_vectors[0];
     sensor_2_BF = corner_2_BF + boom_length*sensor_vectors[1];
     sensor_3_BF = corner_3_BF + boom_length*sensor_vectors[2];
@@ -219,8 +220,9 @@ bool Satellite::within_wake(Eigen::Vector3d pos) {
     return behind_back_plane && behind_plane_1 && behind_plane_2 && behind_plane_3 && behind_plane_4;
 }
 
-Eigen::MatrixXd Satellite::generate_debris_samples(int num_samples, double search_radius_km) {
-    Eigen::MatrixXd samples(num_samples, 6);
+Eigen::MatrixXd Satellite::generate_debris_samples(int num_samples, double search_radius_km, int num_headings) {
+    int total_samples = num_samples * num_headings;
+    Eigen::MatrixXd samples(total_samples, 6);
 
     // LVLH base vectors from satellite current R and V
     Eigen::Vector3d h_vec = sat_R.cross(sat_V);
@@ -244,6 +246,9 @@ Eigen::MatrixXd Satellite::generate_debris_samples(int num_samples, double searc
         #pragma omp for schedule(dynamic)
         for (int i = 0; i < num_samples; ++i) {
             bool valid = false;
+
+            Eigen::Vector3d offset_BF;
+
             while (!valid) {
                 // Generate random offsets in BODY FRAME
                 double u = uniform(gen);
@@ -257,7 +262,7 @@ Eigen::MatrixXd Satellite::generate_debris_samples(int num_samples, double searc
                 double y = r * std::sin(phi) * std::sin(theta);
                 double z = r * std::cos(phi);
 
-                Eigen::Vector3d offset_BF(x, y, z);
+                offset_BF << x, y, z;
 
                 // Wake check
                 bool check_back = (back_plane_normal_BF.dot(offset_BF) - d_back_BF) >= 0;
@@ -268,33 +273,45 @@ Eigen::MatrixXd Satellite::generate_debris_samples(int num_samples, double searc
 
                 bool in_wake = check_back && check_1 && check_2 && check_3 && check_4;
 
-                if (!in_wake) {
-                    // Convert to ECI
-                    Eigen::Vector3d pos_ECI = pos_BF2ECI(offset_BF);
-                    
-                    // Assign velocity (LVLH Logic)
-                    double r_mag = pos_ECI.norm();
-                    double v_mag = std::sqrt(Constants::GM_EARTH / r_mag);
-                    double angle = uniform(gen) * 2.0 * Constants::PI;
-                    
-                    double v_local_radial = 0.0;
-                    double v_local_along = v_mag * std::cos(angle);
-                    double v_local_cross = v_mag * std::sin(angle);
-                    
-                    Eigen::Vector3d v_eci = (v_local_radial * u_radial) + 
-                                            (v_local_along * u_along) + 
-                                            (v_local_cross * u_cross);
-                    
-                    v_eci(0) += normal(gen);
-                    v_eci(1) += normal(gen);
-                    v_eci(2) += normal(gen);
+                if (!in_wake) { valid = true;}
+            }
 
-                    // Write to the output matrix (Eigen is thread-safe for writing to distinct rows)
-                    samples.row(i).segment<3>(0) = pos_ECI;
-                    samples.row(i).segment<3>(3) = v_eci;
-                    
-                    valid = true;
-                }
+
+            // Convert to ECI
+            Eigen::Vector3d pos_ECI = pos_BF2ECI(offset_BF);
+
+            // Position magnitude
+            double r_mag = pos_ECI.norm();
+            // Exact circular velocity magnitude
+            double v_mag = std::sqrt(Constants::GM_EARTH / r_mag);
+
+            // Define the local radial unit vector
+            Eigen::Vector3d u_radial = pos_ECI.normalized();
+
+            // (Any arbitrary perpendicular vector works as a starting point)
+            Eigen::Vector3d arbitrary(0, 1, 0); 
+            if (std::abs(u_radial.dot(arbitrary)) > 0.99) arbitrary = Eigen::Vector3d(1, 0, 0);
+
+            // Create the Local Horizontal Plane (u_east, u_north)
+            Eigen::Vector3d u_east = u_radial.cross(arbitrary).normalized();
+            Eigen::Vector3d u_north = u_radial.cross(u_east).normalized();
+            
+            // int num_headings = 72; // e.g., sample every 5 degrees
+            for (int h = 0; h < num_headings; ++h) {
+                double heading = (h * 2.0 * Constants::PI) / num_headings;
+
+                // Circular velocity vector in ECI
+                Eigen::Vector3d v_eci = v_mag * (std::cos(heading) * u_east + std::sin(heading) * u_north);
+
+                // Add tiny normal noise if desired for numerical stability
+                v_eci(0) += normal(gen);
+                v_eci(1) += normal(gen);
+                v_eci(2) += normal(gen);
+                
+                // Write to the output matrix (Eigen is thread-safe for writing to distinct rows)
+                samples.row(i*num_headings+h).segment<3>(0) = pos_ECI;
+                samples.row(i*num_headings+h).segment<3>(3) = v_eci;
+            
             }
         }
     }
