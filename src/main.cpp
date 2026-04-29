@@ -17,25 +17,6 @@
 
 int main() {
 
-  // Monte Carlo Simulation
-  // MonteCarlo mc;
-  // int num_trials = 1000;
-
-  // // Example for Inclination (i) based on LEO clusters:
-  // std::vector<std::tuple<double, double, double>> InclinationMixture = {
-  //     // Sun-Synchronous Cluster
-  //     {0.40, 98.0, 1.5},
-  //     // High-Inclination Cluster
-  //     {0.30, 82.0, 7.0},
-  //     // Mid-Inclination Cluster
-  //     {0.30, 50.0, 10.0}
-  // };
-
-  // mc.define_gmms("i", InclinationMixture);
-  // mc.define_gmms("a", { {1.0, 7000.0, 100.0} });
-  // mc.define_eccentricity_params(-6.5, 1.0);
-  // mc.run_simulation(num_trials, "monte_carlo");
-
   // satellite orbit
   double a, e, i, omega, Omega, theta;
   a = 750 + 6371; // km;
@@ -55,6 +36,10 @@ int main() {
   std::cout << "Satellite initial OE: \n";
   o.print_OE();
 
+  // Soliton parameters: cone angle (radians), cone height (km), velocity multiplier
+  Eigen::ArrayXd soliton_params(3);
+  soliton_params << 30.0 * M_PI / 180.0, 0.5, 1.5; // 
+
   // Create Satellite Object
   Satellite sat;
   sat.set_orbit(o);
@@ -73,7 +58,7 @@ int main() {
 
   std::cout << "\nStarting Detection Simulation for " << num_samples
             << " debris samples...\n";
-  auto sim_output = sat.detection_sim(num_samples, search_radius, final_time);
+  auto sim_output = sat.detection_sim(num_samples, search_radius, final_time, soliton_params);
   Eigen::MatrixXd debris_samples = sim_output.first;
   std::vector<DetectionResult> detection_results = sim_output.second;
 
@@ -148,7 +133,12 @@ int main() {
   readmefile << "--- Detection Parameters ---\n";
   readmefile << "Detection Frequency (Hz): " << sat.get_detection_freq() << "\n";
   readmefile << "Wake Plane Angle (deg): " << (sat.get_wake_angle() * 180.0 / M_PI) << "\n\n";
-  
+
+  readmefile << "--- Soliton Parameters ---\n";
+  readmefile << "Cone Angle (deg): " << (soliton_params[0] * 180.0 / M_PI) << "\n";
+  readmefile << "Cone Height (km): " << soliton_params[1] << "\n";
+  readmefile << "Velocity Multiplier: " << soliton_params[2] << "\n\n";
+
   readmefile << "--- Sensor Vectors (Body Frame) ---\n";
   const Eigen::Vector3d* sensors = sat.get_sensor_vectors();
   for(int idx_s=0; idx_s<4; ++idx_s) {

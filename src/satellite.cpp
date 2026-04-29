@@ -21,7 +21,7 @@ Satellite::Satellite() {
     sat_z_size = 2.0*0.0001;   // 20 centimeters (2U)
 
     // boom length for sensors
-    boom_length = 0.1; // 1 meter
+    boom_length = 0.001; // 1 meter
     detection_freq = Constants::DETECTION_FREQ; // 1000 Hz
     detections = 0;
 
@@ -319,62 +319,6 @@ Eigen::MatrixXd Satellite::generate_debris_samples(int num_samples, double searc
     return samples;
 }
 
-// // check if the soliton is detected at current time
-// bool Satellite::detect_soliton() {
-//     bool detected = false;
-//     bool debris_within_wake = within_wake(debris_position);
-//     if (debris_within_wake) {
-//         // std::cout<< "Debris is within satellite wake at time " << time << " seconds.\n";
-//         // return false;
-//     }
-//     else{
-//         // check each sensor
-//         bool sensor_1_detected = soliton.within_cone(sensor_1_ECI) && soliton.within_spherical_range(sensor_1_ECI, time, detection_freq);
-//         bool sensor_2_detected = soliton.within_cone(sensor_2_ECI) && soliton.within_spherical_range(sensor_2_ECI, time, detection_freq);
-//         bool sensor_3_detected = soliton.within_cone(sensor_3_ECI) && soliton.within_spherical_range(sensor_3_ECI, time, detection_freq);
-//         bool sensor_4_detected = soliton.within_cone(sensor_4_ECI) && soliton.within_spherical_range(sensor_4_ECI, time, detection_freq);
-
-//         if (sensor_1_detected) {
-//             std::cout << "Sensor 1 detected soliton at time " << time << " seconds.\n";
-//             detections += 1;
-//         }
-//         if (sensor_2_detected) {
-//             std::cout << "Sensor 2 detected soliton at time " << time << " seconds.\n";
-//             detections += 1;
-//         }
-//         if (sensor_3_detected) {
-//             std::cout << "Sensor 3 detected soliton at time " << time << " seconds.\n";
-//             detections += 1;
-//         }
-//         if (sensor_4_detected) {
-//             std::cout << "Sensor 4 detected soliton at time " << time << " seconds.\n";
-//             detections += 1;
-//         }
-//         detected = sensor_1_detected || sensor_2_detected || sensor_3_detected || sensor_4_detected;
-//     }
-//     return detected;
-// }
-
-// check if soliton is detected at any time in future_state
-// bool Satellite::detect_soliton_over_time() {
-    
-//     for (int i = 0; i < future_state.rows(); ++i) {
-//         time = future_state(i, 0);
-//         Eigen::Vector3d pos= future_state.row(i).segment<3>(8);
-//         Eigen::Vector3d vel= future_state.row(i).segment<3>(11);
-//         position = pos;
-//         velocity = vel;
-//         // update sensor positions in ECI frame
-        
-//         BF_to_ECI();
-
-//         bool local_detected = detect_soliton();
-//     }
-//     std::cout << "Total Detections: " << detections << "\n";
-//     if (detections>=2){return true;}
-//     else {return false;}
-// }
-
 // Read a CSV file produced by orbit::propagate_2BP (header + numeric rows)
 void Satellite::read_propagation_csv(const std::string &filename) {
     std::ifstream ifs(filename.c_str());
@@ -469,13 +413,13 @@ void Satellite::read_future_state(std::string name) {
     return;
 }
 
-std::pair<Eigen::MatrixXd, std::vector<DetectionResult>> Satellite::detection_sim(int no_of_samples, double search_radius_km, double final_time) {
+std::pair<Eigen::MatrixXd, std::vector<DetectionResult>> Satellite::detection_sim(int no_of_samples, double search_radius_km, double final_time, Eigen::ArrayXd soliton_params) {
     Eigen::MatrixXd debris_samples = generate_debris_samples(no_of_samples, search_radius_km);
-    std::vector<DetectionResult> results = detection_sim(debris_samples, final_time);
+    std::vector<DetectionResult> results = detection_sim(debris_samples, final_time, soliton_params);
     return {debris_samples, results};
 }
 
-std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_samples, double final_time) {
+std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_samples, double final_time, Eigen::ArrayXd soliton_params) {
     std::vector<DetectionResult> results;
 
     std::cout << "Propagating satellite orbit up to " << final_time << " seconds...\n";
@@ -501,7 +445,8 @@ std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_sam
             Eigen::Vector3d debris_pos = debris_samples.row(i).segment<3>(0);
             Eigen::Vector3d debris_vel = debris_samples.row(i).segment<3>(3);
 
-            Soliton soliton(debris_pos, debris_vel, 0.0);
+            // soliton parameters: cone angle (radians), cone height (km), velocity multiplier 
+            Soliton soliton(soliton_params[0], soliton_params[1], soliton_params[2], debris_pos, debris_vel);
             Eigen::Vector3d sol_vel = soliton.get_velocity();
 
             int cadence = std::max(1, (int)detection_freq); 

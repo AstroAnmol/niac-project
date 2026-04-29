@@ -88,12 +88,12 @@ public:
     /**
      * @brief Simulation to generate random debris and check if the generated soliton is detected.
      */
-    std::pair<Eigen::MatrixXd, std::vector<DetectionResult>> detection_sim(int no_of_samples, double search_radius_km, double final_time);
+    std::pair<Eigen::MatrixXd, std::vector<DetectionResult>> detection_sim(int no_of_samples, double search_radius_km, double final_time, Eigen::ArrayXd soliton_params);
 
     /**
      * @brief Simulation to check if the generated soliton is detected from a pre-defined array.
      */
-    std::vector<DetectionResult> detection_sim(Eigen::MatrixXd debris_samples, double final_time);
+    std::vector<DetectionResult> detection_sim(Eigen::MatrixXd debris_samples, double final_time, Eigen::ArrayXd soliton_params);
 
 private:
     // Body frame: x: velocity, y: right, z: down
