@@ -63,7 +63,7 @@ def rv_to_oe(r, v):
     }
 
 def analyze_latest_results(target_dir=None):
-    results_dir = "/Users/sikka-mac/Research/Code/niac-project/Astrodynamics/Results"
+    results_dir = "./Results"
     
     if target_dir is None:
         list_of_dirs = glob.glob(os.path.join(results_dir, 'Sim_*'))

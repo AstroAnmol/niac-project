@@ -134,7 +134,7 @@ if __name__ == '__main__':
     parser.add_argument('target_dir', nargs='?', type=str, help='Path to a Results/Sim_* directory.')
     args = parser.parse_args()
     
-    results_dir = "/Users/sikka-mac/Research/Code/niac-project/Astrodynamics/Results"
+    results_dir = "./Results"
     target_dir = None
     
     if args.target_dir:
