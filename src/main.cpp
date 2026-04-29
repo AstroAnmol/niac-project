@@ -37,7 +37,7 @@ int main() {
   o.print_OE();
 
   // Soliton parameters: cone angle (radians), cone height (km), velocity multiplier
-  Eigen::ArrayXd soliton_params(3);
+  Eigen::Vector3d soliton_params;
   soliton_params << 30.0 * M_PI / 180.0, 0.5, 1.5; // 
 
   // Create Satellite Object
@@ -47,105 +47,108 @@ int main() {
   Eigen::VectorXd boom_angles(8);
   boom_angles << 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180;
   sat.set_sensor_vectors(boom_angles);
+  sat.set_soliton_params(soliton_params);
 
-  // set wake angle
-  // sat.set_wake_angle(270.0); // degrees
 
   // Generate Debris Samples and Simulate Detections!
   int num_samples = 10000;
   double search_radius = 1.0; // km
   double final_time = 10.0;   // seconds
 
-  std::cout << "\nStarting Detection Simulation for " << num_samples
+  std::cout << "\nStarting Detection Simulation for new " << num_samples
             << " debris samples...\n";
-  auto sim_output = sat.detection_sim(num_samples, search_radius, final_time, soliton_params);
-  Eigen::MatrixXd debris_samples = sim_output.first;
-  std::vector<DetectionResult> detection_results = sim_output.second;
-
-  std::cout << "\n============================================\n";
-  std::cout << "Simulation Complete. Detections found: "
-            << detection_results.size() << " out of " << num_samples << "\n";
-  std::cout << "============================================\n";
-
-  // Save to files in Results/ with timestamp
-  auto t = std::time(nullptr);
-  auto tm = *std::localtime(&t);
-  std::ostringstream oss_time;
-  oss_time << std::put_time(&tm, "%Y%m%d_%H%M%S");
-  std::string timestamp = oss_time.str();
-
-  std::string result_dir = "Results/Sim_" + timestamp;
-  std::string mkdir_cmd = "mkdir -p " + result_dir;
-  if (system(mkdir_cmd.c_str()) != 0) {
-      std::cerr << "Failed to create directory: " << result_dir << "\n";
-  }
-
-  std::string filename_debris = result_dir + "/debris_samples_" + timestamp + ".csv";
-
-  std::ofstream outfile(filename_debris);
-  outfile << std::setprecision(15);
-  outfile << "x,y,z,vx,vy,vz\n";
-
-  // Save Satellite first
-  Orbit sat_o = sat.get_orbit();
-  Eigen::VectorXd sat_st = sat_o.get_cartesian();
-  outfile << sat_st(0) << "," << sat_st(1) << "," << sat_st(2) << ","
-          << sat_st(3) << "," << sat_st(4) << "," << sat_st(5) << "\n";
-
-  // Save Debris Samples
-  for (int i = 0; i < debris_samples.rows(); ++i) {
-    outfile << debris_samples(i, 0) << "," << debris_samples(i, 1) << ","
-            << debris_samples(i, 2) << "," << debris_samples(i, 3) << ","
-            << debris_samples(i, 4) << "," << debris_samples(i, 5) << "\n";
-  }
-  outfile.close();
-  std::cout << "Debris samples saved to " << filename_debris << "\n";
-
-  std::string filename_results = result_dir + "/detection_results_" + timestamp + ".csv";
-
-  std::ofstream resfile(filename_results);
-  resfile << std::setprecision(15);
-  resfile << "debris_id,detected,first_detection_time,sensor_hits\n";
-  for (const auto &res : detection_results) {
-    resfile << res.debris_id << "," << (res.detected ? "true" : "false") << ","
-            << res.first_detection_time << ",";
-    for (size_t det_idx = 0; det_idx < res.detections.size(); ++det_idx) {
-      resfile << "S" << res.detections[det_idx].sensor_id << "@"
-              << res.detections[det_idx].time;
-      if (det_idx < res.detections.size() - 1) {
-        resfile << ";";
-      }
-    }
-    resfile << "\n";
-  }
-  resfile.close();
-  std::cout << "Detection results saved to " << filename_results << "\n";
-
-  std::string filename_readme = result_dir + "/README.txt";
-  std::ofstream readmefile(filename_readme);
-  readmefile << "Simulation Timestamp: " << timestamp << "\n\n";
+  sat.detection_sim(num_samples, search_radius, final_time);
   
-  readmefile << "--- Satellite Orbit ---\n";
-  readmefile << "Initial OE [a_km, e, i_deg, omega_deg, Omega_deg, theta_deg]:\n";
-  readmefile << a << ", " << e << ", " << i << ", " << omega << ", " << Omega << ", " << theta << "\n\n";
-  readmefile << "Initial Cartesian State [x, y, z, vx, vy, vz]:\n" << sat_st.transpose() << "\n\n";
 
-  readmefile << "--- Detection Parameters ---\n";
-  readmefile << "Detection Frequency (Hz): " << sat.get_detection_freq() << "\n";
-  readmefile << "Wake Plane Angle (deg): " << (sat.get_wake_angle() * 180.0 / M_PI) << "\n\n";
 
-  readmefile << "--- Soliton Parameters ---\n";
-  readmefile << "Cone Angle (deg): " << (soliton_params[0] * 180.0 / M_PI) << "\n";
-  readmefile << "Cone Height (km): " << soliton_params[1] << "\n";
-  readmefile << "Velocity Multiplier: " << soliton_params[2] << "\n\n";
+  // auto sim_output = sat.detection_sim(num_samples, search_radius, final_time, soliton_params);
+  // Eigen::MatrixXd debris_samples = sim_output.first;
+  // std::vector<DetectionResult> detection_results = sim_output.second;
 
-  readmefile << "--- Sensor Vectors (Body Frame) ---\n";
-  const Eigen::Vector3d* sensors = sat.get_sensor_vectors();
-  for(int idx_s=0; idx_s<4; ++idx_s) {
-      readmefile << "Sensor " << (idx_s+1) << ": [" << sensors[idx_s].transpose() << "]\n";
-  }
-  readmefile.close();
-  std::cout << "Simulation metadata saved to " << filename_readme << "\n";
+  // std::cout << "\n============================================\n";
+  // std::cout << "Simulation Complete. Detections found: "
+  //           << detection_results.size() << " out of " << num_samples << "\n";
+  // std::cout << "============================================\n";
+
+  // // Save to files in Results/ with timestamp
+  // auto t = std::time(nullptr);
+  // auto tm = *std::localtime(&t);
+  // std::ostringstream oss_time;
+  // oss_time << std::put_time(&tm, "%Y%m%d_%H%M%S");
+  // std::string timestamp = oss_time.str();
+
+  // std::string result_dir = "Results/Sim_" + timestamp;
+  // std::string mkdir_cmd = "mkdir -p " + result_dir;
+  // if (system(mkdir_cmd.c_str()) != 0) {
+  //     std::cerr << "Failed to create directory: " << result_dir << "\n";
+  // }
+
+  // std::string filename_debris = result_dir + "/debris_samples_" + timestamp + ".csv";
+
+  // std::ofstream outfile(filename_debris);
+  // outfile << std::setprecision(15);
+  // outfile << "x,y,z,vx,vy,vz\n";
+
+  // // Save Satellite first
+  // Orbit sat_o = sat.get_orbit();
+  // Eigen::VectorXd sat_st = sat_o.get_cartesian();
+  // outfile << sat_st(0) << "," << sat_st(1) << "," << sat_st(2) << ","
+  //         << sat_st(3) << "," << sat_st(4) << "," << sat_st(5) << "\n";
+
+  // // Save Debris Samples
+  // for (int i = 0; i < debris_samples.rows(); ++i) {
+  //   outfile << debris_samples(i, 0) << "," << debris_samples(i, 1) << ","
+  //           << debris_samples(i, 2) << "," << debris_samples(i, 3) << ","
+  //           << debris_samples(i, 4) << "," << debris_samples(i, 5) << "\n";
+  // }
+  // outfile.close();
+  // std::cout << "Debris samples saved to " << filename_debris << "\n";
+
+  // std::string filename_results = result_dir + "/detection_results_" + timestamp + ".csv";
+
+  // std::ofstream resfile(filename_results);
+  // resfile << std::setprecision(15);
+  // resfile << "debris_id,detected,first_detection_time,sensor_hits\n";
+  // for (const auto &res : detection_results) {
+  //   resfile << res.debris_id << "," << (res.detected ? "true" : "false") << ","
+  //           << res.first_detection_time << ",";
+  //   for (size_t det_idx = 0; det_idx < res.detections.size(); ++det_idx) {
+  //     resfile << "S" << res.detections[det_idx].sensor_id << "@"
+  //             << res.detections[det_idx].time;
+  //     if (det_idx < res.detections.size() - 1) {
+  //       resfile << ";";
+  //     }
+  //   }
+  //   resfile << "\n";
+  // }
+  // resfile.close();
+  // std::cout << "Detection results saved to " << filename_results << "\n";
+
+  // std::string filename_readme = result_dir + "/README.txt";
+  // std::ofstream readmefile(filename_readme);
+  // readmefile << "Simulation Timestamp: " << timestamp << "\n\n";
+  
+  // readmefile << "--- Satellite Orbit ---\n";
+  // readmefile << "Initial OE [a_km, e, i_deg, omega_deg, Omega_deg, theta_deg]:\n";
+  // readmefile << a << ", " << e << ", " << i << ", " << omega << ", " << Omega << ", " << theta << "\n\n";
+  // readmefile << "Initial Cartesian State [x, y, z, vx, vy, vz]:\n" << sat_st.transpose() << "\n\n";
+
+  // readmefile << "--- Detection Parameters ---\n";
+  // readmefile << "Detection Frequency (Hz): " << sat.get_detection_freq() << "\n";
+  // readmefile << "Wake Plane Angle (deg): " << (sat.get_wake_angle() * 180.0 / M_PI) << "\n\n";
+
+  // readmefile << "--- Soliton Parameters ---\n";
+  // readmefile << "Cone Angle (deg): " << (soliton_params[0] * 180.0 / M_PI) << "\n";
+  // readmefile << "Cone Height (km): " << soliton_params[1] << "\n";
+  // readmefile << "Velocity Multiplier: " << soliton_params[2] << "\n\n";
+
+  // readmefile << "--- Sensor Vectors (Body Frame) ---\n";
+  // const Eigen::Vector3d* sensors = sat.get_sensor_vectors();
+  // for(int idx_s=0; idx_s<4; ++idx_s) {
+  //     readmefile << "Sensor " << (idx_s+1) << ": [" << sensors[idx_s].transpose() << "]\n";
+  // }
+  // readmefile.close();
+  // std::cout << "Simulation metadata saved to " << filename_readme << "\n";
 
   // double time_period = sat.get_TimePeriod();
   // // propagate satellite orbit at higher time step for plot

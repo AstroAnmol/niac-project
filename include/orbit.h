@@ -17,6 +17,7 @@ class Orbit{
 		//get functions
 		double get_TimePeriod();
 		Eigen::VectorXd get_cartesian();
+		Eigen::VectorXd get_OE();
 		// OE & cartesion conversions
 		void OE_to_cartesian();
 		void cartesian_to_OE();

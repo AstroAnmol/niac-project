@@ -145,12 +145,24 @@ void Orbit::print_OE(){
     std::cout << "true anomaly (rad): " << nu*180/M_PI << std::endl;
 }
 
-//get time period
+//get cartesian coordinates in km, km/s
 Eigen::VectorXd Orbit::get_cartesian(){
     Eigen::VectorXd cartesian(6);
     cartesian.block(0,0,3,1)=R;
     cartesian.block(3,0,3,1)=V;
     return cartesian;
+}
+
+//get orbital elements (km, degrees)
+Eigen::VectorXd Orbit::get_OE(){
+    Eigen::VectorXd OE(6);
+    OE(0)=a;
+    OE(1)=e;
+    OE(2)=i*180/M_PI;
+    OE(3)=RAAN*180/M_PI;
+    OE(4)=AoP*180/M_PI;
+    OE(5)=nu*180/M_PI;
+    return OE;
 }
 
 

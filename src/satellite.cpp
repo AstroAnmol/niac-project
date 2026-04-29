@@ -5,6 +5,10 @@
 #include <iostream>
 #include <random>
 #include <cmath>
+#include <queue>
+#include <string>
+#include <vector>
+#include <iomanip>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -90,8 +94,9 @@ Satellite::Satellite() {
     plane_normal_BF_4 << -std::sin(plane_angle), -std::cos(plane_angle), 0;
     d_4_BF = sat_x_size/2 *std::sin(plane_angle) - sat_y_size/2 *std::cos(plane_angle);
 
-    // // soliton 
-    // soliton.set_params(45.0 * M_PI / 180, 10, 1.2); // 45 deg cone angle, 10 km height, 1.2x debris velocity
+    // soliton 
+
+    soliton_params << 10.0 * M_PI / 180, 10, 1.2; // 10 deg cone angle, 10 km height, 1.2x debris velocity
 }
 
 // Define rotation matrix from body frame to ECI frame based on current satellite position and velocity
@@ -143,19 +148,6 @@ Eigen::Vector3d Satellite::vel_ECI2BF(Eigen::Vector3d vel_ECI) {
     return M_BF_to_ECI.transpose() * vel_ECI;
 }
 
-// Set functions
-
-// void Satellite::set_soliton_state(Eigen::Vector3d pos, Eigen::Vector3d vel) {
-//     debris_position = pos;
-//     debris_velocity = vel;
-//     soliton.set_debris_state(debris_position, debris_velocity);
-//     time_to_reach_cone_base = soliton.get_time_to_reach_cone_base();
-//     std::cout<< "Soliton Velocity: " << soliton.get_velocity().transpose() << " km/s\n";
-//     sat_orbit.propagate_2BP(1/detection_freq, time_to_reach_cone_base, 0, "satellite_propagation");
-
-//     read_future_state("satellite_propagation");
-//     detections = 0;
-// }
 
 void Satellite::set_orbit(Orbit orbit) {
 
@@ -196,6 +188,10 @@ void Satellite::set_wake_angle(double angle) {
 
     plane_normal_BF_4 << -std::sin(plane_angle), -std::cos(plane_angle), 0;
     d_4_BF = sat_x_size/2 *std::sin(plane_angle) - sat_y_size/2 *std::cos(plane_angle);
+}
+
+void Satellite::set_soliton_params(Eigen::Vector3d params) {
+    soliton_params = params;
 }
 
 // Get functions
@@ -413,13 +409,160 @@ void Satellite::read_future_state(std::string name) {
     return;
 }
 
-std::pair<Eigen::MatrixXd, std::vector<DetectionResult>> Satellite::detection_sim(int no_of_samples, double search_radius_km, double final_time, Eigen::ArrayXd soliton_params) {
-    Eigen::MatrixXd debris_samples = generate_debris_samples(no_of_samples, search_radius_km);
-    std::vector<DetectionResult> results = detection_sim(debris_samples, final_time, soliton_params);
-    return {debris_samples, results};
+Eigen::MatrixXd Satellite::read_debris_csv(const std::string &filename) {
+    std::ifstream ifs(filename.c_str());
+    if (!ifs.is_open()){
+        std::cerr << "Satellite::read_debris_csv: failed to open '" << filename << "'\n";
+        return Eigen::MatrixXd();
+    }
+
+    std::string line;
+    // read and skip header
+    if (!std::getline(ifs, line)){
+        std::cerr << "Satellite::read_debris_csv: file empty: '" << filename << "'\n";
+        return Eigen::MatrixXd();
+    }
+
+    std::vector<std::vector<double>> rows;
+
+    while (std::getline(ifs, line)){
+        if (line.size() == 0) continue;
+        std::vector<double> values;
+        std::stringstream ss(line);
+        std::string cell;
+        while (std::getline(ss, cell, ',')){
+            // trim whitespace
+            size_t start = cell.find_first_not_of(" \t\r\n");
+            size_t end = cell.find_last_not_of(" \t\r\n");
+            if (start == std::string::npos) { cell = ""; }
+            else cell = cell.substr(start, end - start + 1);
+
+            if (cell.empty()) { values.push_back(0.0); continue; }
+
+            try {
+                double v = std::stod(cell);
+                values.push_back(v);
+            } catch (...) {
+                // filter non-numeric characters
+                std::string filtered;
+                for (char c: cell) 
+                    if ((c>='0' && c<='9') || c=='-' || c=='+' || c=='.' || c=='e' || c=='E')
+                        filtered += c;
+                
+                if (!filtered.empty()){
+                    try {
+                        values.push_back(std::stod(filtered));
+                    }
+                    catch(...) {
+                        values.push_back(0.0);
+                    }
+                } else {
+                    values.push_back(0.0);
+                }
+            }
+        }
+        if (!values.empty()) rows.push_back(values);
+    }
+
+    if (rows.empty()) {
+        std::cerr << "Satellite::read_debris_csv: no data rows found in '" << filename << "'\n";
+        return Eigen::MatrixXd();
+    }
+
+    // Determine number of columns (should be 6: x, y, z, vx, vy, vz)
+    size_t cols = 0;
+    for (auto &r: rows) if (r.size() > cols) cols = r.size();
+
+    // Create output matrix
+    Eigen::MatrixXd debris_data(rows.size(), cols);
+    debris_data.setZero();
+    
+    for (size_t i=0; i<rows.size(); ++i){
+        for (size_t j=0; j<rows[i].size(); ++j) {
+            debris_data(i, j) = rows[i][j];
+        }
+    }
+
+    std::cout << "Successfully read " << rows.size() << " debris samples from '" << filename << "'\n";
+    return debris_data;
 }
 
-std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_samples, double final_time, Eigen::ArrayXd soliton_params) {
+void Satellite::detection_sim(int no_of_samples, double search_radius_km, double final_time) {
+    Eigen::MatrixXd debris_samples = generate_debris_samples(no_of_samples, search_radius_km);
+
+    // Save to files in Debris/ with timestamp
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::ostringstream oss_time;
+    oss_time << std::put_time(&tm, "%Y%m%d_%H%M%S");
+    std::string timestamp = oss_time.str();
+
+    std::string debris_dir = "Results/Debris_" + timestamp;
+    std::string mkdir_cmd = "mkdir -p " + debris_dir;
+    if (system(mkdir_cmd.c_str()) != 0) {
+        std::cerr << "Failed to create directory: " << debris_dir << "\n";
+    }
+
+    std::string filename_debris = debris_dir + "/debris_samples_" + timestamp + ".csv";
+
+    std::ofstream outfile(filename_debris);
+    outfile << std::setprecision(15);
+    outfile << "x,y,z,vx,vy,vz\n";
+
+    // Save Satellite first
+    Eigen::VectorXd sat_st = sat_orbit.get_cartesian();
+    outfile << sat_st(0) << "," << sat_st(1) << "," << sat_st(2) << ","
+            << sat_st(3) << "," << sat_st(4) << "," << sat_st(5) << "\n";
+
+    // Save Debris Samples
+    for (int i = 0; i < debris_samples.rows(); ++i) {
+        outfile << debris_samples(i, 0) << "," << debris_samples(i, 1) << ","
+                << debris_samples(i, 2) << "," << debris_samples(i, 3) << ","
+                << debris_samples(i, 4) << "," << debris_samples(i, 5) << "\n";
+    }
+    outfile.close();
+    std::cout << "Debris samples saved to " << filename_debris << "\n";
+
+    std::vector<DetectionResult> results = detection_sim(debris_samples, final_time);
+    std::cout << "\n============================================\n";
+    std::cout << "Simulation Complete. Detections found: "
+              << results.size() << " out of " << debris_samples.rows()-1 << "\n";
+    std::cout << "============================================\n";
+    save_detection_results(results, filename_debris);
+    // return {debris_samples, results};
+    return;
+}
+
+void Satellite::detection_sim(const std::string& debris_filename, double final_time) {
+    Eigen::MatrixXd debris_samples;
+    debris_samples = read_debris_csv(debris_filename);
+    if (debris_samples.size() == 0) {
+        std::cerr << "Failed to read debris samples from '" << debris_filename << "'\n";
+        return;
+    }
+    // Check if debris file contains the same satellite state as current satellite orbit, if not error out
+    Eigen::VectorXd sat_st = sat_orbit.get_cartesian();
+    if (debris_samples.rows() < 1 || debris_samples.cols() < 6
+        || std::abs(debris_samples(0,0) - sat_st(0)) > 1e-6 || std::abs(debris_samples(0,1) - sat_st(1)) > 1e-6 || std::abs(debris_samples(0,2) - sat_st(2)) > 1e-6
+        || std::abs(debris_samples(0,3) - sat_st(3)) > 1e-6 || std::abs(debris_samples(0,4) - sat_st(4)) > 1e-6 || std::abs(debris_samples(0,5) - sat_st(5)) > 1e-6) {
+        std::cerr << "Debris file '" << debris_filename << "' does not contain the same satellite state as current satellite orbit\n";
+        return;
+    }
+    else {
+        // Remove the first row which contains the satellite state
+        debris_samples = debris_samples.block(1, 0, debris_samples.rows() - 1, debris_samples.cols());
+    }
+
+    std::vector<DetectionResult> results = detection_sim(debris_samples, final_time);
+    std::cout << "\n============================================\n";
+    std::cout << "Simulation Complete. Detections found: "
+              << results.size() << " out of " << debris_samples.rows()-1 << "\n";
+    std::cout << "============================================\n";
+    save_detection_results(results, debris_filename);
+    return;
+}
+
+std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_samples, double final_time) {
     std::vector<DetectionResult> results;
 
     std::cout << "Propagating satellite orbit up to " << final_time << " seconds...\n";
@@ -533,4 +676,71 @@ std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_sam
         }
     }
     return results;
+}
+
+void Satellite::save_detection_results(const std::vector<DetectionResult>& results, const std::string& debris_filename) {
+    // Save results in Results/ with timestamp
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::ostringstream oss_time;
+    oss_time << std::put_time(&tm, "%Y%m%d_%H%M%S");
+    std::string timestamp = oss_time.str();
+
+    // make timestep directory
+    std::string result_dir = "Results/Sim_" + timestamp;
+    std::string mkdir_cmd = "mkdir -p " + result_dir;
+    if (system(mkdir_cmd.c_str()) != 0) {
+        std::cerr << "Failed to create directory: " << result_dir << "\n";
+    }
+
+    // Save results to CSV
+    std::string filename_results = result_dir + "/detection_results_" + timestamp + ".csv";
+
+    std::ofstream resfile(filename_results);
+    resfile << std::setprecision(15);
+    resfile << "debris_id,detected,first_detection_time,sensor_hits\n";
+    for (const auto &res : results) {
+        resfile << res.debris_id << "," << (res.detected ? "true" : "false") << ","
+                << res.first_detection_time << ",";
+        for (size_t det_idx = 0; det_idx < res.detections.size(); ++det_idx) {
+        resfile << "S" << res.detections[det_idx].sensor_id << "@"
+                << res.detections[det_idx].time;
+        if (det_idx < res.detections.size() - 1) {
+            resfile << ";";
+        }
+        }
+        resfile << "\n";
+    }
+    resfile.close();
+    std::cout << "Detection results saved to " << filename_results << "\n";
+
+    // Save a readme file with simulation parameters
+    std::string filename_readme = result_dir + "/README.txt";
+    std::ofstream readmefile(filename_readme);
+    readmefile << "Simulation Timestamp: " << timestamp << "\n\n";
+    
+    readmefile << "--- Satellite Orbit ---\n";
+    readmefile << "Initial OE [a_km, e, i_deg, omega_deg, Omega_deg, theta_deg]:\n";
+    Eigen::VectorXd oe = sat_orbit.get_OE();
+    readmefile << oe(0) << ", " << oe(1) << ", " << oe(2) << ", " << oe(3) << ", " << oe(4) << ", " << oe(5) << "\n\n";
+    Eigen::VectorXd sat_st = sat_orbit.get_cartesian();
+    readmefile << "Initial Cartesian State [x, y, z, vx, vy, vz]:\n" << sat_st.transpose() << "\n\n";
+
+    readmefile << "--- Detection Parameters ---\n";
+    readmefile << "Detection Frequency (Hz): " << detection_freq << "\n";
+    readmefile << "Wake Plane Angle (deg): " << (plane_angle * 180.0 / M_PI) << "\n\n";
+    readmefile << "Debris file used for detection sim: " << debris_filename << "\n\n";
+
+    readmefile << "--- Soliton Parameters ---\n";
+    readmefile << "Cone Angle (deg): " << (soliton_params[0] * 180.0 / M_PI) << "\n";
+    readmefile << "Cone Height (km): " << soliton_params[1] << "\n";
+    readmefile << "Velocity Multiplier: " << soliton_params[2] << "\n\n";
+
+    readmefile << "--- Sensor Positions (Body Frame) ---\n";
+    Eigen::Vector3d sensors_BF[4] = {sensor_1_BF, sensor_2_BF, sensor_3_BF, sensor_4_BF};
+    for(int idx_s=0; idx_s<4; ++idx_s) {
+        readmefile << "Sensor " << (idx_s+1) << ": [" << sensors_BF[idx_s].transpose() << "]\n";
+    }
+    readmefile.close();
+    std::cout << "Simulation metadata saved to " << filename_readme << "\n";
 }

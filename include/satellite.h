@@ -44,6 +44,12 @@ public:
      */
     void set_wake_angle(double angle);
 
+    /**
+     * @brief Set soliton parameters
+     * @param params Array of soliton parameters [cone angle (deg), cone height (km), velocity multiplier]
+     */
+    void set_soliton_params(Eigen::Vector3d params);
+
     // get functions
 
     /**
@@ -88,12 +94,23 @@ public:
     /**
      * @brief Simulation to generate random debris and check if the generated soliton is detected.
      */
-    std::pair<Eigen::MatrixXd, std::vector<DetectionResult>> detection_sim(int no_of_samples, double search_radius_km, double final_time, Eigen::ArrayXd soliton_params);
+    void detection_sim(int no_of_samples, double search_radius_km, double final_time);
+
+    /**
+     * @brief Simulation to check if the generated soliton is detected from a given set of debris samples (taken from a given debris file).
+     */
+    void detection_sim(const std::string& debris_filename, double final_time);
 
     /**
      * @brief Simulation to check if the generated soliton is detected from a pre-defined array.
      */
-    std::vector<DetectionResult> detection_sim(Eigen::MatrixXd debris_samples, double final_time, Eigen::ArrayXd soliton_params);
+    std::vector<DetectionResult> detection_sim(Eigen::MatrixXd debris_samples, double final_time);
+
+
+    /**
+     * @brief Save detection results
+     */
+    void save_detection_results(const std::vector<DetectionResult>& results, const std::string& debris_filename);
 
 private:
     // Body frame: x: velocity, y: right, z: down
@@ -179,6 +196,7 @@ private:
     // csv read
     void read_propagation_csv(const std::string &filename);
     void read_future_state(std::string name);
+    Eigen::MatrixXd read_debris_csv(const std::string &filename);
 
     // wake parameters
     double plane_angle; // in radians
@@ -189,6 +207,9 @@ private:
     
     // Detection functions
     double detections;
+
+    // soliton parameters
+    Eigen::Vector3d soliton_params; // cone angle (radians), cone height (km), velocity multiplier
 
 };
 
