@@ -62,17 +62,57 @@ def rv_to_oe(r, v):
         'raan': math.degrees(raan), 'arg_p': math.degrees(arg_p), 'ta': math.degrees(ta)
     }
 
-def process_samples(file_path):
-    output_filename = file_path.replace("debris_samples_", "debris_oes_")
-    if output_filename == file_path:
-        output_filename = file_path.replace(".csv", "_oes.csv")
-        
-    # Try to load corresponding analysis report to find detected IDs
-    timestamp = file_path.split('debris_samples_')[-1].replace('.csv', '')
-    report_file_1 = os.path.join(os.path.dirname(file_path), f"analysis_report_{timestamp}.txt")
-    report_file_2 = os.path.join(os.path.dirname(file_path), f"analysis_report_{timestamp}.csv.txt")
-    report_file = report_file_1 if os.path.exists(report_file_1) else report_file_2
+def process_samples(target_dir=None):
+    results_dir = "./Results/"
+
+    if target_dir is None:
+        list_of_dirs = glob.glob(os.path.join(results_dir, 'Sim_*'))
+        if not list_of_dirs:
+            print(f"No Sim directories found in {results_dir}")
+            return
+        target_dir = max(list_of_dirs, key=os.path.getmtime)
+    elif not os.path.isabs(target_dir) and not os.path.isdir(target_dir):
+        potential_dir = os.path.join(results_dir, target_dir)
+        if os.path.isdir(potential_dir):
+            target_dir = potential_dir
+
+    # Find the latest detection_results file in the target directory
+    search_pattern = os.path.join(target_dir, "detection_results_*.csv")
+    files = glob.glob(search_pattern)
     
+    if not files:
+        print("No detection results found in", target_dir)
+        return
+        
+    latest_results_file = max(files, key=os.path.getmtime)
+    print(f"Analyzing: {os.path.basename(latest_results_file)}")
+
+    timestamp_part = latest_results_file.split('detection_results_')[-1]
+    
+    # Read the README to find the debris file used for this simulation
+    readme_file = os.path.join(target_dir, "README.txt")
+    matching_samples_file = None
+    
+    if os.path.exists(readme_file):
+        try:
+            with open(readme_file, 'r') as f:
+                for line in f:
+                    if "Debris file used for detection sim:" in line:
+                        # Extract the file path after the colon
+                        debris_path = line.split("Debris file used for detection sim:")[-1].strip()
+                        matching_samples_file = debris_path
+                        break
+        except Exception as e:
+            print(f"Warning: Could not read README.txt: {e}")
+    
+    if matching_samples_file is None:
+        print(f"Warning: Could not find debris file reference in {readme_file}")
+        return
+    
+    report_file = os.path.join(target_dir, f"analysis_report_{timestamp_part}.txt")
+
+    output_filename = os.path.join(target_dir, f"debris_oes_{timestamp_part}")
+
     detected_ids = set()
     if os.path.exists(report_file):
         with open(report_file, 'r') as f:
@@ -86,10 +126,10 @@ def process_samples(file_path):
     else:
         print(f"Warning: Could not find matching analysis report: {report_file}")
 
-    print(f"Reading: {file_path}")
+    print(f"Reading: {debris_path}")
     print(f"Generating: {output_filename}")
     
-    with open(file_path, 'r') as infile, open(output_filename, 'w', newline='') as outfile:
+    with open(debris_path, 'r') as infile, open(output_filename, 'w', newline='') as outfile:
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
         
@@ -134,34 +174,4 @@ if __name__ == '__main__':
     parser.add_argument('target_dir', nargs='?', type=str, help='Path to a Results/Sim_* directory.')
     args = parser.parse_args()
     
-    results_dir = "./Results"
-    target_dir = None
-    
-    if args.target_dir:
-        arg = args.target_dir
-        if os.path.isdir(arg):
-            target_dir = arg
-        elif os.path.isdir(os.path.join(results_dir, arg)):
-            target_dir = os.path.join(results_dir, arg)
-        elif os.path.isfile(arg):
-            process_samples(arg)
-            sys.exit(0)
-        else:
-            print(f"Error: Target '{arg}' not found.")
-            sys.exit(1)
-            
-    if target_dir is None:
-        list_of_dirs = glob.glob(os.path.join(results_dir, "Sim_*"))
-        if not list_of_dirs:
-            print(f"No Sim directories found in {results_dir}")
-            sys.exit(1)
-        target_dir = max(list_of_dirs, key=os.path.getmtime)
-        
-    search_pattern = os.path.join(target_dir, "debris_samples_*.csv")
-    files = glob.glob(search_pattern)
-    
-    if not files:
-        print(f"No debris samples found in {target_dir}")
-    else:
-        latest_file = max(files, key=os.path.getmtime)
-        process_samples(latest_file)
+    process_samples(args.target_dir)

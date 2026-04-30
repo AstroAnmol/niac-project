@@ -73,19 +73,21 @@ def plot_oe_analysis(target_dir=None, save=False):
         u_vals = undetected_df[el].replace([float('inf'), float('-inf')], pd.NA).dropna()
         d_vals = detected_df[el].replace([float('inf'), float('-inf')], pd.NA).dropna()
         
-        # We use density=True to normalize the histograms so they're visually comparable 
-        # despite the huge population size difference between detected/undetected.
+        # Calculate weights to convert histograms to percentages
+        # Each histogram shows percentage of debris in that category
         if not u_vals.empty:
-            ax.hist(u_vals, bins=30, alpha=0.5, label='Undetected', color='gray', density=False)
+            weights_u = [100.0 / len(u_vals)] * len(u_vals)
+            ax.hist(u_vals, bins=30, alpha=0.5, label='Undetected', color='gray', weights=weights_u)
         if not d_vals.empty:
-            ax.hist(d_vals, bins=30, alpha=0.7, label='Detected', color='orange', density=False)
+            weights_d = [100.0 / len(d_vals)] * len(d_vals)
+            ax.hist(d_vals, bins=30, alpha=0.7, label='Detected', color='orange', weights=weights_d)
             
         sat_val = satellite_oe[el]
         if pd.notna(sat_val) and sat_val not in [float('inf'), float('-inf')]:
             ax.axvline(sat_val, color='red', linestyle='--', linewidth=2, label='Satellite OE')
             
         ax.set_title(title)
-        ax.set_ylabel('Density')
+        ax.set_ylabel('Percentage (%)')
         ax.legend()
         ax.grid(alpha=0.3)
         

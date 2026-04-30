@@ -217,7 +217,7 @@ def analyze_latest_results(target_dir=None):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Analyze Detection Results.')
-    parser.add_argument('--dir', type=str, help='Path to a target Sim_* directory.')
+    parser.add_argument('--dir', type=str, help='Path to a target Results/Sim_* directory.')
     args = parser.parse_args()
     
     analyze_latest_results(args.dir)

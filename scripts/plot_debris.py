@@ -18,35 +18,48 @@ def plot_samples(target_dir=None, save=False):
         if os.path.isdir(potential_dir):
             target_dir = potential_dir
             
-    list_of_files = glob.glob(os.path.join(target_dir, 'debris_samples_*.csv'))
+    list_of_files = glob.glob(os.path.join(target_dir, 'debris_oes_*.csv'))
     if not list_of_files:
-        print(f"No debris sample files found in {target_dir}")
+        print(f"No debris orbital elements files found in {target_dir}")
         return
+    
     filename = max(list_of_files, key=os.path.getctime)
     
-    print(f"Plotting data from: {filename}")
+    # Read the README to find the debris file used for this simulation
+    readme_file = os.path.join(target_dir, "README.txt")
+    debris_filename = None
+
+    if os.path.exists(readme_file):
+        try:
+            with open(readme_file, 'r') as f:
+                for line in f:
+                    if "Debris file used for detection sim:" in line:
+                        # Extract the file path after the colon
+                        debris_path = line.split("Debris file used for detection sim:")[-1].strip()
+                        debris_filename = debris_path
+                        break
+        except Exception as e:
+            print(f"Warning: Could not read README.txt: {e}")
     
-    # Read the data
-    df = pd.read_csv(filename)
+    if debris_filename is None:
+        print(f"Warning: Could not find debris file reference in {readme_file}")
+        return
+
+    print(f"Plotting data from: {debris_filename} and {filename}")
+
+    # Read the orbital elements data
+    oe_df = pd.read_csv(filename)
     
-    # Try to load corresponding analysis report
-    timestamp = filename.split('debris_samples_')[-1].replace('.csv', '')
-    report_file_1 = os.path.join(os.path.dirname(filename), f"analysis_report_{timestamp}.txt")
-    report_file_2 = os.path.join(os.path.dirname(filename), f"analysis_report_{timestamp}.csv.txt")
-    report_file = report_file_1 if os.path.exists(report_file_1) else report_file_2
+    # Extract detected debris IDs from the 'detected' column
+    detected_ids = set(oe_df[oe_df['detected'] == True]['debris_id'].tolist())
     
-    detected_ids = set()
-    if os.path.exists(report_file):
-        with open(report_file, 'r') as f:
-            for line in f:
-                if line.startswith("Debris ID "):
-                    try:
-                        debris_id = int(line.strip().split("Debris ID ")[1].replace(":", ""))
-                        detected_ids.add(debris_id)
-                    except ValueError:
-                        pass
-    else:
-        print(f"Warning: Could not find matching analysis report: {report_file}")
+    # Now read the corresponding debris_samples file for actual positions
+    # debris_samples_filename = filename.replace("debris_oes_", "debris_samples_")
+    if not os.path.exists(debris_filename):
+        print(f"Error: Could not find corresponding debris samples file: {debris_filename}")
+        return
+    
+    df = pd.read_csv(debris_filename)
 
     # The first row is the satellite's state
     sat_x, sat_y, sat_z = df.iloc[0]['x'], df.iloc[0]['y'], df.iloc[0]['z']
@@ -55,8 +68,27 @@ def plot_samples(target_dir=None, save=False):
     deb_df = df.iloc[1:].copy()
     deb_df['debris_id'] = deb_df.index - 1
     
-    detected_df = deb_df[deb_df['debris_id'].isin(detected_ids)]
-    undetected_df = deb_df[~deb_df['debris_id'].isin(detected_ids)]
+    # Group debris by unique position (72 debris at same position have different velocities)
+    # For each unique position, mark as detected if ANY of the 72 debris at that position is detected
+    grouped = deb_df.groupby(['x', 'y', 'z'], as_index=False)
+    
+    unique_positions_data = []
+    for (x, y, z), group in grouped:
+        # Check if any debris at this position is detected
+        is_detected = any(group['debris_id'].isin(detected_ids))
+        unique_positions_data.append({
+            'x': x,
+            'y': y,
+            'z': z,
+            'vx': group['vx'].iloc[0],
+            'vy': group['vy'].iloc[0],
+            'vz': group['vz'].iloc[0],
+            'is_detected': is_detected
+        })
+    
+    unique_df = pd.DataFrame(unique_positions_data)
+    detected_df = unique_df[unique_df['is_detected']]
+    undetected_df = unique_df[~unique_df['is_detected']]
     
     # Calculate Satellite Body Frame (BF) rotation matrix
     import numpy as np
@@ -97,31 +129,31 @@ def plot_samples(target_dir=None, save=False):
     # Plot debris in Body Frame
     if len(ux_bf) > 0:
         ax.scatter(ux_bf, uy_bf, uz_bf, 
-                   c='gray', s=1, alpha=0.5, label=f'Undetected Debris ({len(undetected_df)})')
+                   c='gray', s=1, alpha=0.5, label=f'Undetected Positions ({len(undetected_df)})')
                
     if len(dx_bf) > 0:
         ax.scatter(dx_bf, dy_bf, dz_bf, 
-                   c='orange', s=10, alpha=1.0, label=f'Detected Debris ({len(detected_df)})')
+                   c='orange', s=10, alpha=1.0, label=f'Detected Positions ({len(detected_df)})')
                
     # Plot Satellite Origin
     ax.scatter([0], [0], [0], c='red', s=50, marker='D', label='Satellite (Origin)')
     
     # Plot formatting
-    ax.set_title(f'Debris Samples in Satellite Body Frame\n({len(deb_df)} points)')
+    ax.set_title(f'Unique Debris Positions in Satellite Body Frame\n({len(unique_df)} unique positions)')
     ax.set_xlabel('Body X (Velocity dir, km)')
     ax.set_ylabel('Body Y (Cross-track, km)')
     ax.set_zlabel('Body Z (Radial dir, Nadir, km)')
     
     # Ensure equal aspect ratio visually via limits based on BF coordinates
-    all_x = np.concatenate([ux_bf, dx_bf]) if len(deb_df) > 0 else np.array([0])
-    all_y = np.concatenate([uy_bf, dy_bf]) if len(deb_df) > 0 else np.array([0])
-    all_z = np.concatenate([uz_bf, dz_bf]) if len(deb_df) > 0 else np.array([0])
+    all_x = np.concatenate([ux_bf, dx_bf]) if len(unique_df) > 0 else np.array([0])
+    all_y = np.concatenate([uy_bf, dy_bf]) if len(unique_df) > 0 else np.array([0])
+    all_z = np.concatenate([uz_bf, dz_bf]) if len(unique_df) > 0 else np.array([0])
     
     max_range = max([
         all_x.max() - all_x.min(),
         all_y.max() - all_y.min(),
         all_z.max() - all_z.min()
-    ]) / 2.0 if len(deb_df) > 0 else 1.0
+    ]) / 2.0 if len(unique_df) > 0 else 1.0
     
     ax.set_xlim(-max_range, max_range)
     ax.set_ylim(-max_range, max_range)
