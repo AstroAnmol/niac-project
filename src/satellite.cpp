@@ -540,23 +540,23 @@ void Satellite::detection_sim(const std::string& debris_filename, double final_t
         std::cerr << "Failed to read debris samples from '" << debris_filename << "'\n";
         return;
     }
-    // Check if debris file contains the same satellite state as current satellite orbit, if not error out
-    Eigen::VectorXd sat_st = sat_orbit.get_cartesian();
-    if (debris_samples.rows() < 1 || debris_samples.cols() < 6
-        || std::abs(debris_samples(0,0) - sat_st(0)) > 1e-6 || std::abs(debris_samples(0,1) - sat_st(1)) > 1e-6 || std::abs(debris_samples(0,2) - sat_st(2)) > 1e-6
-        || std::abs(debris_samples(0,3) - sat_st(3)) > 1e-6 || std::abs(debris_samples(0,4) - sat_st(4)) > 1e-6 || std::abs(debris_samples(0,5) - sat_st(5)) > 1e-6) {
-        std::cerr << "Debris file '" << debris_filename << "' does not contain the same satellite state as current satellite orbit\n";
+    
+    if (debris_samples.rows() < 2 || debris_samples.cols() < 6) {
+        std::cerr << "Debris file '" << debris_filename << "' has insufficient data (needs at least 2 rows, 6 columns)\n";
         return;
     }
-    else {
-        // Remove the first row which contains the satellite state
-        debris_samples = debris_samples.block(1, 0, debris_samples.rows() - 1, debris_samples.cols());
-    }
+    
+    // Print info about the satellite state stored in the debris file
+    Eigen::VectorXd sat_st_original = debris_samples.row(0);
+    std::cout << "Debris file was generated with satellite state: [" << sat_st_original.transpose() << "]\n";
+    
+    // Remove the first row which contains the satellite state
+    Eigen::MatrixXd debris_samples_trimmed = debris_samples.bottomRows(debris_samples.rows() - 1).eval();
 
-    std::vector<DetectionResult> results = detection_sim(debris_samples, final_time);
+    std::vector<DetectionResult> results = detection_sim(debris_samples_trimmed, final_time);
     std::cout << "\n============================================\n";
     std::cout << "Simulation Complete. Detections found: "
-              << results.size() << " out of " << debris_samples.rows()-1 << "\n";
+              << results.size() << " out of " << debris_samples_trimmed.rows() << "\n";
     std::cout << "============================================\n";
     save_detection_results(results, debris_filename);
     return;
@@ -572,6 +572,7 @@ std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_sam
     read_future_state("satellite_propagation");
 
     int num_steps = future_state.rows();
+    
     if (num_steps == 0) {
         std::cerr << "Propagation state empty!\n";
         return results;
@@ -579,6 +580,11 @@ std::vector<DetectionResult> Satellite::detection_sim(Eigen::MatrixXd debris_sam
 
     Eigen::ArrayXXd time_array = future_state.col(0);
     std::cout << "Simulating detections over " << num_steps << " timesteps for " << debris_samples.rows() << " samples...\n";
+    
+    if (debris_samples.cols() < 6) {
+        std::cerr << "Error: Debris samples must have at least 6 columns (x,y,z,vx,vy,vz), but has " << debris_samples.cols() << "\n";
+        return results;
+    }
 
     #pragma omp parallel
     {
