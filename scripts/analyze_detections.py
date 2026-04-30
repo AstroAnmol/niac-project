@@ -63,7 +63,7 @@ def rv_to_oe(r, v):
     }
 
 def analyze_latest_results(target_dir=None):
-    results_dir = "./Results"
+    results_dir = "./Results/"
     
     if target_dir is None:
         list_of_dirs = glob.glob(os.path.join(results_dir, 'Sim_*'))
@@ -86,10 +86,28 @@ def analyze_latest_results(target_dir=None):
         
     latest_results_file = max(files, key=os.path.getmtime)
     print(f"Analyzing: {os.path.basename(latest_results_file)}")
-    
-    # Deriving the matching debris_samples file from the timestamp
+
     timestamp_part = latest_results_file.split('detection_results_')[-1]
-    matching_samples_file = os.path.join(target_dir, f"debris_samples_{timestamp_part}")
+    
+    # Read the README to find the debris file used for this simulation
+    readme_file = os.path.join(target_dir, "README.txt")
+    matching_samples_file = None
+    
+    if os.path.exists(readme_file):
+        try:
+            with open(readme_file, 'r') as f:
+                for line in f:
+                    if "Debris file used for detection sim:" in line:
+                        # Extract the file path after the colon
+                        debris_path = line.split("Debris file used for detection sim:")[-1].strip()
+                        matching_samples_file = debris_path
+                        break
+        except Exception as e:
+            print(f"Warning: Could not read README.txt: {e}")
+    
+    if matching_samples_file is None:
+        print(f"Warning: Could not find debris file reference in {readme_file}")
+        return
     
     # Load debris samples into a dictionary for quick lookup by ID
     debris_states = {}
