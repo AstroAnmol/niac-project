@@ -183,25 +183,61 @@ def plot_samples(target_dir=None, save=False):
     
     # Plot satellite booms and sensors in Body Frame
     sat_x_size, sat_y_size, sat_z_size = 3.0 * 0.0001, 2.0 * 0.0001, 2.0 * 0.0001
-    boom_length = 0.001
-    
-    alpha_x = 54.7356 * np.pi / 180
-    alpha_z = 45.0 * np.pi / 180
-    
-    sv0 = np.array([np.cos(alpha_x), np.sin(alpha_z)*np.sin(alpha_x), np.cos(alpha_z)*np.sin(alpha_x)])
-    sv1 = np.array([np.cos(alpha_x), -np.sin(alpha_z)*np.sin(alpha_x), np.cos(alpha_z)*np.sin(alpha_x)])
-    sv2 = np.array([np.cos(alpha_x), -np.sin(alpha_z)*np.sin(alpha_x), -np.cos(alpha_z)*np.sin(alpha_x)])
-    sv3 = np.array([np.cos(alpha_x), np.sin(alpha_z)*np.sin(alpha_x), -np.cos(alpha_z)*np.sin(alpha_x)])
-    
+
+
     corner_1_BF = np.array([sat_x_size/2, sat_y_size/2, sat_z_size/2])
     corner_2_BF = np.array([sat_x_size/2, -sat_y_size/2, sat_z_size/2])
     corner_3_BF = np.array([sat_x_size/2, -sat_y_size/2, -sat_z_size/2])
     corner_4_BF = np.array([sat_x_size/2, sat_y_size/2, -sat_z_size/2])
     
-    sen_1_BF = corner_1_BF + boom_length * sv0
-    sen_2_BF = corner_2_BF + boom_length * sv1
-    sen_3_BF = corner_3_BF + boom_length * sv2
-    sen_4_BF = corner_4_BF + boom_length * sv3
+    # Read sensor positions from README
+    readme_file = os.path.join(target_dir, "README.txt")
+    sensor_positions_BF = []
+    
+    if os.path.exists(readme_file):
+        try:
+            with open(readme_file, 'r') as f:
+                reading_sensors = False
+                for line in f:
+                    if "--- Sensor Positions (Body Frame) ---" in line:
+                        reading_sensors = True
+                        continue
+                    if reading_sensors:
+                        if line.startswith("Sensor"):
+                            # Parse line like "Sensor 1: [x y z]"
+                            try:
+                                parts = line.split('[')[1].split(']')[0].strip().split()
+                                sensor_pos = np.array([float(p) for p in parts])
+                                sensor_positions_BF.append(sensor_pos)
+                            except:
+                                pass
+                        elif line.startswith("---") or line.startswith("Simulation"):
+                            # End of sensor section
+                            break
+        except Exception as e:
+            print(f"Warning: Could not read sensor positions from README: {e}")
+    
+    if len(sensor_positions_BF) != 4:
+        print(f"Warning: Expected 4 sensor positions, got {len(sensor_positions_BF)}. Using default positions.")
+        # Fallback to defaults if not found
+        alpha_x = 54.7356 * np.pi / 180
+        alpha_z = 45.0 * np.pi / 180
+        
+        sv0 = np.array([np.cos(alpha_x), np.sin(alpha_z)*np.sin(alpha_x), np.cos(alpha_z)*np.sin(alpha_x)])
+        sv1 = np.array([np.cos(alpha_x), -np.sin(alpha_z)*np.sin(alpha_x), np.cos(alpha_z)*np.sin(alpha_x)])
+        sv2 = np.array([np.cos(alpha_x), -np.sin(alpha_z)*np.sin(alpha_x), -np.cos(alpha_z)*np.sin(alpha_x)])
+        sv3 = np.array([np.cos(alpha_x), np.sin(alpha_z)*np.sin(alpha_x), -np.cos(alpha_z)*np.sin(alpha_x)])
+        
+
+        boom_length = 0.001
+        sen_1_BF = corner_1_BF + boom_length * sv0
+        sen_2_BF = corner_2_BF + boom_length * sv1
+        sen_3_BF = corner_3_BF + boom_length * sv2
+        sen_4_BF = corner_4_BF + boom_length * sv3
+        
+        sensor_positions_BF = [sen_1_BF, sen_2_BF, sen_3_BF, sen_4_BF]
+    
+    sen_1_BF, sen_2_BF, sen_3_BF, sen_4_BF = sensor_positions_BF
     
     ax.plot([corner_1_BF[0], sen_1_BF[0]], [corner_1_BF[1], sen_1_BF[1]], [corner_1_BF[2], sen_1_BF[2]], color='black', linewidth=1.5, zorder=5)
     ax.plot([corner_2_BF[0], sen_2_BF[0]], [corner_2_BF[1], sen_2_BF[1]], [corner_2_BF[2], sen_2_BF[2]], color='black', linewidth=1.5, zorder=5)
