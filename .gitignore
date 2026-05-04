@@ -19,5 +19,5 @@ env/
 .env/
 
 # Results and Data
-Results/
+Results*/
 *.csv
