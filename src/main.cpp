@@ -38,27 +38,33 @@ int main() {
 
   // Soliton parameters: cone angle (radians), cone height (km), velocity multiplier
   Eigen::Vector3d soliton_params;
-  soliton_params << 30.0 * M_PI / 180.0, 0.5, 1.5; // 
+  soliton_params << 45.0*M_PI / 180.0, 0.5, 1.2;
 
   // Create Satellite Object
   Satellite sat;
   sat.set_orbit(o);
 
   Eigen::VectorXd boom_angles(8);
-  boom_angles << 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180, 90*M_PI/180, 0*M_PI/180;
+  // boom_angles << 00, 90, 00, 90, 00, 90, 00, 90; // all booms at [1, 0, 0]
+  // boom_angles << 90, 90, 90, 90, 90, 90, 90, 90; // all booms at [0, 1, 0]
+  boom_angles << 90, 00, 90, 00, 90, 00, 90, 00; // all booms at [0, 0, 1]
+  // boom_angles << 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0; // booms at tetrahedral angles
+
+  boom_angles = boom_angles* M_PI / 180.0; // Convert to radians
   sat.set_sensor_vectors(boom_angles);
   sat.set_soliton_params(soliton_params);
 
-
   // Generate Debris Samples and Simulate Detections!
   int num_samples = 10000;
-  double search_radius = 1.0; // km
-  double final_time = 10.0;   // seconds
+  double search_radius = 0.50; // km
+  double final_time = 1.0;   // seconds
 
-  std::cout << "\nStarting Detection Simulation for new " << num_samples
-            << " debris samples...\n";
-  sat.detection_sim(num_samples, search_radius, final_time);
+  // std::cout << "\nStarting Detection Simulation for new " << num_samples
+  //           << " debris samples...\n";
+  // sat.detection_sim(num_samples, search_radius, final_time);
   
+  std::cout<< "\nStarting Detection Simulation for debris samples from file...\n";
+  sat.detection_sim("Results/Debris_20260501_101935/debris_samples_20260501_101935.csv", final_time);
 
 
   // auto sim_output = sat.detection_sim(num_samples, search_radius, final_time, soliton_params);
