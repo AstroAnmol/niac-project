@@ -17,54 +17,89 @@
 
 int main() {
 
+
+  std::cout << "Starting simulation...\n";
+  // Intitalize a output file
+  std::ofstream output_file("Results/output.txt");
+  if (!output_file.is_open()) {
+    std::cerr << "Error: Could not open output file.\n";
+    return 1;
+  }
+  output_file << "Starting simulation...\n";
+  output_file << "Initializing all constant parameters.\n";
   // satellite orbit
-  double a, e, i, omega, Omega, theta;
+  double a, e, i, omega, Omega;
   a = 750 + 6371; // km;
   e = 0.063;
   i = 135;
   omega = 0;
   Omega = 0;
-  theta = 45;
 
-  Orbit o;
-  Eigen::VectorXd OE(6);
-  OE << a, e, i, omega, Omega, theta;
-  o.set_OE(OE);
-  o.set_mu(0);
-  std::cout << "Satellite initial Cartesian state: \n";
-  o.print_cartesian();
-  std::cout << "Satellite initial OE: \n";
-  o.print_OE();
+  output_file << "Satellite orbital elements: a=" << a << ", e=" << e << ", i=" << i << ", omega=" << omega << ", Omega=" << Omega << "\n";
 
   // Soliton parameters: cone angle (radians), cone height (km), velocity multiplier
   Eigen::Vector3d soliton_params;
-  soliton_params << 45.0*M_PI / 180.0, 0.5, 1.2;
-
-  // Create Satellite Object
-  Satellite sat;
-  sat.set_orbit(o);
+  soliton_params << 10.0*M_PI / 180.0, 10.0, 1.2;
+  // soliton_params << 45.0*M_PI / 180.0, 0.5, 1.2;
+  output_file << "Soliton parameters: angle=" << soliton_params(0) * 180.0 / M_PI << " degrees, height=" << soliton_params(1) << " km, velocity multiplier=" << soliton_params(2) << "\n";
 
   Eigen::VectorXd boom_angles(8);
   // boom_angles << 00, 90, 00, 90, 00, 90, 00, 90; // all booms at [1, 0, 0]
   // boom_angles << 90, 90, 90, 90, 90, 90, 90, 90; // all booms at [0, 1, 0]
-  boom_angles << 90, 00, 90, 00, 90, 00, 90, 00; // all booms at [0, 0, 1]
-  // boom_angles << 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0; // booms at tetrahedral angles
+  // boom_angles << 90, 00, 90, 00, 90, 00, 90, 00; // all booms at [0, 0, 1]
+  boom_angles << 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0; // booms at tetrahedral angles
 
-  boom_angles = boom_angles* M_PI / 180.0; // Convert to radians
-  sat.set_sensor_vectors(boom_angles);
-  sat.set_soliton_params(soliton_params);
+  output_file << "Boom angles: " << boom_angles.transpose() << "\n";
+
+
+  // Debris parameters
 
   // Generate Debris Samples and Simulate Detections!
   int num_samples = 10000;
-  double search_radius = 0.50; // km
-  double final_time = 1.0;   // seconds
+  double search_radius = 10.0; // km
+  double final_time = 2.0;   // seconds
 
-  // std::cout << "\nStarting Detection Simulation for new " << num_samples
-  //           << " debris samples...\n";
-  // sat.detection_sim(num_samples, search_radius, final_time);
+  output_file << "Debris parameters: num_samples=" << num_samples << ", search_radius=" << search_radius << " km, final_time=" << final_time << " s\n";
+
+  output_file << "Starting detection simulation...\n";
+  output_file << "Debris samples generated at each 1 degree interval of True anomaly.\n";
+  for (double theta = 0; theta < 2 * M_PI; theta += M_PI / 360.0) {
+    output_file << "============================================\n";
+    output_file << "Simulating at angle: " << theta * 180.0 / M_PI << " degrees\n";
+
+    Orbit o;
+    Eigen::VectorXd OE(6);
+    OE << a, e, i, omega, Omega, theta;
+    o.set_OE(OE);
+    o.set_mu(0);
+    output_file << "Satellite initial Cartesian state: \n";
+    o.print_cartesian();
+    output_file << "Satellite initial OE: \n";
+    o.print_OE();
+
+
+    // Create Satellite Object
+    Satellite sat;
+    sat.set_orbit(o);
+
   
-  std::cout<< "\nStarting Detection Simulation for debris samples from file...\n";
-  sat.detection_sim("Results/Debris_20260501_101935/debris_samples_20260501_101935.csv", final_time);
+    boom_angles = boom_angles* M_PI / 180.0; // Convert to radians
+    sat.set_sensor_vectors(boom_angles);
+    sat.set_soliton_params(soliton_params);
+
+    output_file << "Satellite object initialized.\n";
+
+    output_file << "\nStarting Detection Simulation for new " << num_samples
+                << " debris samples...\n";
+
+
+    sat.detection_sim(num_samples, search_radius, final_time);
+
+    output_file << "Detection simulation complete for this angle.\n";
+    output_file << "============================================\n\n";
+  }
+  // std::cout<< "\nStarting Detection Simulation for debris samples from file...\n";
+  // sat.detection_sim("Results/Debris_20260501_101935/debris_samples_20260501_101935.csv", final_time);
 
 
   // auto sim_output = sat.detection_sim(num_samples, search_radius, final_time, soliton_params);
