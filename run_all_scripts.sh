@@ -4,8 +4,17 @@
 
 SCRIPTS_DIR="scripts"
 
-# Get all Python files in the scripts directory and run them
-for script in "$SCRIPTS_DIR"/*.py; do
+# List of scripts to run (excluding comparison script)
+SCRIPTS=(
+    "$SCRIPTS_DIR/analyze_detections.py"
+    "$SCRIPTS_DIR/generate_debris_oes.py"
+    "$SCRIPTS_DIR/plot_debris.py"
+    "$SCRIPTS_DIR/plot_oe_analysis.py"
+    "$SCRIPTS_DIR/plot_velocity_analysis.py"
+)
+
+# Run each script sequentially
+for script in "${SCRIPTS[@]}"; do
     if [ -f "$script" ]; then
         echo "Running $script..."
         python3 "$script"
