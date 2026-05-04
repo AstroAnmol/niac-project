@@ -98,6 +98,10 @@ int main() {
     output_file << "Detection simulation complete for this angle.\n";
     output_file << "============================================\n\n";
   }
+
+  output_file << "All angles processed.\n";
+  output_file << "Simulation complete.\n";
+  output_file.close();
   // std::cout<< "\nStarting Detection Simulation for debris samples from file...\n";
   // sat.detection_sim("Results/Debris_20260501_101935/debris_samples_20260501_101935.csv", final_time);
 
