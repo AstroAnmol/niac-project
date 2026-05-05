@@ -139,10 +139,10 @@ void Orbit::set_OE(Eigen::VectorXd OE){
 void Orbit::print_OE(){
     std::cout << "semi-major axis (km): " << a << std::endl;
     std::cout << "eccentricity: " << e << std::endl;
-    std::cout << "inclination (rad): " << i*180/M_PI << std::endl;
-    std::cout << "RAAN (rad): " << RAAN*180/M_PI << std::endl;
-    std::cout << "argument of periapsis (rad): " << AoP*180/M_PI << std::endl;
-    std::cout << "true anomaly (rad): " << nu*180/M_PI << std::endl;
+    std::cout << "inclination (deg): " << i*180/M_PI << std::endl;
+    std::cout << "RAAN (deg): " << RAAN*180/M_PI << std::endl;
+    std::cout << "argument of periapsis (deg): " << AoP*180/M_PI << std::endl;
+    std::cout << "true anomaly (deg): " << nu*180/M_PI << std::endl;
 }
 
 //get cartesian coordinates in km, km/s

@@ -50,7 +50,7 @@ int main() {
   boom_angles << 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0; // booms at tetrahedral angles
 
   output_file << "Boom angles: " << boom_angles.transpose() << "\n";
-
+  boom_angles = boom_angles* M_PI / 180.0; // Convert to radians
 
   // Debris parameters
 
@@ -62,10 +62,11 @@ int main() {
   output_file << "Debris parameters: num_samples=" << num_samples << ", search_radius=" << search_radius << " km, final_time=" << final_time << " s\n";
 
   output_file << "Starting detection simulation...\n";
-  output_file << "Debris samples generated at each 1 degree interval of True anomaly.\n";
-  for (double theta = 0; theta < 2 * M_PI; theta += M_PI / 360.0) {
+  output_file << "Debris samples generated at each 5 degree interval of True anomaly.\n";
+  std::cout << "Debris samples generated at each 5 degree interval of True anomaly.\n";
+  for (double theta = 0; theta < 360; theta += 5) {
     output_file << "============================================\n";
-    output_file << "Simulating at angle: " << theta * 180.0 / M_PI << " degrees\n";
+    output_file << "Simulating at angle: " << theta  << " degrees\n";
 
     Orbit o;
     Eigen::VectorXd OE(6);
@@ -83,7 +84,7 @@ int main() {
     sat.set_orbit(o);
 
   
-    boom_angles = boom_angles* M_PI / 180.0; // Convert to radians
+
     sat.set_sensor_vectors(boom_angles);
     sat.set_soliton_params(soliton_params);
 
