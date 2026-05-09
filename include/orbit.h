@@ -26,6 +26,11 @@ class Orbit{
 		// name of the file with final data)
 		void propagate_2BP(double step, double trange, int EOM_int, std::string name);
 		
+		// propagate using boost odeint (time points, which EOM to be used,
+		// name of the file with final data)
+		// Automatically chooses internal time step; returns results at specified times
+		void propagate_2BP_odeint(Eigen::VectorXd times, int EOM_int, std::string name);
+		
 		// Keplers problem
 		Eigen::VectorXd Kepler_prob(Eigen::Vector3d R0, Eigen::Vector3d V0, double del_t);
 

@@ -61,48 +61,102 @@ int main() {
 
   output_file << "Debris parameters: num_samples=" << num_samples << ", search_radius=" << search_radius << " km, final_time=" << final_time << " s\n";
 
-  output_file << "Starting detection simulation...\n";
-  output_file << "Debris samples generated at each 5 degree interval of True anomaly.\n";
-  std::cout << "Debris samples generated at each 5 degree interval of True anomaly.\n";
-  for (double theta = 0; theta < 360; theta += 5) {
+  output_file << "Starting detection simulation using J2 propagation...\n";
+  std::cout << "Starting detection simulation using J2 propagation...\n";
+  
+  // Set up J2 propagation with odeint
+  Orbit o_ref;
+  Eigen::VectorXd OE_initial(6);
+  OE_initial << a, e, i, omega, Omega, 0;  // Start at nu=0
+  o_ref.set_OE(OE_initial);
+  o_ref.set_mu(0);  // Earth
+  
+  // Calculate orbital period
+  double TimePeriod = o_ref.get_TimePeriod();
+  output_file << "Orbital period: " << TimePeriod << " seconds (" << TimePeriod/60.0 << " minutes)\n";
+  std::cout << "Orbital period: " << TimePeriod << " seconds\n";
+  
+  // Create time vector: sample every 2.5 minutes (150 seconds) for 3.5 periods
+  double sampling_interval = 150.0;  // seconds (2.5 minutes)
+  double total_time = 3.5 * TimePeriod;
+  int num_time_points = static_cast<int>(total_time / sampling_interval) + 1;
+  
+  Eigen::VectorXd times(num_time_points);
+  for(int j = 0; j < num_time_points; ++j){
+    times(j) = j * sampling_interval;
+  }
+  
+  output_file << "Total propagation time: " << total_time << " seconds (" << total_time/TimePeriod << " periods)\n";
+  output_file << "Sampling interval: " << sampling_interval << " seconds\n";
+  output_file << "Number of time points: " << num_time_points << "\n";
+  
+  // Propagate using J2 with odeint (EOM_int=2 for J2)
+  o_ref.propagate_2BP_odeint(times, 2, "sat_propagation_j2");
+  output_file << "J2 propagation complete. Reading results...\n";
+  
+  // Read propagated results from CSV file
+  std::ifstream prop_file("Results/sat_propagation_j2_file.csv");
+  std::string header;
+  std::getline(prop_file, header);  // Skip header
+  
+  int detection_count = 0;
+  
+  // Process each time point
+  for(int j = 0; j < num_time_points; ++j){
+    double current_time;
+    double a_prop, e_prop, i_prop, RAAN_prop, AoP_prop, nu_prop;
+    double energy_prop, rx, ry, rz, vx, vy, vz;
+    double ax, ay, az, hx, hy, hz;
+    char comma;
+    
+    prop_file >> current_time >> comma
+              >> a_prop >> comma >> e_prop >> comma >> i_prop >> comma
+              >> RAAN_prop >> comma >> AoP_prop >> comma >> nu_prop >> comma
+              >> energy_prop >> comma
+              >> rx >> comma >> ry >> comma >> rz >> comma
+              >> vx >> comma >> vy >> comma >> vz >> comma
+              >> ax >> comma >> ay >> comma >> az >> comma
+              >> hx >> comma >> hy >> comma >> hz;
+    
     output_file << "============================================\n";
-    output_file << "Simulating at angle: " << theta  << " degrees\n";
-
+    output_file << "Time: " << current_time << " s (Period: " << current_time/TimePeriod << ")\n";
+    output_file << "Orbital Elements: a=" << a_prop << ", e=" << e_prop 
+                << ", i=" << i_prop << ", RAAN=" << RAAN_prop 
+                << ", AoP=" << AoP_prop << ", nu=" << nu_prop << "\n";
+    
+    // Create orbit object at this propagated state
     Orbit o;
-    Eigen::VectorXd OE(6);
-    OE << a, e, i, omega, Omega, theta;
-    o.set_OE(OE);
+    Eigen::Vector3d r_prop(rx, ry, rz);
+    Eigen::Vector3d v_prop(vx, vy, vz);
+    o.set_cartesian(r_prop, v_prop);
     o.set_mu(0);
-    output_file << "Satellite initial Cartesian state: \n";
-    o.print_cartesian();
-    output_file << "Satellite initial OE: \n";
-    o.print_OE();
-
-
+    
     // Create Satellite Object
     Satellite sat;
     sat.set_orbit(o);
-
-  
-
     sat.set_sensor_vectors(boom_angles);
     sat.set_soliton_params(soliton_params);
-
-    output_file << "Satellite object initialized.\n";
-
-    output_file << "\nStarting Detection Simulation for new " << num_samples
-                << " debris samples...\n";
-
-
+    
+    output_file << "Satellite state: R=(" << rx << ", " << ry << ", " << rz 
+                << "), V=(" << vx << ", " << vy << ", " << vz << ")\n";
+    output_file << "Running Detection Simulation for " << num_samples << " debris samples...\n";
+    
     sat.detection_sim(num_samples, search_radius, final_time);
-
-    output_file << "Detection simulation complete for this angle.\n";
+    detection_count++;
+    
+    output_file << "Detection simulation complete for this time point.\n";
     output_file << "============================================\n\n";
   }
-
-  output_file << "All angles processed.\n";
-  output_file << "Simulation complete.\n";
+  
+  prop_file.close();
+  
+  output_file << "All time points processed.\n";
+  output_file << "Total detections across " << detection_count << " time points.\n";
+  output_file << "J2 Propagation simulation complete.\n";
   output_file.close();
+
+  std::cout << "Simulation complete!\n";
+  
   // std::cout<< "\nStarting Detection Simulation for debris samples from file...\n";
   // sat.detection_sim("Results/Debris_20260501_101935/debris_samples_20260501_101935.csv", final_time);
 
@@ -258,4 +312,6 @@ int main() {
   // D1.read_sat_orbit("sat_prop");
 
   // D1.check_detection();
+
+  return 0;
 }

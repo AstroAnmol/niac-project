@@ -3,7 +3,11 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
+#include <vector>
 #include "orbit.h"
+
+// Boost odeint includes
+#include <boost/numeric/odeint.hpp>
 
 
 double stumpff_C(double z){
@@ -571,3 +575,152 @@ void Orbit::propagate_2BP(double step,double trange, int EOM_int, std::string na
     res.block(3,0,3,1)=V_t;
     return res;
  }
+
+// Boost odeint propagation of 2BP with adaptive timestep
+void Orbit::propagate_2BP_odeint(Eigen::VectorXd times, int EOM_int, std::string name){
+    using namespace boost::numeric::odeint;
+    
+    // Define state type as a simple array
+    typedef std::array<double, 6> state_type;
+    
+    // Pre-allocate Eigen matrices for results
+    int n_times = times.size();
+    Eigen::MatrixXd R_propagated(3, n_times);
+    Eigen::MatrixXd V_propagated(3, n_times);
+    Eigen::MatrixXd Acc_propagated(3, n_times);
+    Eigen::MatrixXd H_propagated(3, n_times);
+    
+    Eigen::VectorXd energy_propagated(n_times);
+    Eigen::VectorXd a_propagated(n_times);
+    Eigen::VectorXd e_propagated(n_times);
+    Eigen::VectorXd i_propagated(n_times);
+    Eigen::VectorXd RAAN_propagated(n_times);
+    Eigen::VectorXd AoP_propagated(n_times);
+    Eigen::VectorXd nu_propagated(n_times);
+    
+    // Storage for all steps taken by integrator
+    std::vector<double> all_times;
+    std::vector<Eigen::Vector3d> all_R, all_V;
+    std::vector<double> all_energies, all_a, all_e, all_i, all_RAAN, all_AoP, all_nu;
+    std::vector<Eigen::Vector3d> all_acc, all_h;
+    
+    // Initial state
+    state_type x = {R(0), R(1), R(2), V(0), V(1), V(2)};
+    
+    // Lambda function for system dynamics
+    auto system = [this, EOM_int](const state_type &x, state_type &dxdt, double t){
+        Eigen::Vector3d r(x[0], x[1], x[2]);
+        Eigen::Vector3d v(x[3], x[4], x[5]);
+        
+        Eigen::VectorXd acc = EoM(r, v, EOM_int);
+        
+        dxdt[0] = acc(0);
+        dxdt[1] = acc(1);
+        dxdt[2] = acc(2);
+        dxdt[3] = acc(3);
+        dxdt[4] = acc(4);
+        dxdt[5] = acc(5);
+    };
+    
+    // Observer to collect data at every step
+    auto observer = [this, &all_times, &all_R, &all_V, &all_energies, 
+                     &all_a, &all_e, &all_i, &all_RAAN, &all_AoP, &all_nu,
+                     &all_acc, &all_h, EOM_int](const state_type &x, double t){
+        
+        Eigen::Vector3d r(x[0], x[1], x[2]);
+        Eigen::Vector3d v(x[3], x[4], x[5]);
+        
+        all_times.push_back(t);
+        all_R.push_back(r);
+        all_V.push_back(v);
+        
+        // Calculate acceleration
+        Eigen::VectorXd acc = EoM(r, v, EOM_int);
+        all_acc.push_back(Eigen::Vector3d(acc(3), acc(4), acc(5)));
+        
+        // Calculate angular momentum
+        all_h.push_back(angular_mom(r, v));
+        
+        // Calculate orbital energy
+        all_energies.push_back(orbital_energy(r, v, EOM_int));
+        
+        // Convert to orbital elements
+        Eigen::ArrayXXd OE = cartesian_to_OE_I(r, v);
+        all_a.push_back(OE(0, 0));
+        all_e.push_back(OE(1, 0));
+        all_i.push_back(OE(2, 0));
+        all_RAAN.push_back(OE(3, 0));
+        all_AoP.push_back(OE(4, 0));
+        all_nu.push_back(OE(5, 0));
+    };
+    
+    // Use adaptive stepper with dense output (Runge-Kutta 5(4) Dormand-Prince)
+    runge_kutta_dopri5<state_type> stepper;
+    
+    // Calculate reasonable internal step size
+    double t_start = times(0);
+    double t_end = times(n_times - 1);
+    double internal_step = (t_end - t_start) * 0.01;
+    
+    // Integrate with dense output
+    integrate_adaptive(stepper, system, x, t_start, t_end, internal_step, observer);
+    
+    // Now interpolate/find values at requested time points
+    for(int i = 0; i < n_times; ++i){
+        double target_time = times(i);
+        
+        // Find the closest time index
+        int closest_idx = 0;
+        double min_diff = std::abs(all_times[0] - target_time);
+        
+        for(size_t j = 1; j < all_times.size(); ++j){
+            double diff = std::abs(all_times[j] - target_time);
+            if(diff < min_diff){
+                min_diff = diff;
+                closest_idx = j;
+            }
+        }
+        
+        // Copy data from closest time point
+        R_propagated.col(i) = all_R[closest_idx];
+        V_propagated.col(i) = all_V[closest_idx];
+        Acc_propagated.col(i) = all_acc[closest_idx];
+        H_propagated.col(i) = all_h[closest_idx];
+        energy_propagated(i) = all_energies[closest_idx];
+        a_propagated(i) = all_a[closest_idx];
+        e_propagated(i) = all_e[closest_idx];
+        i_propagated(i) = all_i[closest_idx];
+        RAAN_propagated(i) = all_RAAN[closest_idx];
+        AoP_propagated(i) = all_AoP[closest_idx];
+        nu_propagated(i) = all_nu[closest_idx];
+    }
+    
+    // Write results to CSV file
+    std::ofstream theFile;
+    theFile.open("Results/" + name + "_file.csv");
+    theFile << "Time (sec),Semi-Major Axis (km),Eccentricity,Inclination (deg),RAAN (deg),Argument of Periapsis (deg),True Anomaly (deg),Orbital Energy (km^2/sec^2),Radius_1 (km),Radius_2 (km),Radius_3 (km),Velocity_1 (km/s),Velocity_2 (km/s),Velocity_3 (km/s),Acceleration_1 (km/s^2),Acceleration_2 (km/s^2),Acceleration_3 (km/s^2),Angular_Momemntum_1 (km^2/s),Angular_Momemntum_2 (km^2/s),Angular_Momemntum_3 (km^2/s)" << std::endl;
+    
+    for(int i = 0; i < n_times; ++i){
+        theFile << times(i) << ", "
+                << a_propagated(i) << ", "
+                << e_propagated(i) << ", "
+                << i_propagated(i) * 180.0 / M_PI << ", "
+                << RAAN_propagated(i) * 180.0 / M_PI << ", "
+                << AoP_propagated(i) * 180.0 / M_PI << ", "
+                << nu_propagated(i) * 180.0 / M_PI << ", "
+                << energy_propagated(i) << ", "
+                << R_propagated(0, i) << ", "
+                << R_propagated(1, i) << ", "
+                << R_propagated(2, i) << ", "
+                << V_propagated(0, i) << ", "
+                << V_propagated(1, i) << ", "
+                << V_propagated(2, i) << ", "
+                << Acc_propagated(0, i) << ", "
+                << Acc_propagated(1, i) << ", "
+                << Acc_propagated(2, i) << ", "
+                << H_propagated(0, i) << ", "
+                << H_propagated(1, i) << ", "
+                << H_propagated(2, i) << std::endl;
+    }
+    theFile.close();
+}

@@ -16,7 +16,7 @@ ifneq ($(OS),Darwin)
 	CFLAGS += -fopenmp
 endif
 
-INC := -I include
+INC := -I include -I /opt/homebrew/opt/boost/include
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
