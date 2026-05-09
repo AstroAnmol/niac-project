@@ -1,0 +1,577 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Managed Memory Segments</title>
+<link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
+<link rel="up" href="../interprocess.html" title="Chapter 15. Boost.Interprocess">
+<link rel="prev" href="synchronization_mechanisms.html" title="Synchronization mechanisms">
+<link rel="next" href="managed_memory_segment_object_construction.html" title="Managed Memory Segments: Object construction">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../boost.png"></td>
+<td align="center"><a href="../../../index.html">Home</a></td>
+<td align="center"><a href="../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="synchronization_mechanisms.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../interprocess.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="managed_memory_segment_object_construction.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="interprocess.managed_memory_segments"></a><a class="link" href="managed_memory_segments.html" title="Managed Memory Segments">Managed Memory Segments</a>
+</h2></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.making_ipc_easy">Making
+      Interprocess Data Communication Easy</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory">Managed
+      Shared Memory</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_mapped_files">Managed
+      Mapped File</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segments.making_ipc_easy"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.making_ipc_easy" title="Making Interprocess Data Communication Easy">Making
+      Interprocess Data Communication Easy</a>
+</h3></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.making_ipc_easy.managed_memory_segments_intro">Introduction</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.making_ipc_easy.managed_memory_segment_int">Declaration
+        of managed memory segment classes</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="interprocess.managed_memory_segments.making_ipc_easy.managed_memory_segments_intro"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.making_ipc_easy.managed_memory_segments_intro" title="Introduction">Introduction</a>
+</h4></div></div></div>
+<p>
+          As we have seen, <span class="bold"><strong>Boost.Interprocess</strong></span> offers
+          some basic classes to create shared memory objects and file mappings and
+          map those mappable classes to the process' address space.
+        </p>
+<p>
+          However, managing those memory segments is not not easy for non-trivial
+          tasks. A mapped region is a fixed-length memory buffer and creating and
+          destroying objects of any type dynamically, requires a lot of work, since
+          it would require programming a memory management algorithm to allocate
+          portions of that segment. Many times, we also want to associate names to
+          objects created in shared memory, so all the processes can find the object
+          using the name.
+        </p>
+<p>
+          <span class="bold"><strong>Boost.Interprocess</strong></span> offers 4 managed memory
+          segment classes:
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+              To manage a shared memory mapped region (<span class="bold"><strong>basic_managed_shared_memory</strong></span>
+              class).
+            </li>
+<li class="listitem">
+              To manage a memory mapped file (<span class="bold"><strong>basic_managed_mapped_file</strong></span>).
+            </li>
+<li class="listitem">
+              To manage a heap allocated (<code class="computeroutput"><span class="keyword">operator</span>
+              <span class="keyword">new</span></code>) memory buffer (<span class="bold"><strong>basic_managed_heap_memory</strong></span> class).
+            </li>
+<li class="listitem">
+              To manage a user provided fixed size buffer (<span class="bold"><strong>basic_managed_external_buffer</strong></span>
+              class).
+            </li>
+</ul></div>
+<p>
+          The first two classes manage memory segments that can be shared between
+          processes. The third is useful to create complex data-bases to be sent
+          though other mechanisms like message queues to other processes. The fourth
+          class can manage any fixed size memory buffer. The first two classes will
+          be explained in the next two sections. <span class="bold"><strong>basic_managed_heap_memory</strong></span>
+          and <span class="bold"><strong>basic_managed_external_buffer</strong></span> will
+          be explained later.
+        </p>
+<p>
+          The most important services of a managed memory segment are:
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+              Dynamic allocation of portions of a memory the segment.
+            </li>
+<li class="listitem">
+              Construction of C++ objects in the memory segment. These objects can
+              be anonymous or we can associate a name to them.
+            </li>
+<li class="listitem">
+              Searching capabilities for named objects.
+            </li>
+<li class="listitem">
+              Customization of many features: memory allocation algorithm, index
+              types or character types.
+            </li>
+<li class="listitem">
+              Atomic constructions and destructions so that if the segment is shared
+              between two processes it's impossible to create two objects associated
+              with the same name, simplifying synchronization.
+            </li>
+</ul></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="interprocess.managed_memory_segments.making_ipc_easy.managed_memory_segment_int"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.making_ipc_easy.managed_memory_segment_int" title="Declaration of managed memory segment classes">Declaration
+        of managed memory segment classes</a>
+</h4></div></div></div>
+<p>
+          All <span class="bold"><strong>Boost.Interprocess</strong></span> managed memory
+          segment classes are templatized classes that can be customized by the user:
+        </p>
+<pre class="programlisting"><span class="keyword">template</span>
+      <span class="special">&lt;</span>
+         <span class="keyword">class</span> <span class="identifier">CharType</span><span class="special">,</span>
+         <span class="keyword">class</span> <span class="identifier">MemoryAlgorithm</span><span class="special">,</span>
+         <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">IndexConfig</span><span class="special">&gt;</span> <span class="keyword">class</span> <span class="identifier">IndexType</span>
+      <span class="special">&gt;</span>
+<span class="keyword">class</span> <span class="identifier">basic_managed_shared_memory</span> <span class="special">/</span> <span class="identifier">basic_managed_mapped_file</span> <span class="special">/</span>
+      <span class="identifier">basic_managed_heap_memory</span>   <span class="special">/</span> <span class="identifier">basic_external_buffer</span><span class="special">;</span>
+</pre>
+<p>
+          These classes can be customized with the following template parameters:
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+              <span class="bold"><strong>CharType</strong></span> is the type of the character
+              that will be used to identify the created named objects (for example,
+              <span class="bold"><strong>char</strong></span> or <span class="bold"><strong>wchar_t</strong></span>)
+            </li>
+<li class="listitem">
+              <span class="bold"><strong>MemoryAlgorithm</strong></span> is the memory algorithm
+              used to allocate portions of the segment (for example, rbtree_best_fit
+              ). The internal typedefs of the memory algorithm also define:
+              <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
+<li class="listitem">
+                    The synchronization type (<code class="computeroutput"><span class="identifier">MemoryAlgorithm</span><span class="special">::</span><span class="identifier">mutex_family</span></code>)
+                    to be used in all allocation operations. This allows the use
+                    of user-defined mutexes or avoiding internal locking (maybe code
+                    will be externally synchronized by the user).
+                  </li>
+<li class="listitem">
+                    The Pointer type (<code class="computeroutput"><span class="identifier">MemoryAlgorithm</span><span class="special">::</span><span class="identifier">void_pointer</span></code>)
+                    to be used by the memory allocation algorithm or additional helper
+                    structures (like a map to maintain object/name associations).
+                    All STL compatible allocators and containers to be used with
+                    this managed memory segment will use this pointer type. The pointer
+                    type will define if the managed memory segment can be mapped
+                    between several processes. For example, if <code class="computeroutput"><span class="identifier">void_pointer</span></code>
+                    is <code class="computeroutput"><span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span></code> we will be able to map the
+                    managed segment in different base addresses in each process.
+                    If <code class="computeroutput"><span class="identifier">void_pointer</span></code>
+                    is <code class="computeroutput"><span class="keyword">void</span><span class="special">*</span></code>
+                    only fixed address mapping could be used.
+                  </li>
+<li class="listitem">
+                    See <a class="link" href="customizing_interprocess.html#interprocess.customizing_interprocess.custom_interprocess_alloc" title="Writing a new shared memory allocation algorithm">Writing
+                    a new memory allocation algorithm</a> for more details about
+                    memory algorithms.
+                  </li>
+</ul></div>
+            </li>
+<li class="listitem">
+              <span class="bold"><strong>IndexType</strong></span> is the type of index that
+              will be used to store the name-object association (for example, a map,
+              a hash-map, or an ordered vector).
+            </li>
+</ul></div>
+<p>
+          This way, we can use <code class="computeroutput"><span class="keyword">char</span></code>
+          or <code class="computeroutput"><span class="keyword">wchar_t</span></code> strings to identify
+          created C++ objects in the memory segment, we can plug new shared memory
+          allocation algorithms, and use the index type that is best suited to our
+          needs.
+        </p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segments.managed_shared_memory"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory" title="Managed Shared Memory">Managed
+      Shared Memory</a>
+</h3></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory.managed_memory_common_shm">Common
+        Managed Shared Memory Classes</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory.constructing_managed_shared_memories">Constructing
+        Managed Shared Memory</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory.windows_managed_memory_common_shm">Using
+        native windows shared memory</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory.xsi_managed_memory_common_shm">Using
+        XSI (system V) shared memory</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="interprocess.managed_memory_segments.managed_shared_memory.managed_memory_common_shm"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory.managed_memory_common_shm" title="Common Managed Shared Memory Classes">Common
+        Managed Shared Memory Classes</a>
+</h4></div></div></div>
+<p>
+          As seen, <span class="bold"><strong>basic_managed_shared_memory</strong></span> offers
+          a great variety of customization. But for the average user, a common, default
+          shared memory named object creation is needed. Because of this, <span class="bold"><strong>Boost.Interprocess</strong></span> defines the most common managed
+          shared memory specializations:
+        </p>
+<pre class="programlisting"><span class="comment">//!Defines a managed shared memory with c-strings as keys for named objects,</span>
+<span class="comment">//!the default memory algorithm (with process-shared mutexes,</span>
+<span class="comment">//!and offset_ptr as internal pointers) as memory allocation algorithm</span>
+<span class="comment">//!and the default index type as the index.</span>
+<span class="comment">//!This class allows the shared memory to be mapped in different base</span>
+<span class="comment">//!in different processes</span>
+<span class="keyword">typedef</span>
+   <span class="identifier">basic_managed_shared_memory</span><span class="special">&lt;</span><span class="keyword">char</span>
+                              <span class="special">,/*</span><span class="identifier">Default</span> <span class="identifier">memory</span> <span class="identifier">algorithm</span> <span class="identifier">defining</span> <span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span> <span class="identifier">as</span> <span class="identifier">void_pointer</span><span class="special">*/</span>
+                              <span class="special">,/*</span><span class="identifier">Default</span> <span class="identifier">index</span> <span class="identifier">type</span><span class="special">*/&gt;</span>
+   <span class="identifier">managed_shared_memory</span><span class="special">;</span>
+
+<span class="comment">//!Defines a managed shared memory with wide strings as keys for named objects,</span>
+<span class="comment">//!the default memory algorithm (with process-shared mutexes,</span>
+<span class="comment">//!and offset_ptr as internal pointers) as memory allocation algorithm</span>
+<span class="comment">//!and the default index type as the index.</span>
+<span class="comment">//!This class allows the shared memory to be mapped in different base</span>
+<span class="comment">//!in different processes</span>
+<span class="keyword">typedef</span>
+   <span class="identifier">basic_managed_shared_memory</span><span class="special">&lt;</span><span class="keyword">wchar_t</span>
+                              <span class="special">,/*</span><span class="identifier">Default</span> <span class="identifier">memory</span> <span class="identifier">algorithm</span> <span class="identifier">defining</span> <span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span> <span class="identifier">as</span> <span class="identifier">void_pointer</span><span class="special">*/</span>
+                              <span class="special">,/*</span><span class="identifier">Default</span> <span class="identifier">index</span> <span class="identifier">type</span><span class="special">*/&gt;</span>
+   <span class="identifier">wmanaged_shared_memory</span><span class="special">;</span>
+</pre>
+<p>
+          <code class="computeroutput"><span class="identifier">managed_shared_memory</span></code> allocates
+          objects in shared memory associated with a c-string and <code class="computeroutput"><span class="identifier">wmanaged_shared_memory</span></code>
+          allocates objects in shared memory associated with a wchar_t null terminated
+          string. Both define the pointer type as <code class="computeroutput"><span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span></code> so they can be used to map the shared
+          memory at different base addresses in different processes.
+        </p>
+<p>
+          If the user wants to map the shared memory in the same address in all processes
+          and want to use raw pointers internally instead of offset pointers, <span class="bold"><strong>Boost.Interprocess</strong></span> defines the following types:
+        </p>
+<pre class="programlisting"><span class="comment">//!Defines a managed shared memory with c-strings as keys for named objects,</span>
+<span class="comment">//!the default memory algorithm (with process-shared mutexes,</span>
+<span class="comment">//!and offset_ptr as internal pointers) as memory allocation algorithm</span>
+<span class="comment">//!and the default index type as the index.</span>
+<span class="comment">//!This class allows the shared memory to be mapped in different base</span>
+<span class="comment">//!in different processes*/</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_shared_memory</span>
+   <span class="special">&lt;</span><span class="keyword">char</span>
+   <span class="special">,/*</span><span class="identifier">Default</span> <span class="identifier">memory</span> <span class="identifier">algorithm</span> <span class="identifier">defining</span> <span class="keyword">void</span> <span class="special">*</span> <span class="identifier">as</span> <span class="identifier">void_pointer</span><span class="special">*/</span>
+   <span class="special">,/*</span><span class="identifier">Default</span> <span class="identifier">index</span> <span class="identifier">type</span><span class="special">*/&gt;</span>
+<span class="identifier">fixed_managed_shared_memory</span><span class="special">;</span>
+
+<span class="comment">//!Defines a managed shared memory with wide strings as keys for named objects,</span>
+<span class="comment">//!the default memory algorithm (with process-shared mutexes,</span>
+<span class="comment">//!and offset_ptr as internal pointers) as memory allocation algorithm</span>
+<span class="comment">//!and the default index type as the index.</span>
+<span class="comment">//!This class allows the shared memory to be mapped in different base</span>
+<span class="comment">//!in different processes</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_shared_memory</span>
+   <span class="special">&lt;</span><span class="keyword">wchar_t</span>
+   <span class="special">,/*</span><span class="identifier">Default</span> <span class="identifier">memory</span> <span class="identifier">algorithm</span> <span class="identifier">defining</span> <span class="keyword">void</span> <span class="special">*</span> <span class="identifier">as</span> <span class="identifier">void_pointer</span><span class="special">*/</span>
+   <span class="special">,/*</span><span class="identifier">Default</span> <span class="identifier">index</span> <span class="identifier">type</span><span class="special">*/&gt;</span>
+<span class="identifier">wfixed_managed_shared_memory</span><span class="special">;</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="interprocess.managed_memory_segments.managed_shared_memory.constructing_managed_shared_memories"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory.constructing_managed_shared_memories" title="Constructing Managed Shared Memory">Constructing
+        Managed Shared Memory</a>
+</h4></div></div></div>
+<p>
+          Managed shared memory is an advanced class that combines a shared memory
+          object and a mapped region that covers all the shared memory object. That
+          means that when we <span class="bold"><strong>create</strong></span> a new managed
+          shared memory:
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+              A new shared memory object is created.
+            </li>
+<li class="listitem">
+              The whole shared memory object is mapped in the process' address space.
+            </li>
+<li class="listitem">
+              Some helper objects are constructed (name-object index, internal synchronization
+              objects, internal variables...) in the mapped region to implement managed
+              memory segment features.
+            </li>
+</ul></div>
+<p>
+          When we <span class="bold"><strong>open</strong></span> a managed shared memory
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+              A shared memory object is opened.
+            </li>
+<li class="listitem">
+              The whole shared memory object is mapped in the process' address space.
+            </li>
+</ul></div>
+<p>
+          To use a managed shared memory, you must include the following header:
+        </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+<pre class="programlisting"><span class="comment">//1.  Creates a new shared memory object</span>
+<span class="comment">//    called "MyName".</span>
+<span class="comment">//2.  Maps the whole object to this</span>
+<span class="comment">//    process' address space.</span>
+<span class="comment">//3.  Constructs some objects in shared memory</span>
+<span class="comment">//    to implement managed features.</span>
+<span class="comment">//!!  If anything fails, throws interprocess_exception</span>
+<span class="comment">//</span>
+<span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span>      <span class="special">(</span> <span class="identifier">create_only</span>
+                                   <span class="special">,</span> <span class="string">"MyName"</span>    <span class="comment">//Shared memory object name</span>
+                                   <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>     <span class="comment">//Shared memory object size in bytes</span>
+</pre>
+<pre class="programlisting"><span class="comment">//1.  Opens a shared memory object</span>
+<span class="comment">//    called "MyName".</span>
+<span class="comment">//2.  Maps the whole object to this</span>
+<span class="comment">//    process' address space.</span>
+<span class="comment">//3.  Obtains pointers to constructed internal objects</span>
+<span class="comment">//    to implement managed features.</span>
+<span class="comment">//!!  If anything fails, throws interprocess_exception</span>
+<span class="comment">//</span>
+<span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span> <span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> <span class="string">"MyName"</span><span class="special">);</span> <span class="comment">//Shared memory object name</span>
+</pre>
+<pre class="programlisting"><span class="comment">//1.  If the segment was previously created</span>
+<span class="comment">//    equivalent to "open_only" (size is ignored).</span>
+<span class="comment">//2.  Otherwise, equivalent to "create_only"</span>
+<span class="comment">//!!  If anything fails, throws interprocess_exception</span>
+<span class="comment">//</span>
+<span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span>      <span class="special">(</span> <span class="identifier">open_or_create</span>
+                                   <span class="special">,</span> <span class="string">"MyName"</span>    <span class="comment">//Shared memory object name</span>
+                                   <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>     <span class="comment">//Shared memory object size in bytes</span>
+</pre>
+<p>
+          When the <code class="computeroutput"><span class="identifier">managed_shared_memory</span></code>
+          object is destroyed, the shared memory object is automatically unmapped,
+          and all the resources are freed. To remove the shared memory object from
+          the system you must use the <code class="computeroutput"><span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span></code>
+          function. Shared memory object removing might fail if any process still
+          has the shared memory object mapped.
+        </p>
+<p>
+          The user can also map the managed shared memory in a fixed address. This
+          option is essential when using using <code class="computeroutput"><span class="identifier">fixed_managed_shared_memory</span></code>.
+          To do this, just add the mapping address as an extra parameter:
+        </p>
+<pre class="programlisting"><span class="identifier">fixed_managed_shared_memory</span> <span class="identifier">segment</span>      <span class="special">(</span><span class="identifier">open_only</span>      <span class="special">,</span><span class="string">"MyFixedAddressSharedMemory"</span> <span class="comment">//Shared memory object name</span>
+   <span class="special">,(</span><span class="keyword">void</span><span class="special">*)</span><span class="number">0x30000000</span>            <span class="comment">//Mapping address</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="interprocess.managed_memory_segments.managed_shared_memory.windows_managed_memory_common_shm"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory.windows_managed_memory_common_shm" title="Using native windows shared memory">Using
+        native windows shared memory</a>
+</h4></div></div></div>
+<p>
+          Windows users might also want to use native windows shared memory instead
+          of the portable <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1shared__memory__object.html" title="Class shared_memory_object">shared_memory_object</a></code>
+          managed memory. This is achieved through the <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__windows__shared__memory.html" title="Class template basic_managed_windows_shared_memory">basic_managed_windows_shared_memory</a></code>
+          class. To use it just include:
+        </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_windows_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+<p>
+          This class has the same interface as <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__shared__memory.html" title="Class template basic_managed_shared_memory">basic_managed_shared_memory</a></code>
+          but uses native windows shared memory. Note that this managed class has
+          the same lifetime issues as the windows shared memory: when the last process
+          attached to the windows shared memory is detached from the memory (or ends/crashes)
+          the memory is destroyed. So there is no persistence support for windows
+          shared memory.
+        </p>
+<p>
+          To communicate between system services and user applications using <code class="computeroutput"><span class="identifier">managed_windows_shared_memory</span></code>, please
+          read the explanations given in chapter <a class="link" href="sharedmemorybetweenprocesses.html#interprocess.sharedmemorybetweenprocesses.sharedmemory.windows_shared_memory" title="Native windows shared memory">Native
+          windows shared memory</a>.
+        </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="interprocess.managed_memory_segments.managed_shared_memory.xsi_managed_memory_common_shm"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_shared_memory.xsi_managed_memory_common_shm" title="Using XSI (system V) shared memory">Using
+        XSI (system V) shared memory</a>
+</h4></div></div></div>
+<p>
+          Unix users might also want to use XSI (system V) instead of the portable
+          <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1shared__memory__object.html" title="Class shared_memory_object">shared_memory_object</a></code>
+          managed memory. This is achieved through the <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__xsi__shared__memory.html" title="Class template basic_managed_xsi_shared_memory">basic_managed_xsi_shared_memory</a></code>
+          class. To use it just include:
+        </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_xsi_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+<p>
+          This class has nearly the same interface as <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__shared__memory.html" title="Class template basic_managed_shared_memory">basic_managed_shared_memory</a></code>
+          but uses XSI shared memory as backend.
+        </p>
+</div>
+<p>
+        For more information about managed XSI shared memory capabilities, see <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__xsi__shared__memory.html" title="Class template basic_managed_xsi_shared_memory">basic_managed_xsi_shared_memory</a></code>
+        class reference.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segments.managed_mapped_files"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_mapped_files" title="Managed Mapped File">Managed
+      Mapped File</a>
+</h3></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_mapped_files.managed_memory_common_mfile">Common
+        Managed Mapped Files</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_mapped_files.constructing_managed_mapped_files">Constructing
+        Managed Mapped Files</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="interprocess.managed_memory_segments.managed_mapped_files.managed_memory_common_mfile"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_mapped_files.managed_memory_common_mfile" title="Common Managed Mapped Files">Common
+        Managed Mapped Files</a>
+</h4></div></div></div>
+<p>
+          As seen, <span class="bold"><strong>basic_managed_mapped_file</strong></span> offers
+          a great variety of customization. But for the average user, a common, default
+          shared memory named object creation is needed. Because of this, <span class="bold"><strong>Boost.Interprocess</strong></span> defines the most common managed
+          mapped file specializations:
+        </p>
+<pre class="programlisting"><span class="comment">//Named object creation managed memory segment</span>
+<span class="comment">//All objects are constructed in the memory-mapped file</span>
+<span class="comment">//   Names are c-strings,</span>
+<span class="comment">//   Default memory management algorithm(rbtree_best_fit with no mutexes)</span>
+<span class="comment">//   Name-object mappings are stored in the default index type (flat_map)</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_mapped_file</span> <span class="special">&lt;</span>
+   <span class="keyword">char</span><span class="special">,</span>
+   <span class="identifier">rbtree_best_fit</span><span class="special">&lt;</span><span class="identifier">mutex_family</span><span class="special">,</span> <span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span> <span class="special">&gt;,</span>
+   <span class="identifier">flat_map_index</span>
+   <span class="special">&gt;</span>  <span class="identifier">managed_mapped_file</span><span class="special">;</span>
+
+<span class="comment">//Named object creation managed memory segment</span>
+<span class="comment">//All objects are constructed in the memory-mapped file</span>
+<span class="comment">//   Names are wide-strings,</span>
+<span class="comment">//   Default memory management algorithm(rbtree_best_fit with no mutexes)</span>
+<span class="comment">//   Name-object mappings are stored in the default index type (flat_map)</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_mapped_file</span><span class="special">&lt;</span>
+   <span class="keyword">wchar_t</span><span class="special">,</span>
+   <span class="identifier">rbtree_best_fit</span><span class="special">&lt;</span><span class="identifier">mutex_family</span><span class="special">,</span> <span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span> <span class="special">&gt;,</span>
+   <span class="identifier">flat_map_index</span>
+   <span class="special">&gt;</span>  <span class="identifier">wmanaged_mapped_file</span><span class="special">;</span>
+</pre>
+<p>
+          <code class="computeroutput"><span class="identifier">managed_mapped_file</span></code> allocates
+          objects in a memory mapped files associated with a c-string and <code class="computeroutput"><span class="identifier">wmanaged_mapped_file</span></code> allocates objects
+          in a memory mapped file associated with a wchar_t null terminated string.
+          Both define the pointer type as <code class="computeroutput"><span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span></code> so they can be used to map the file
+          at different base addresses in different processes.
+        </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="interprocess.managed_memory_segments.managed_mapped_files.constructing_managed_mapped_files"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_mapped_files.constructing_managed_mapped_files" title="Constructing Managed Mapped Files">Constructing
+        Managed Mapped Files</a>
+</h4></div></div></div>
+<p>
+          Managed mapped file is an advanced class that combines a file and a mapped
+          region that covers all the file. That means that when we <span class="bold"><strong>create</strong></span>
+          a new managed mapped file:
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+              A new file is created.
+            </li>
+<li class="listitem">
+              The whole file is mapped in the process' address space.
+            </li>
+<li class="listitem">
+              Some helper objects are constructed (name-object index, internal synchronization
+              objects, internal variables...) in the mapped region to implement managed
+              memory segment features.
+            </li>
+</ul></div>
+<p>
+          When we <span class="bold"><strong>open</strong></span> a managed mapped file
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+              A file is opened.
+            </li>
+<li class="listitem">
+              The whole file is mapped in the process' address space.
+            </li>
+</ul></div>
+<p>
+          To use a managed mapped file, you must include the following header:
+        </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_mapped_file</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+<pre class="programlisting"><span class="comment">//1.  Creates a new file</span>
+<span class="comment">//    called "MyMappedFile".</span>
+<span class="comment">//2.  Maps the whole file to this</span>
+<span class="comment">//    process' address space.</span>
+<span class="comment">//3.  Constructs some objects in the memory mapped</span>
+<span class="comment">//    file to implement managed features.</span>
+<span class="comment">//!!  If anything fails, throws interprocess_exception</span>
+<span class="comment">//</span>
+<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span> <span class="identifier">create_only</span>
+                               <span class="special">,</span> <span class="string">"MyMappedFile"</span> <span class="comment">//Mapped file name</span>
+                               <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>        <span class="comment">//Mapped file size</span>
+</pre>
+<pre class="programlisting"><span class="comment">//1.  Opens a file</span>
+<span class="comment">//    called "MyMappedFile".</span>
+<span class="comment">//2.  Maps the whole file to this</span>
+<span class="comment">//    process' address space.</span>
+<span class="comment">//3.  Obtains pointers to constructed internal objects</span>
+<span class="comment">//    to implement managed features.</span>
+<span class="comment">//!!  If anything fails, throws interprocess_exception</span>
+<span class="comment">//</span>
+<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span> <span class="identifier">open_only</span>
+                               <span class="special">,</span> <span class="string">"MyMappedFile"</span><span class="special">);</span> <span class="comment">//Mapped file name</span>
+</pre>
+<pre class="programlisting"><span class="comment">//1.  If the file was previously created</span>
+<span class="comment">//    equivalent to "open_only".</span>
+<span class="comment">//2.  Otherwise, equivalent to "open_only" (size is ignored)</span>
+<span class="comment">//</span>
+<span class="comment">//!!  If anything fails, throws interprocess_exception</span>
+<span class="comment">//</span>
+<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span><span class="identifier">open_or_create</span>
+                               <span class="special">,</span> <span class="string">"MyMappedFile"</span> <span class="comment">//Mapped file name</span>
+                               <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>        <span class="comment">//Mapped file size</span>
+</pre>
+<p>
+          When the <code class="computeroutput"><span class="identifier">managed_mapped_file</span></code>
+          object is destroyed, the file is automatically unmapped, and all the resources
+          are freed. To remove the file from the filesystem you could use standard
+          C <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">remove</span></code> or <span class="bold"><strong>Boost.Filesystem</strong></span>'s
+          <code class="computeroutput"><span class="identifier">remove</span><span class="special">()</span></code>
+          functions, but file removing might fail if any process still has the file
+          mapped in memory or the file is open by any process.
+        </p>
+<p>
+          To obtain a more portable behaviour, use <code class="computeroutput"><span class="identifier">file_mapping</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*)</span></code>
+          operation, which will remove the file even if it's being mapped. However,
+          removal will fail in some OS systems if the file (eg. by C++ file streams)
+          and no delete share permission was granted to the file. But in most common
+          cases <code class="computeroutput"><span class="identifier">file_mapping</span><span class="special">::</span><span class="identifier">remove</span></code> is portable enough.
+        </p>
+</div>
+<p>
+        For more information about managed mapped file capabilities, see <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__mapped__file.html" title="Class template basic_managed_mapped_file">basic_managed_mapped_file</a></code>
+        class reference.
+      </p>
+</div>
+</div>
+<div class="copyright-footer">Copyright © 2005-2024 Ion Gaztanaga<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="synchronization_mechanisms.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../interprocess.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="managed_memory_segment_object_construction.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

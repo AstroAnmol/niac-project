@@ -1,0 +1,30 @@
+# Boost circular_buffer test Jamfile.
+#
+# Copyright (c) 2003-2008 Jan Gaspar
+#
+# Distributed under the Boost Software License, Version 1.0. (See
+# accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+# Added warning suppression Paul A. Bristow 25 Nov 2008
+
+# Bring in rules for testing.
+import testing ;
+
+project
+    : requirements
+      <library>/boost/circular_buffer//boost_circular_buffer
+      <toolset>msvc:<warnings>all
+      <toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS
+      <toolset>msvc:<cxxflags>/wd4996 # 'function': was declared deprecated
+      <toolset>msvc:<cxxflags>/wd4244 # conversion from 'int' to 'unsigned short', possible loss of data
+      # in date-time
+      ;
+
+run base_test.cpp ;
+run space_optimized_test.cpp ;
+run base_test.cpp : : : <define>"BOOST_CB_ENABLE_DEBUG=1" : base_test_dbg ;
+run space_optimized_test.cpp : : : <define>"BOOST_CB_ENABLE_DEBUG=1" : space_optimized_test_dbg ;
+run soft_iterator_invalidation.cpp ;
+run constant_erase_test.cpp ;
+compile bounded_buffer_comparison.cpp : <threading>multi <library>/boost/thread//boost_thread <library>/boost/timer//boost_timer ;

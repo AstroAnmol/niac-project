@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="./_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = './_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>Directory Structure :: Boost.Decimal</title>
+    <link rel="prev" href="api_reference.html">
+    <link rel="next" href="generic_decimal.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="./_/css/boostlook.css">
+    <link rel="stylesheet" href="./_/css/site.css">
+    <link rel="stylesheet" href="./_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = './_'</script>
+<link rel="icon" href="./_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="./_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="./_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+   <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="ROOT" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="overview.html">Boost.Decimal</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="overview.html">Boost.Decimal: IEEE 754 Decimal Floating Point Numbers</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="basics.html">Basic Usage</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="examples.html">Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_construction">Basic Construction</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_basic_math">Basic Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_conversions">Conversions</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_integer_conversions">Integer Conversions</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_binary_floating_conversions">Binary Floating Point Conversions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_promotion">Promotion and Mixed Decimal Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_charconv"><code>&lt;charconv&gt;</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_generic_programming">Generic Programming</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_literals_constants">Literals and Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_format">Formatting</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_fmt_format">{fmt}</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_std_format"><code>&lt;format&gt;</code></a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_print"><code>&lt;print&gt;</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_file">Read and Write to File</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="financial_examples.html">Financial Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_money_parsing">Parsing Pricing Data from File</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_boost_math">Boost.Math Integration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="debugger.html">Debugger Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="api_reference.html">API Reference</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_types">Types</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_structs">Structs</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_enums">Enums</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_constants">Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_macros">Macros</a>
+        </li>
+        </ul>
+        <li class=" is-current-page" data-depth="1">
+            <a class="nav-link" href="file_structure.html">Directory Structure</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="generic_decimal.html">IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal32_t.html"><code>decimal32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal64_t.html"><code>decimal64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal128_t.html"><code>decimal128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="fast_types.html">Non-IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast32_t.html"><code>decimal_fast32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast64_t.html"><code>decimal_fast64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast128_t.html"><code>decimal_fast128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="binary_floating_conversions.html">Conversion from Binary Floating Point</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cohorts.html">Cohorts</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="conversions.html">Bit Conversions</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="literals.html">Literals Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="numbers.html">Numeric Constants</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cmath.html"><code>&lt;cmath&gt;</code> Support</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#basic_cmath_ops">Basic Operations</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_exp">Exponential Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_power_funcs">Power Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_trig_funcs">Trigonometric Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_hyperbolic_funcs">Hyperbolic Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_error_funcs">Error and Gamma Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_nearest_int">Nearest Integer Floating Point</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_manipulation_funcs">Floating Point Manipulation</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_classification">Classification and Comparison</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_spec_fun">Special Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#non_standard_cmath">Non-Standard Functions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="cstdlib.html"><code>&lt;cstdlib&gt;</code> Support (<code>strtod</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="charconv.html"><code>&lt;charconv&gt;</code> Support (<code>to_/from_chars</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="format.html"><code>&lt;format&gt;</code> and {fmt} Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfenv.html"><code>&lt;cfenv&gt;</code> Support (Rounding Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfloat.html"><code>&lt;cfloat&gt;</code> Support (Eval Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cstdio.html"><code>&lt;cstdio&gt;</code> Support (<code>printf</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="functional.html"><code>&lt;functional&gt;</code> Support (<code>hash</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="limits.html"><code>&lt;limits&gt;</code> Support (<code>numeric_limits</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="strings.html"><code>&lt;string&gt;</code> Support (<code>to_string</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="config.html">Configuration Macros</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_user">User Configuration</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_automatic">Automatic Configuration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="benchmarks.html">Benchmarks</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_linux_benchmarks">x64 Linux</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_windows_benchmarks">x64 Windows</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#m4_mac_benchmarks">ARM64 macOS</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="design.html">Design Decisions and Standards Deviations</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="reference.html">References</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="copyright.html">Copyright and License</a>
+        </li>
+        </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="overview.html" aria-label="Home: Boost.Decimal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="file_structure.html">Directory Structure</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="api_reference.html">
+      <span class="material-symbols-outlined" title="Previous: API Reference">arrow_back</span>
+    </a>
+    <a class="disabled" accesskey="u" aria-disabled="true" tabindex="-1">
+      <span class="material-symbols-outlined" title="Up:">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="generic_decimal.html">
+      <span class="material-symbols-outlined" title="Next: IEEE 754 Decimal Types">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page">Directory Structure</h1>
+  <div class="paragraph">
+<p>The entire library can be consumed via <code>&lt;boost/decimal.hpp&gt;</code>, or by independently selecting any of the library headers.
+Below is the directory structure for reference:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>boost/
+├── decimal.hpp
+└── decimal/
+    ├── bid_conversion.hpp
+    ├── cfenv.hpp
+    ├── cfloat.hpp
+    ├── charconv.hpp
+    ├── cmath.hpp
+    ├── cstdio.hpp
+    ├── cstdlib.hpp
+    ├── decimal32_t.hpp
+    ├── decimal64_t.hpp
+    ├── decimal128_t.hpp
+    ├── decimal_fast32_t.hpp
+    ├── decimal_fast64_t.hpp
+    ├── decimal_fast128_t.hpp
+    ├── dpd_conversions.hpp
+    ├── fmt_format.hpp
+    ├── format.hpp
+    ├── fwd.hpp
+    ├── hash.hpp
+    ├── iostream.hpp
+    ├── literals.hpp
+    ├── numbers.hpp
+    ├── string.hpp
+    └── uint128_t.hpp</pre>
+</div>
+</div>
+  <div class="edit-this-page">
+  </div>
+      <nav class="pagination">
+        <span class="prev"><a href="api_reference.html">API Reference</a></span>
+        <span class="next"><a href="generic_decimal.html">IEEE 754 Decimal Types</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="./_/js/site.js" data-ui-root-path="./_"></script>
+<script async src="./_/js/vendor/highlight.js"></script>
+<script async src="./_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>

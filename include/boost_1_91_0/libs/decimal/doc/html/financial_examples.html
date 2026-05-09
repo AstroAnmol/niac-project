@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="./_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = './_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>Financial Examples :: Boost.Decimal</title>
+    <link rel="prev" href="examples.html">
+    <link rel="next" href="debugger.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="./_/css/boostlook.css">
+    <link rel="stylesheet" href="./_/css/site.css">
+    <link rel="stylesheet" href="./_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = './_'</script>
+<link rel="icon" href="./_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="./_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="./_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+   <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="ROOT" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="overview.html">Boost.Decimal</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="overview.html">Boost.Decimal: IEEE 754 Decimal Floating Point Numbers</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="basics.html">Basic Usage</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="examples.html">Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_construction">Basic Construction</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_basic_math">Basic Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_conversions">Conversions</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_integer_conversions">Integer Conversions</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_binary_floating_conversions">Binary Floating Point Conversions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_promotion">Promotion and Mixed Decimal Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_charconv"><code>&lt;charconv&gt;</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_generic_programming">Generic Programming</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_literals_constants">Literals and Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_format">Formatting</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_fmt_format">{fmt}</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_std_format"><code>&lt;format&gt;</code></a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_print"><code>&lt;print&gt;</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_file">Read and Write to File</a>
+        </li>
+        </ul>
+        <li class=" is-current-page" data-depth="1">
+            <a class="nav-link" href="financial_examples.html">Financial Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_money_parsing">Parsing Pricing Data from File</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_boost_math">Boost.Math Integration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="debugger.html">Debugger Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="api_reference.html">API Reference</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_types">Types</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_structs">Structs</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_enums">Enums</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_constants">Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_macros">Macros</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="file_structure.html">Directory Structure</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="generic_decimal.html">IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal32_t.html"><code>decimal32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal64_t.html"><code>decimal64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal128_t.html"><code>decimal128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="fast_types.html">Non-IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast32_t.html"><code>decimal_fast32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast64_t.html"><code>decimal_fast64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast128_t.html"><code>decimal_fast128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="binary_floating_conversions.html">Conversion from Binary Floating Point</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cohorts.html">Cohorts</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="conversions.html">Bit Conversions</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="literals.html">Literals Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="numbers.html">Numeric Constants</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cmath.html"><code>&lt;cmath&gt;</code> Support</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#basic_cmath_ops">Basic Operations</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_exp">Exponential Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_power_funcs">Power Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_trig_funcs">Trigonometric Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_hyperbolic_funcs">Hyperbolic Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_error_funcs">Error and Gamma Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_nearest_int">Nearest Integer Floating Point</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_manipulation_funcs">Floating Point Manipulation</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_classification">Classification and Comparison</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_spec_fun">Special Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#non_standard_cmath">Non-Standard Functions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="cstdlib.html"><code>&lt;cstdlib&gt;</code> Support (<code>strtod</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="charconv.html"><code>&lt;charconv&gt;</code> Support (<code>to_/from_chars</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="format.html"><code>&lt;format&gt;</code> and {fmt} Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfenv.html"><code>&lt;cfenv&gt;</code> Support (Rounding Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfloat.html"><code>&lt;cfloat&gt;</code> Support (Eval Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cstdio.html"><code>&lt;cstdio&gt;</code> Support (<code>printf</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="functional.html"><code>&lt;functional&gt;</code> Support (<code>hash</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="limits.html"><code>&lt;limits&gt;</code> Support (<code>numeric_limits</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="strings.html"><code>&lt;string&gt;</code> Support (<code>to_string</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="config.html">Configuration Macros</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_user">User Configuration</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_automatic">Automatic Configuration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="benchmarks.html">Benchmarks</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_linux_benchmarks">x64 Linux</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_windows_benchmarks">x64 Windows</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#m4_mac_benchmarks">ARM64 macOS</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="design.html">Design Decisions and Standards Deviations</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="reference.html">References</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="copyright.html">Copyright and License</a>
+        </li>
+        </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="overview.html" aria-label="Home: Boost.Decimal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="financial_examples.html">Financial Examples</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="examples.html">
+      <span class="material-symbols-outlined" title="Previous: Examples">arrow_back</span>
+    </a>
+    <a class="disabled" accesskey="u" aria-disabled="true" tabindex="-1">
+      <span class="material-symbols-outlined" title="Up:">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="debugger.html">
+      <span class="material-symbols-outlined" title="Next: Debugger Support">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page">Financial Examples</h1>
+  <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Below are a few additional examples as to how the Decimal library can be used in the context of financial applications.
+All of these examples can be found in the library <code>examples/</code> folder as well.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="financial_examples_parsing_pricing_data_from_file"><a class="anchor" href="#financial_examples_parsing_pricing_data_from_file"></a>Parsing Pricing Data from File</h2>
+<div class="sectionbody">
+<div id="examples_money_parsing" class="exampleblock">
+<div class="title">Example 1. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/numerical_parsing.cpp">example</a> demonstrates the numerical differences between parsing of monetary values between using <code>decimal32_t</code> and <code>float</code></div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This file briefly demonstrates the difference in results when parsing monetary values between float and decimal32_t
+
+#include "where_file.hpp"
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For type decimal32_t
+#include &lt;boost/decimal/charconv.hpp&gt;       // For support to &lt;charconv&gt;
+#include &lt;boost/decimal/iostream.hpp&gt;       // For decimal support to &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;fstream&gt;
+#include &lt;sstream&gt;
+#include &lt;limits&gt;
+#include &lt;numeric&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+
+using boost::decimal::decimal32_t;
+
+template &lt;typename T&gt;
+T parse_opening_price(const std::string&amp; line);
+
+template &lt;&gt;
+float parse_opening_price&lt;float&gt;(const std::string&amp; line)
+{
+    const auto result {std::stof(line)};
+    return result;
+}
+
+template &lt;&gt;
+decimal32_t parse_opening_price&lt;decimal32_t&gt;(const std::string&amp; line)
+{
+    decimal32_t result;
+    const auto r = from_chars(line, result);
+
+    // If we have a parse failure throw std::invalid_argument if the environment supports it,
+    // using std::invalid_argument which is the same thing thrown by std::stof in the float case
+    //
+    // If we are in a no throw environment returning a qNaN will poison our results as well
+    if (!r)
+    {
+        // LCOV_EXCL_START
+        result = std::numeric_limits&lt;decimal32_t&gt;::quiet_NaN();
+        BOOST_DECIMAL_THROW_EXCEPTION(std::invalid_argument("Parsing has failed"));
+        // LCOV_EXCL_STOP
+    }
+
+    return result;
+}
+
+template &lt;typename T&gt;
+T parse_csv_line(const std::string&amp; line)
+{
+    std::stringstream ss(line);
+    std::string token;
+    std::string date;
+
+    std::getline(ss, date, ',');
+    std::getline(ss, token, ',');
+
+    return parse_opening_price&lt;T&gt;(token);
+}
+
+int main()
+{
+    // We have a CSV file containing one years worth of daily stock data for AAPL
+    // Here we will show the differences that arise (however small)
+    // between parsing with float and decimal32_t
+
+    // Open and read the CSV file
+    std::ifstream file(boost::decimal::where_file("AAPL.csv"));
+    std::string line;
+
+    // Skip header line
+    std::getline(file, line);
+
+    std::vector&lt;decimal32_t&gt; decimal_opening_prices;
+    std::vector&lt;float&gt; float_opening_prices;
+
+    // Parse each line once into decimal32_t and once into a float
+    while (std::getline(file, line))
+    {
+        decimal_opening_prices.emplace_back(parse_csv_line&lt;decimal32_t&gt;(line));
+        float_opening_prices.emplace_back(parse_csv_line&lt;float&gt;(line));
+    }
+
+    // Use std::accumulate to get the sum of all the pricing information in the array
+    // This will be used to compare the total value parsed
+    const auto decimal_sum {std::accumulate(decimal_opening_prices.begin(),
+        decimal_opening_prices.end(), decimal32_t{0})};
+    
+    const auto float_sum {std::accumulate(float_opening_prices.begin(),
+        float_opening_prices.end(), float{0})};
+
+    // This is the reference value that was found using the sum command of the CSV
+    // inside Microsoft Excel
+    const std::string ms_excel_result {"52151.99"};
+
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;float&gt;::digits10 + 1)
+              &lt;&lt; "Number of data points: " &lt;&lt; decimal_opening_prices.size() &lt;&lt; '\n'
+              &lt;&lt; "    Sum from MS Excel: " &lt;&lt; ms_excel_result &lt;&lt; '\n'
+              &lt;&lt; "Sum using decimal32_t: " &lt;&lt; decimal_sum &lt;&lt; '\n'
+              &lt;&lt; "      Sum using float: " &lt;&lt; float_sum &lt;&lt; std::endl;
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output</div>
+<div class="content">
+<pre>Number of data points: 252
+    Sum from MS Excel: 52151.99
+Sum using decimal32_t: 52151.99
+      Sum using float: 52151.96</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_boost_math"><a class="anchor" href="#examples_boost_math"></a>Boost.Math to Calculate Bollinger Bands</h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 2. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/statistics.cpp">example</a> demonstrates how we can use the decimal library with existing Boost.Math facilities to perform statistical analysis</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This example demonstrates how to perform statistics using boost.math
+
+// Needed for operations with boost math
+#define BOOST_DECIMAL_ALLOW_IMPLICIT_INTEGER_CONVERSIONS
+
+#include "where_file.hpp"
+#include &lt;boost/decimal/decimal64_t.hpp&gt;    // For type decimal64_t
+#include &lt;boost/decimal/charconv.hpp&gt;       // For from_chars
+#include &lt;boost/decimal/iostream.hpp&gt;       // Decimal support to &lt;iostream&gt; and &lt;iomanip&gt;
+#include &lt;boost/decimal/cmath.hpp&gt;          // For sqrt of decimal types
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;fstream&gt;
+#include &lt;sstream&gt;
+
+// Warning suppression for boost.math
+// Boost.decimal is tested with -Werror -Wall -Wextra and a few other additional flags
+#if defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wfloat-equal"
+#  pragma clang diagnostic ignored "-Wsign-conversion"
+#  pragma clang diagnostic ignored "-Wundef"
+#  pragma clang diagnostic ignored "-Wstring-conversion"
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wfloat-equal"
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
+#include &lt;boost/math/statistics/univariate_statistics.hpp&gt;
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
+
+using boost::decimal::decimal64_t;
+
+// This struct holds all the information that is provided
+// for a single trading day
+struct daily_data
+{
+    std::string date;
+    decimal64_t open;
+    decimal64_t high;
+    decimal64_t low;
+    decimal64_t close;
+    decimal64_t volume;
+};
+
+auto parse_csv_line(const std::string&amp; line) -&gt; daily_data
+{
+    std::stringstream ss(line);
+    std::string token;
+    daily_data data;
+
+    // Parse each column
+    std::getline(ss, data.date, ',');
+    std::getline(ss, token, ',');
+    from_chars(token, data.open);
+
+    std::getline(ss, token, ',');
+    from_chars(token, data.high);
+
+    std::getline(ss, token, ',');
+    from_chars(token, data.low);
+
+    std::getline(ss, token, ',');
+    from_chars(token, data.close);
+
+    std::getline(ss, token, ',');
+    from_chars(token, data.volume);
+
+    return data;
+}
+
+int main()
+{
+    // The first few lines of this file are similar to the previous example
+    // in that we parse a single year of AAPL stock data before we can do anything useful with
+
+    std::vector&lt;daily_data&gt; stock_data;
+
+    // Open and read the CSV file
+    std::ifstream file(boost::decimal::where_file("AAPL.csv"));
+    std::string line;
+
+    // Skip header line
+    std::getline(file, line);
+
+    // Read data
+    while (std::getline(file, line))
+    {
+        stock_data.push_back(parse_csv_line(line));
+    }
+
+    // Get the closing prices for the entire year
+    std::vector&lt;decimal64_t&gt; closing_prices;
+    for (const auto&amp; day : stock_data)
+    {
+        closing_prices.emplace_back(day.close);
+    }
+
+    // Here we use Boost.Math's statistics facilities
+    // As shown at the top of the file you will need to define BOOST_DECIMAL_ALLOW_IMPLICIT_INTEGER_CONVERSIONS,
+    // and suppress a few warnings to make this build cleanly
+    const decimal64_t mean_closing_price = boost::math::statistics::mean(closing_prices);
+    const decimal64_t median_closing_price = boost::math::statistics::median(closing_prices);
+    const decimal64_t variance_closing_price = boost::math::statistics::variance(closing_prices);
+    const decimal64_t std_dev_closing_price = boost::decimal::sqrt(variance_closing_price);
+
+    // 2-Sigma Bollinger Bands
+    // These are of a single point in time rather than making a plot over time for simplicity
+    const decimal64_t upper_band = mean_closing_price + 2 * std_dev_closing_price;
+    const decimal64_t lower_band = mean_closing_price - 2 * std_dev_closing_price;
+
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(2)
+              &lt;&lt; "  Mean Closing Price: $" &lt;&lt; mean_closing_price &lt;&lt; '\n'
+              &lt;&lt; "Median Closing Price: $" &lt;&lt; median_closing_price &lt;&lt; '\n'
+              &lt;&lt; "  Standard Deviation: $" &lt;&lt; std_dev_closing_price &lt;&lt; '\n'
+              &lt;&lt; "Upper Bollinger Band: $" &lt;&lt; upper_band &lt;&lt; '\n'
+              &lt;&lt; "Lower Bollinger Band: $" &lt;&lt; lower_band &lt;&lt; std::endl;
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output</div>
+<div class="content">
+<pre>  Mean Closing Price: $207.20
+Median Closing Price: $214.26
+  Standard Deviation: $25.45
+Upper Bollinger Band: $258.11
+Lower Bollinger Band: $156.30</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+  <div class="edit-this-page">
+  </div>
+      <nav class="pagination">
+        <span class="prev"><a href="examples.html">Examples</a></span>
+        <span class="next"><a href="debugger.html">Debugger Support</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="./_/js/site.js" data-ui-root-path="./_"></script>
+<script async src="./_/js/vendor/highlight.js"></script>
+<script async src="./_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>

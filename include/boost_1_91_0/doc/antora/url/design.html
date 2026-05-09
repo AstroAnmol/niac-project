@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="../_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = '../_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>Design Rationale :: Boost Libraries Documentation</title>
+  <link rel="canonical" href="https://antora.cppalliance.org/master/lib/doc/url/design.html">
+    <link rel="prev" href="examples/sanitize.html">
+    <link rel="next" href="reference.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="../_/css/boostlook.css">
+    <link rel="stylesheet" href="../_/css/site.css">
+    <link rel="stylesheet" href="../_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = '../_'</script>
+<link rel="icon" href="../_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="../_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="../_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+  <script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs'; mermaid.initialize({"startOnLoad":true});</script> <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="url" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="index.html">Boost.URL</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="quicklook.html">Quick Look</a>
+        </li>
+              <li class="" data-depth="1">
+            <span class="nav-text">URLs</span>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="urls/parsing.html">Parsing</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="urls/components.html">Components</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="urls/segments.html">Segments</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="urls/params.html">Params</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <span class="nav-text">Operations</span>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="urls/normalization.html">Normalization</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="urls/stringtoken.html">String Token</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="urls/percent-encoding.html">Percent Encoding</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="urls/formatting.html">Formatting</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="grammar/index.html">Customization</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="grammar/rules.html">Parse Rules</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="grammar/charset.html">Character Sets</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="grammar/combinators.html">Compound Rules</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="grammar/range.html">Ranges</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="grammar/rfc3986.html">RFC 3986</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <span class="nav-text">Examples</span>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples/qrcode.html">QR Code</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples/finicky.html">Finicky</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples/mailto.html">mailto URLs</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples/magnet-link.html">Magnet Link</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples/file-router.html">File Router</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples/router.html">Router</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples/sanitize.html">Sanitizing URLs</a>
+        </li>
+        </ul>
+        <li class=" is-current-page" data-depth="1">
+            <a class="nav-link" href="design.html">Design Rationale</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="reference.html">Reference</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="HelpCard.html">Help Card</a>
+        </li>
+        </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="index.html" aria-label="Home: Boost.URL">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="design.html">Design Rationale</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="examples/sanitize.html">
+      <span class="material-symbols-outlined" title="Previous: Sanitizing URLs">arrow_back</span>
+    </a>
+    <a class="disabled" accesskey="u" aria-disabled="true" tabindex="-1">
+      <span class="material-symbols-outlined" title="Up:">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="reference.html">
+      <span class="material-symbols-outlined" title="Next: Reference">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page">Design Rationale</h1>
+  <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section documents the rationale behind design decisions in Boost.URL that are not obvious from the API alone.
+For a general overview of the library&#8217;s goals and features, see the <a href="index.html" class="xref page">introduction</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_character_type"><a class="anchor" href="#_character_type"></a>Character Type</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Boost.URL uses <code>char</code> as its character type.
+The library does not provide class templates parameterized on character type (e.g. <code>basic_url_view&lt;CharT&gt;</code>).</p>
+</div>
+<div class="paragraph">
+<p>URLs are sequences of ASCII octets as defined by <a href="https://tools.ietf.org/html/rfc3986" target="blank_">RFC 3986</a>.
+In practice, URLs are always handled as <code>char</code> strings: in HTTP headers, in JSON, in configuration files, and in every major programming language&#8217;s URL library.
+Wide character types (<code>wchar_t</code>, <code>char16_t</code>, <code>char32_t</code>) are not used for URLs in any real-world context, so supporting them would add complexity with no practical benefit.</p>
+</div>
+<div class="paragraph">
+<p>This also means the library does not provide a <code>char8_t</code> (C20) instantiation.
+While `char8_t` is portably correct for ASCII/UTF-8 text, its adoption in the C ecosystem remains limited: the standard library does not fully support it for I/O or formatting, and no major framework has adopted it in public APIs.
+Using <code>char</code> means Boost.URL interoperates directly with <code>std::string</code>, <code>std::string_view</code>, string literals, and the rest of the ecosystem without conversion.</p>
+</div>
+<div class="sect2">
+<h3 id="_ebcdic"><a class="anchor" href="#_ebcdic"></a>EBCDIC</h3>
+<div class="paragraph">
+<p>The C++ standard does not require that <code>char</code> use an ASCII-compatible encoding.
+On EBCDIC platforms (primarily IBM z/OS), the character literal <code>'/'</code> does not have the value <code>0x2F</code>, so a URL parser that compares <code>char</code> values against ASCII constants would malfunction.</p>
+</div>
+<div class="paragraph">
+<p>In practice, this is not a concern for Boost.URL:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>z/OS is the only remaining platform where EBCDIC is relevant for C++ compilation.</p>
+</li>
+<li>
+<p>The z/OS C++ compilers support an ASCII compilation mode (<code>-qascii</code> or <code>-fzos-le-char-mode=ascii</code>) that makes <code>char</code> literals use ASCII values. This mode exists specifically for open-source software that assumes ASCII.</p>
+</li>
+<li>
+<p>Real-world C++ libraries that handle URLs and HTTP on z/OS (such as cpp-httplib and DuckDB) use this ASCII mode rather than adding EBCDIC transcoding.</p>
+</li>
+<li>
+<p>The z/OS REST and web services ecosystem is almost entirely Java-based. No evidence exists of C++ code parsing RFC 3986 URIs in EBCDIC <code>char</code> encoding.</p>
+</li>
+<li>
+<p>WG21 is moving in this direction as well: P3688 (ASCII character utilities) proposes <code>char</code>-based functions that treat input as ASCII regardless of literal encoding.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>On EBCDIC platforms where ASCII mode is not used, <code>char8_t</code> provides a portably correct alternative since it is guaranteed to use UTF-8 (an ASCII superset).
+A future extension to support <code>char8_t</code> constructor overloads on the concrete <code>char</code>-based types could address this without requiring templates, since both <code>char</code> and <code>char8_t</code> are single-byte types and the conversion between them is trivial for ASCII content.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_no_dynamic_allocation_by_default"><a class="anchor" href="#_no_dynamic_allocation_by_default"></a>No Dynamic Allocation by Default</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The library is designed so that most operations do not require dynamic memory allocation.</p>
+</div>
+<div class="paragraph">
+<p><code><a href="reference/boost/urls/url_view.html" class="xref page">url_view</a></code> does not retain ownership of the underlying string buffer and does not allocate memory.
+Like a <code><a href="reference/boost/urls/string_view.html" class="xref page">string_view</a></code>, it references the original string directly.
+As long as the contents of the original string are unmodified, constructed URL views always contain a valid URL in its correctly serialized form.</p>
+</div>
+<div class="paragraph">
+<p>Accessor functions return views referring to substrings and sub-ranges of the underlying URL.
+By referencing the relevant portion of the URL string internally, components can represent percent-decoded strings and be converted to other types without allocation.
+<code><a href="reference/boost/urls/decode_view.html" class="xref page">decode_view</a></code> and its decoding functions perform no memory allocations unless the result needs to be stored in another container.
+Objects can be recycled to reuse their memory, deferring allocations until the application actually needs them.</p>
+</div>
+<div class="paragraph">
+<p>This makes the library suitable for performance-sensitive network programs and embedded devices.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_error_handling"><a class="anchor" href="#_error_handling"></a>Error Handling</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The library uses error codes rather than exceptions as its primary error reporting mechanism.
+If input does not match the URL grammar, an error code is reported through <code><a href="https://www.boost.org/doc/libs/master/libs/system/doc/html/system.html#ref_resultt_e" target="_blank" rel="noopener">result</a></code> rather than throwing.
+This allows the library to be used in environments that disable exceptions (<code>-fno-exceptions</code>), which is detected automatically.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_url_validity_invariant"><a class="anchor" href="#_url_validity_invariant"></a>URL Validity Invariant</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>All modifications to a <code><a href="reference/boost/urls/url.html" class="xref page">url</a></code> leave it in a valid state.
+It is not possible for a <code><a href="reference/boost/urls/url.html" class="xref page">url</a></code> to hold syntactically illegal text.
+All modifying functions perform validation on their input: attempting to set the scheme or port to an invalid string results in an exception, while other components are automatically percent-encoded as needed.
+All non-const operations offer the strong exception safety guarantee.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_no_iris"><a class="anchor" href="#_no_iris"></a>No IRIs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The library does not handle <a href="https://www.rfc-editor.org/rfc/rfc3987.html" target="blank_">Internationalized Resource Identifiers</a> (IRIs).
+IRIs are different from URLs: they come from Unicode strings instead of low-ASCII strings and are covered by a separate specification.</p>
+</div>
+</div>
+</div>
+  <div class="edit-this-page">
+      <a href="https://github.com/boostorg/url/edit/develop/doc/modules/ROOT/pages/design.adoc">Edit this Page</a>
+      </div>
+      <nav class="pagination">
+        <span class="prev"><a href="examples/sanitize.html">Sanitizing URLs</a></span>
+        <span class="next"><a href="reference.html">Reference</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="../_/js/site.js" data-ui-root-path="../_"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+<script async src="../_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>

@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="./_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = './_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>Examples :: Boost.Decimal</title>
+    <link rel="prev" href="basics.html">
+    <link rel="next" href="financial_examples.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="./_/css/boostlook.css">
+    <link rel="stylesheet" href="./_/css/site.css">
+    <link rel="stylesheet" href="./_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = './_'</script>
+<link rel="icon" href="./_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="./_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="./_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+   <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="ROOT" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="overview.html">Boost.Decimal</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="overview.html">Boost.Decimal: IEEE 754 Decimal Floating Point Numbers</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="basics.html">Basic Usage</a>
+        </li>
+              <li class=" is-current-page" data-depth="1">
+            <a class="nav-link" href="examples.html">Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_construction">Basic Construction</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_basic_math">Basic Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_conversions">Conversions</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="#examples_integer_conversions">Integer Conversions</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="#examples_binary_floating_conversions">Binary Floating Point Conversions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_promotion">Promotion and Mixed Decimal Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_charconv"><code>&lt;charconv&gt;</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_generic_programming">Generic Programming</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_literals_constants">Literals and Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_format">Formatting</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="#examples_fmt_format">{fmt}</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="#examples_std_format"><code>&lt;format&gt;</code></a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="#examples_print"><code>&lt;print&gt;</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="#examples_file">Read and Write to File</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="financial_examples.html">Financial Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_money_parsing">Parsing Pricing Data from File</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_boost_math">Boost.Math Integration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="debugger.html">Debugger Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="api_reference.html">API Reference</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_types">Types</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_structs">Structs</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_enums">Enums</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_constants">Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_macros">Macros</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="file_structure.html">Directory Structure</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="generic_decimal.html">IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal32_t.html"><code>decimal32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal64_t.html"><code>decimal64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal128_t.html"><code>decimal128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="fast_types.html">Non-IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast32_t.html"><code>decimal_fast32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast64_t.html"><code>decimal_fast64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast128_t.html"><code>decimal_fast128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="binary_floating_conversions.html">Conversion from Binary Floating Point</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cohorts.html">Cohorts</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="conversions.html">Bit Conversions</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="literals.html">Literals Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="numbers.html">Numeric Constants</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cmath.html"><code>&lt;cmath&gt;</code> Support</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#basic_cmath_ops">Basic Operations</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_exp">Exponential Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_power_funcs">Power Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_trig_funcs">Trigonometric Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_hyperbolic_funcs">Hyperbolic Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_error_funcs">Error and Gamma Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_nearest_int">Nearest Integer Floating Point</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_manipulation_funcs">Floating Point Manipulation</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_classification">Classification and Comparison</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_spec_fun">Special Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#non_standard_cmath">Non-Standard Functions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="cstdlib.html"><code>&lt;cstdlib&gt;</code> Support (<code>strtod</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="charconv.html"><code>&lt;charconv&gt;</code> Support (<code>to_/from_chars</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="format.html"><code>&lt;format&gt;</code> and {fmt} Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfenv.html"><code>&lt;cfenv&gt;</code> Support (Rounding Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfloat.html"><code>&lt;cfloat&gt;</code> Support (Eval Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cstdio.html"><code>&lt;cstdio&gt;</code> Support (<code>printf</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="functional.html"><code>&lt;functional&gt;</code> Support (<code>hash</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="limits.html"><code>&lt;limits&gt;</code> Support (<code>numeric_limits</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="strings.html"><code>&lt;string&gt;</code> Support (<code>to_string</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="config.html">Configuration Macros</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_user">User Configuration</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_automatic">Automatic Configuration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="benchmarks.html">Benchmarks</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_linux_benchmarks">x64 Linux</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_windows_benchmarks">x64 Windows</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#m4_mac_benchmarks">ARM64 macOS</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="design.html">Design Decisions and Standards Deviations</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="reference.html">References</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="copyright.html">Copyright and License</a>
+        </li>
+        </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="overview.html" aria-label="Home: Boost.Decimal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="examples.html">Examples</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="basics.html">
+      <span class="material-symbols-outlined" title="Previous: Basic Usage">arrow_back</span>
+    </a>
+    <a class="disabled" accesskey="u" aria-disabled="true" tabindex="-1">
+      <span class="material-symbols-outlined" title="Up:">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="financial_examples.html">
+      <span class="material-symbols-outlined" title="Next: Financial Examples">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page">Examples</h1>
+  <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following examples will help you get up and running with many of the major parts of the library.
+All of these examples can be found in the library <code>examples/</code> folder as well.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_construction"><a class="anchor" href="#examples_construction"></a>Basic Construction</h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 1. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/basic_construction.cpp">example</a> demonstrates the basic use of the various constructors offered by the decimal types</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2024 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This file demonstrates some of the very basic ways you con construct decimal types
+// This includes: from integer; integer and exponent; integer exponent and sign; string
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For decimal32_t type
+#include &lt;boost/decimal/iostream.hpp&gt;       // For &lt;iostream&gt; support of decimal types
+#include &lt;boost/decimal/cmath.hpp&gt;          // For isnan and isinf
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    using boost::decimal::decimal32_t;          // The decimal32_t type
+    using boost::decimal::construction_sign;    // An enum class for specifying sign during certain instances of construction
+    using boost::decimal::isinf;                // Analogous to std::isinf but for decimal types
+    using boost::decimal::isnan;                // Analogous to std::isnan but for decimal types
+
+    // Construction from an integer
+    constexpr decimal32_t val_1 {100};
+
+    // Construction from a signed integer and exponent
+    constexpr decimal32_t val_2 {10, 1};
+
+    // Construction from an unsigned integer, exponent, and sign
+    // The sign enum is named construction_sign, and has two members: positive and negative
+    constexpr decimal32_t val_3 {1U, 2, construction_sign::negative};
+
+    std::cout &lt;&lt; "Val_1: " &lt;&lt; val_1 &lt;&lt; '\n'
+              &lt;&lt; "Val_2: " &lt;&lt; val_2 &lt;&lt; '\n'
+              &lt;&lt; "Val_3: " &lt;&lt; val_3 &lt;&lt; '\n';
+
+    if (val_1 == val_2 &amp;&amp; val_2 == val_3 &amp;&amp; val_1 == val_3)
+    {
+        std::cout &lt;&lt; "All equal values" &lt;&lt; std::endl;
+    }
+
+    // Demonstration of the overflow and underflow handling
+    // A value that overflows constructs an infinity (which can be queried using isinf)
+    // A value that underflows constructs a zero
+    constexpr decimal32_t overflow_value {100, 10000};
+    if (isinf(overflow_value))
+    {
+        std::cout &lt;&lt; "Overflow constructs infinity" &lt;&lt; std::endl;
+    }
+
+    constexpr decimal32_t underflow_value {100, -10000};
+    constexpr decimal32_t zero {0};
+    if (underflow_value == zero)
+    {
+        std::cout &lt;&lt; "Underflow constructs zero" &lt;&lt; std::endl;
+    }
+
+    // Construction of NANs can be done using numeric limits,
+    // and checked using the normal isnan function
+    constexpr decimal32_t non_finite_from_float {std::numeric_limits&lt;decimal32_t&gt;::quiet_NaN()};
+    if (isnan(non_finite_from_float))
+    {
+        std::cout &lt;&lt; "NaN constructs NaN" &lt;&lt; std::endl;
+    }
+
+    // We can also construct both from a C-string (const char*) and from a std::string
+
+    const char* c_string_value {"4.3e-02"};
+    const decimal32_t from_c_string {c_string_value};
+    const decimal32_t from_std_string {std::string(c_string_value)};
+
+    if (from_c_string == from_std_string)
+    {
+        std::cout &lt;&lt; "Values constructed from const char* and std::string are the same" &lt;&lt; '\n';
+    }
+
+    // If we attempt construction for a string that cannot be converted into a decimal value,
+    // the constructor will do 1 of 2 things:
+    // 1) In a noexcept environment the constructor will return a quiet NaN
+    // 2) Otherwise it will throw
+    //
+    // The exception environment is detected automatically,
+    // or can be set by defining BOOST_DECIMAL_DISABLE_EXCEPTIONS
+
+    const char* bad_string {"Junk_String"};
+
+    #ifndef BOOST_DECIMAL_DISABLE_EXCEPTIONS
+
+    try
+    {
+        const decimal32_t throwing_value {bad_string};
+        std::cout &lt;&lt; throwing_value &lt;&lt; '\n';
+    }
+    catch (const std::runtime_error&amp; e)
+    {
+        std::cout &lt;&lt; e.what() &lt;&lt; std::endl;
+    }
+
+    #else
+
+    const decimal32_t nan_value {bad_string};
+    if (isnan(nan_value))
+    {
+        std::cout &lt;&lt; "Bad string construction has formed a NAN" &lt;&lt; std::endl;
+    }
+
+    #endif
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output</div>
+<div class="content">
+<pre>Val_1: 100
+Val_2: 100
+Val_3: -100
+Overflow constructs infinity
+Underflow constructs zero
+NaN constructs NaN
+Values constructed from const char* and std::string are the same
+Can not construct from invalid string</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_basic_math"><a class="anchor" href="#examples_basic_math"></a>Basic Arithmetic</h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 2. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/basic_arithmetic.cpp">example</a> demonstrates the behavior and functionality of arithmetic using a single type</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2024 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This file demonstrates some of the basic numerical operations with the decimal types
+
+#include &lt;boost/decimal/decimal64_t.hpp&gt;    // For type decimal64_t
+#include &lt;boost/decimal/cmath.hpp&gt;          // For decimal overloads of &lt;cmath&gt; functions
+#include &lt;boost/decimal/iostream.hpp&gt;       // For decimal support of &lt;iostream&gt; and &lt;iomanip&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+
+int main()
+{
+    using boost::decimal::decimal64_t;      // Type decimal64_t
+
+    constexpr decimal64_t a {"-5.123456891234567"};  // Constructs -5.123456 from string
+    constexpr decimal64_t b {"3.123456891234567"};   // Constructs 3.123456 from string
+    constexpr decimal64_t c {a + b};
+
+    // Here we can see that the result is exact
+    constexpr decimal64_t neg_two {-2};
+    static_assert(c == neg_two, "Result should be exact");
+
+    // We can use std::setprecision and std::numeric_limits in their usual ways
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;decimal64_t&gt;::digits10)
+              &lt;&lt; "A: " &lt;&lt; a &lt;&lt; '\n'
+              &lt;&lt; "B: " &lt;&lt; b &lt;&lt; '\n'
+              &lt;&lt; "A + B: " &lt;&lt; c &lt;&lt; '\n';
+
+    // The decimal library provides comprehensive implementations of the &lt;cmath&gt; functions
+    // that you would expect to have with the builtin floating point types
+    //
+    // They are all located in namespace boost::decimal::,
+    // as overloading namespace std is not allowed
+
+    constexpr decimal64_t abs_c {boost::decimal::abs(c)};
+    std::cout &lt;&lt; "abs(A + B): " &lt;&lt; abs_c &lt;&lt; '\n';
+
+    // All cmath functions are constexpr even if their std:: counterparts are not
+    constexpr decimal64_t sqrt_two {boost::decimal::sqrt(abs_c)};
+
+    // Value compute by N[Sqrt[2], 50] using Wolfram Alpha or Mathematica
+    constexpr decimal64_t wa_sqrt_two {"1.4142135623730950488016887242096980785696718753769"};
+    std::cout &lt;&lt; "sqrt(abs(A + B)): " &lt;&lt; sqrt_two &lt;&lt; '\n'
+              &lt;&lt; "Wolfram Alpha sqrt(2): " &lt;&lt; wa_sqrt_two &lt;&lt; '\n';
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre>A: -5.123456891234567
+B: 3.123456891234567
+A + B: -2
+abs(A + B): 2
+sqrt(abs(A + B)): 1.414213562373095
+Wolfram Alpha sqrt(2): 1.414213562373095</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="examples_math_results" class="exampleblock">
+<div class="title">Example 3. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/addition.cpp">example</a> shows the differences in arithmetic results between decimal floating point and binary floating point</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This example shows the difference in the results of repeated addition
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For type decimal32_t and std::numeric_limits support
+#include &lt;boost/decimal/iostream.hpp&gt;       // For decimal support to &lt;iostream&gt;
+#include &lt;iostream&gt;
+#include &lt;limits&gt;
+
+int main()
+{
+    using boost::decimal::decimal32_t;
+
+    constexpr decimal32_t decimal_one_tenth {"0.1"}; // Construct constant 0.1 from string for lossless conversion
+    constexpr float float_one_tenth {0.1f};              // Construct floating point constant from literal
+
+    decimal32_t decimal_value {};   // Construct decimal 0 to start from
+    float float_value {};           // Construct float 0 to start from
+
+    // We now add 0.1 1000 times which should result exactly in 100
+    // What we actually find is that the decimal32_t value does result in exactly 100
+    // With type float the result is not 100 due to inexact representation
+    for (int i {}; i &lt; 1000; ++i)
+    {
+        decimal_value += decimal_one_tenth; // Decimal types support compound arithmetic as expected
+        float_value += float_one_tenth;
+    }
+
+    // Each of the decimal types has complete support for std::numeric_limits,
+    // which we leverage here with set precision to show any fractional part of the number (if applicable)
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;decimal32_t&gt;::digits10)
+              &lt;&lt; "Decimal Result: " &lt;&lt; decimal_value &lt;&lt; "\n"
+              &lt;&lt; std::setprecision(std::numeric_limits&lt;float&gt;::digits10)
+              &lt;&lt; "  Float Result: " &lt;&lt; float_value &lt;&lt; std::endl;
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre>Decimal Result: 100
+  Float Result: 99.999</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_conversions"><a class="anchor" href="#examples_conversions"></a>Conversions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="examples_integer_conversions"><a class="anchor" href="#examples_integer_conversions"></a>Integral Conversions</h3>
+<div class="exampleblock">
+<div class="title">Example 4. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/integral_conversions.cpp">example</a> shows how to construct an integral value from decimal type and vice versa, as well as the behavior</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This file demonstrates how to convert various types to decimal types and back,
+// along with edge case handling
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;        // For type decimal32_t
+#include &lt;boost/decimal/decimal64_t.hpp&gt;        // For type decimal64_t
+#include &lt;boost/decimal/cmath.hpp&gt;              // For decimal support of cmath functions
+#include &lt;boost/decimal/iostream.hpp&gt;           // For decimal support of &lt;iostream&gt; and &lt;iomanip&gt;
+#include &lt;boost/decimal/numbers.hpp&gt;            // For decimal support of &lt;numbers&gt;
+#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;cstdint&gt;
+
+int main()
+{
+    using boost::decimal::decimal32_t;      // Type decimal32_t
+    using boost::decimal::decimal64_t;      // Type decimal64_t
+
+    // Non-finite values construct std::numeric_limits&lt;TargetIntegerType&gt;::max()
+    constexpr decimal64_t decimal_qnan {std::numeric_limits&lt;decimal64_t&gt;::quiet_NaN()};
+    const std::uint32_t int_from_nan {static_cast&lt;std::uint32_t&gt;(decimal_qnan)};
+
+    // Note here that we must use boost::decimal::isnan for decimal types,
+    // as it is illegal to overload std::isnan
+    if (boost::decimal::isnan(decimal_qnan) &amp;&amp; int_from_nan == std::numeric_limits&lt;std::uint32_t&gt;::max())
+    {
+        std::cout &lt;&lt; "Decimal QNAN converts to Integer Max\n";
+    }
+
+    // Same thing happens with decimal infinities since integers don't have an infinity
+    constexpr decimal32_t decimal_inf {std::numeric_limits&lt;decimal32_t&gt;::infinity()};
+    const std::uint64_t int_from_inf {static_cast&lt;std::uint64_t&gt;(decimal_inf)};
+
+    // Same as the above but with INF instead of NAN
+    if (boost::decimal::isinf(decimal_inf) &amp;&amp; int_from_inf == std::numeric_limits&lt;std::uint64_t&gt;::max())
+    {
+        std::cout &lt;&lt; "Decimal INF converts to Integer Max\n";
+    }
+
+    // For finite values the construction of the resulting integer matches the behavior
+    // you are familiar with from binary floating point to integer conversions.
+    // Namely, the result will only have the integer component of the decimal
+
+    // Construct the decimal64_t version of pi using our pre-computed constants from &lt;boost/decimal/numbers.hpp&gt;
+    constexpr decimal64_t decimal_pi {boost::decimal::numbers::pi_v&lt;decimal64_t&gt;};
+    const std::uint32_t int_from_pi {static_cast&lt;std::uint32_t&gt;(decimal_pi)};
+
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;decimal64_t&gt;::digits10)
+              &lt;&lt; "  decimal64_t pi: " &lt;&lt; decimal_pi &lt;&lt; '\n'
+              &lt;&lt; "std::uint32_t pi: " &lt;&lt; int_from_pi &lt;&lt; "\n\n";
+
+    // Constructing a decimal value from an integer is lossless until
+    // the number of digits in the integer exceeds the precision of the decimal type
+
+    std::cout &lt;&lt; "Conversions will be lossless\n"
+              &lt;&lt; "  decimal64_t digits10: " &lt;&lt; std::numeric_limits&lt;decimal64_t&gt;::digits10 &lt;&lt; "\n"
+              &lt;&lt; "std::uint32_t digits10: " &lt;&lt; std::numeric_limits&lt;std::uint32_t&gt;::digits10 &lt;&lt; "\n";
+
+    constexpr decimal64_t decimal_from_u32_max {std::numeric_limits&lt;std::uint32_t&gt;::max()};
+    std::cout &lt;&lt; "   std::uint32_t max: " &lt;&lt; std::numeric_limits&lt;std::uint32_t&gt;::max() &lt;&lt; "\n"
+              &lt;&lt; "decimal64_t from max: " &lt;&lt; decimal_from_u32_max &lt;&lt; "\n\n";
+
+    // In the construction of lossy values the rounding will be handled according to
+    // the current global rounding mode.
+
+    std::cout &lt;&lt; "Conversions will be lossy\n"
+          &lt;&lt; "  decimal32_t digits10: " &lt;&lt; std::numeric_limits&lt;decimal32_t&gt;::digits10 &lt;&lt; "\n"
+          &lt;&lt; "std::uint64_t digits10: " &lt;&lt; std::numeric_limits&lt;std::uint64_t&gt;::digits10 &lt;&lt; "\n";
+
+    constexpr decimal32_t decimal_from_u64_max {std::numeric_limits&lt;std::uint64_t&gt;::max()};
+    std::cout &lt;&lt; "   std::uint64_t max: " &lt;&lt; std::numeric_limits&lt;std::uint64_t&gt;::max() &lt;&lt; "\n"
+              &lt;&lt; "decimal32_t from max: " &lt;&lt; decimal_from_u64_max &lt;&lt; '\n';
+
+    return 0;
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output</div>
+<div class="content">
+<pre>Decimal QNAN converts to Integer Max
+Decimal INF converts to Integer Max
+  decimal64_t pi: 3.141592653589793
+std::uint32_t pi: 3
+
+Conversions will be lossless
+  decimal64_t digits10: 16
+std::uint32_t digits10: 9
+   std::uint32_t max: 4294967295
+decimal64_t from max: 4294967295
+
+Conversions will be lossy
+  decimal32_t digits10: 7
+std::uint64_t digits10: 19
+   std::uint64_t max: 18446744073709551615
+decimal32_t from max: 1.844674e+19</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="examples_binary_floating_conversions"><a class="anchor" href="#examples_binary_floating_conversions"></a>Binary Floating Point Conversions</h3>
+<div class="exampleblock">
+<div class="title">Example 5. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/binary_float_conversions.cpp">example</a> shows how to construct a binary floating point value from decimal type and vice versa, as well as the behavior</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This file demonstrates how to convert various types to decimal types and back,
+// along with edge case handling
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;        // For type decimal32_t
+#include &lt;boost/decimal/decimal64_t.hpp&gt;        // For type decimal64_t
+#include &lt;boost/decimal/cmath.hpp&gt;              // For decimal support of cmath functions
+#include &lt;boost/decimal/iostream.hpp&gt;           // For decimal support of &lt;iostream&gt; and &lt;iomanip&gt;
+#include &lt;boost/decimal/numbers.hpp&gt;            // For decimal support of &lt;numbers&gt;
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;limits&gt;
+
+int main()
+{
+    using boost::decimal::decimal32_t;      // Type decimal32_t
+    using boost::decimal::decimal64_t;      // Type decimal64_t
+
+    // Non-finite values construct the equivalent non-finite value in binary floating point
+    constexpr decimal64_t decimal_qnan {std::numeric_limits&lt;decimal64_t&gt;::quiet_NaN()};
+    const double double_from_qnan {static_cast&lt;double&gt;(decimal_qnan)};
+
+    // Note here that we must use boost::decimal::isnan for decimal types,
+    // as it is illegal to overload std::isnan
+    if (boost::decimal::isnan(decimal_qnan) &amp;&amp; std::isnan(double_from_qnan))
+    {
+        std::cout &lt;&lt; "Decimal QNAN converts to double QNAN\n";
+    }
+
+    constexpr decimal64_t decimal_inf {std::numeric_limits&lt;decimal64_t&gt;::infinity()};
+    const double double_from_inf {static_cast&lt;double&gt;(decimal_inf)};
+
+    // Same as the above but with INF instead of NAN
+    if (boost::decimal::isinf(decimal_inf) &amp;&amp; std::isinf(double_from_inf))
+    {
+        std::cout &lt;&lt; "Decimal INFINITY converts to double INFINITY\n";
+    }
+
+    // For finite values we make a best effort approach to covert to double
+    // We are able to decompose the decimal floating point value into a sign, significand, and exponent.
+    // From there we use the methods outline in Daniel Lemire's "Number Parsing at a Gigabyte a Second",
+    // to construct the binary floating point value.
+    // See: https://arxiv.org/pdf/2101.11408
+
+    // Construct the decimal64_t version of pi using our pre-computed constants from &lt;boost/decimal/numbers.hpp&gt;
+    constexpr decimal64_t decimal_pi {boost::decimal::numbers::pi_v&lt;decimal64_t&gt;};
+    const double double_from_pi {static_cast&lt;double&gt;(decimal_pi)};
+
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;decimal64_t&gt;::digits10)
+              &lt;&lt; "decimal64_t pi: " &lt;&lt; decimal_pi &lt;&lt; '\n'
+              &lt;&lt; "     double pi: " &lt;&lt; double_from_pi &lt;&lt; '\n';
+
+    // To construct a decimal64_t from double we use the methods described in "Ryu: fast float-to-string conversion"
+    // See: https://dl.acm.org/doi/10.1145/3192366.3192369
+    // This paper shows how to decompose a double into it's sign, significand, and exponent
+    // Once we have those components we can use the normal constructors of the decimal types to construct
+    // Since we are using the normal constructors here,
+    // any construction from this conversion is subject to the current rounding mode
+    // Such as with a lossy conversion like shown (double -&gt; decimal32_t)
+
+    const decimal64_t decimal_from_double {static_cast&lt;decimal64_t&gt;(double_from_pi)};
+    const decimal32_t lossy_decimal_from_double {static_cast&lt;decimal32_t&gt;(double_from_pi)};
+
+    std::cout &lt;&lt; "  Converted pi: " &lt;&lt; decimal_from_double &lt;&lt; '\n'
+              &lt;&lt; "decimal32_t pi: " &lt;&lt; lossy_decimal_from_double &lt;&lt; '\n';
+
+
+    // Other than what has already been shown,
+    // there are no other ways in the library to convert between decimal types and binary floating point types
+    // The reason for this is to discourage their use.
+    //
+    // You can use intermediate representations like strings if you want to make these conversions,
+    // and want to be sure about what the resulting value will be
+
+    return 0;
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre>Decimal QNAN converts to double QNAN
+Decimal INFINITY converts to double INFINITY
+decimal64_t pi: 3.141592653589793
+     double pi: 3.141592653589793
+  Converted pi: 3.141592653589793
+decimal32_t pi: 3.141593</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_promotion"><a class="anchor" href="#examples_promotion"></a>Promotion and Mixed Decimal Arithmetic</h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 6. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/promotion.cpp">example</a> demonstrates the behaviors of promotion between types, and mixed decimal type arithmetic</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This file briefly demonstrates the results of mixed decimal comparisons and arithmetic
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For the type decimal32_t
+#include &lt;boost/decimal/decimal64_t.hpp&gt;    // For the type decimal64_t
+#include &lt;boost/decimal/iostream.hpp&gt;       // For decimal type support to &lt;iostream&gt;
+#include &lt;type_traits&gt;
+#include &lt;iostream&gt;
+#include &lt;limits&gt;
+
+int main()
+{
+    using boost::decimal::decimal32_t;
+    using boost::decimal::decimal64_t;
+    using boost::decimal::decimal128_t;
+
+    // First construct two values that we will perform arithmetic with
+    const decimal32_t a {"5.2"};
+    const decimal64_t b {"3.9"};
+
+    std::cout &lt;&lt; "decimal32_t value (a): " &lt;&lt; a &lt;&lt; '\n'
+              &lt;&lt; "decimal64_t value (b): " &lt;&lt; b &lt;&lt; '\n';
+
+    // Mixed decimal comparisons are allowed by default
+    if (a &gt; b)
+    {
+        std::cout &lt;&lt; "a is greater than b" &lt;&lt; '\n';
+    }
+
+    // Even comparison of unrepresentable values is fine
+    // For example decimal32_t can't represent decimal64_t max value
+    constexpr decimal64_t dec64_max {std::numeric_limits&lt;decimal64_t&gt;::max()};
+    if (a &lt; dec64_max)
+    {
+        std::cout &lt;&lt; a &lt;&lt; " is less than " &lt;&lt; dec64_max &lt;&lt; '\n';
+    }
+
+    // Danger awaits if you decide to do this yourself instead of letting the system do it for you,
+    // since in this example the two should compare equal but overflowing decimal32_t makes infinity
+    if (static_cast&lt;decimal32_t&gt;(dec64_max) &lt; dec64_max)
+    {
+        std::cout &lt;&lt; dec64_max &lt;&lt; " is less than " &lt;&lt; static_cast&lt;decimal32_t&gt;(dec64_max) &lt;&lt; '\n';
+    }
+
+    // With mixed operations like +, -, *, / we promote to the higher precision type
+    // Example: decimal32_t + decimal64_t -&gt; decimal64_t
+
+    // We use auto here for two reasons
+    // 1) To demonstrate that it's safe
+    // 2) To show the promotion with the conditional logic that follows
+    const auto c {a + b};
+    using c_type = std::remove_cv_t&lt;decltype(c)&gt;; // We used const auto so the result is const decimal64_t
+
+    static_assert(std::is_same&lt;c_type, decimal64_t&gt;::value, "decimal32_t + decimal64_t is supposed to yield decimal64_t");
+    std::cout &lt;&lt; "The result of a + b is a decimal64_t: " &lt;&lt; c &lt;&lt; '\n';
+
+    // Now we can look at similar promotion that occurs when an operation is performed between
+    // a decimal type and an integer
+    //
+    // Similar to the above when we have mixed operations like +, -, *, / we always promote to the decimal type
+    // Example: decimal64_t * int -&gt; decimal64_t
+
+    const auto d {2 * c};
+    using d_type = std::remove_cv_t&lt;decltype(d)&gt;;
+    static_assert(std::is_same&lt;d_type, decimal64_t&gt;::value, "decimal64_t * integer is supposed to yield decimal64_t");
+    std::cout &lt;&lt; "The result of 2 * c is a decimal64_t: " &lt;&lt; d &lt;&lt; '\n';
+
+    // The full suite of comparison operators between decimal types and integers
+    if (d &gt; 5)
+    {
+        std::cout &lt;&lt; d &lt;&lt; " is greater than 5" &lt;&lt; '\n';
+    }
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre>decimal32_t value (a): 5.2
+decimal64_t value (b): 3.9
+a is greater than b
+5.2 is less than 1e+385
+1e+385 is less than inf
+The result of a + b is a decimal64_t: 9.1
+The result of 2*c is a decimal64_t: 18.2
+18.2 is greater than 5</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_charconv"><a class="anchor" href="#examples_charconv"></a><code>&lt;charconv&gt;</code></h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 7. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/charconv.cpp">example</a> demonstrates the fundamentals of the <code>&lt;charconv&gt;</code> like functions provided by the library</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2024 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This file demonstrates the various ways that &lt;charconv&gt; support can be used with the decimal library
+// NOTE: &lt;charconv&gt; need not be included to use this functionality
+
+#include &lt;boost/decimal/decimal64_t.hpp&gt;    // For the type decimal64_t
+#include &lt;boost/decimal/charconv.hpp&gt;       // For &lt;charconv&gt; support
+#include &lt;boost/decimal/iostream.hpp&gt;       // For decimal support &lt;iostream&gt;
+#include &lt;iostream&gt;                         // &lt;iostream&gt;
+#include &lt;cstring&gt;                          // For std::strlen
+
+int main()
+{
+    using boost::decimal::decimal64_t;      // The type decimal64_t
+    using boost::decimal::to_chars;         // The to_chars functions
+    using boost::decimal::to_chars_result;  // The return type of to_chars
+    using boost::decimal::from_chars;       // The from_chars functions
+    using boost::decimal::from_chars_result;// The return type of from_chars
+    using boost::decimal::chars_format;     // The enum class of the different formatting options
+    using boost::decimal::formatting_limits;// Allows the user to correctly size buffers
+
+    const char* initial_value {"-7.12345e+06"};
+
+    decimal64_t initial_decimal;
+    const from_chars_result r_initial {from_chars(initial_value, initial_value + std::strlen(initial_value), initial_decimal)};
+
+    // from_chars_result contains a value of std::errc, but also has a bool operator for better checks like this
+    // Regular &lt;charconv&gt; should be getting this bool operator in C++26
+    if (!r_initial)
+    {
+        // LCOV_EXCL_START
+        // Here you can handle an error condition in any way you see fit
+        // For the purposes of our example we log and abort
+        std::cout &lt;&lt; "Unexpected failure" &lt;&lt; std::endl;
+        return 1;
+        // LCOV_EXCL_STOP
+    }
+    else
+    {
+        std::cout &lt;&lt; "Initial decimal: " &lt;&lt; initial_decimal &lt;&lt; '\n';
+    }
+
+    // boost::decimal::from_chars deviates from the C++ standard by allowing a std::string,
+    // or a std::string_view (when available)
+    //
+    // It is also perfectly acceptable to use an auto return type for even more brevity when using from_chars
+    const std::string string_value {"3.1415"};
+    decimal64_t string_decimal;
+    const auto r_string {from_chars(string_value, string_decimal)};
+    if (r_string)
+    {
+        std::cout &lt;&lt; "Value from string: " &lt;&lt; string_decimal &lt;&lt; '\n';
+    }
+
+    // We can now compare the various ways to print the value
+    // First we will review the formatting_limits struct
+    // This struct contains a number of members that allow the to_chars buffer to be correctly sized
+    //
+    // First formatting_limits takes a type and optionally a precision as template parameters
+    // It then has members each corresponding to the maximum number of characters needed to print the type
+    //
+    // 1) scientific_format_max_chars
+    // 2) fixed_format_max_chars
+    // 3) hex_format_max_chars
+    // 4) cohort_preserving_scientific_max_chars
+    // 5) general_format_max_chars
+    // 6) max_chars - Equal to the maximum value of 1 to 5 to allow to_chars of any format
+    //
+    // Each of these will give you one additional character so you can write a null terminator to the end
+    // NOTE: to_chars IS NOT default null terminated
+
+    char scientific_buffer[formatting_limits&lt;decimal64_t&gt;::scientific_format_max_chars];
+    const to_chars_result r_sci {to_chars(scientific_buffer,
+        scientific_buffer + sizeof(scientific_buffer), initial_decimal, chars_format::scientific)};
+    if (r_sci)
+    {
+        *r_sci.ptr = '\0'; // to_chars does not null terminate per the C++ standard
+        std::cout &lt;&lt; "Value in scientific format: " &lt;&lt; scientific_buffer &lt;&lt; '\n';
+    }
+    // else handle the error how you would like
+
+    // If we went to print the value to some specified precision our buffer will need more space
+    // Formatting limits takes a precision in this case
+    //
+    // Also as with from_chars it's perfectly fine to use an auto return type with to_chars
+    constexpr int required_precision {20};
+    char precision_20_scientific_buffer[formatting_limits&lt;decimal64_t, required_precision&gt;::scientific_format_max_chars];
+    const auto r_sci20 {to_chars(precision_20_scientific_buffer,
+        precision_20_scientific_buffer + sizeof(precision_20_scientific_buffer),
+        initial_decimal, chars_format::scientific, required_precision)};
+
+    if (r_sci20)
+    {
+        *r_sci20.ptr = '\0';
+        std::cout &lt;&lt; "Value in scientific format with precision 20: " &lt;&lt; precision_20_scientific_buffer &lt;&lt; '\n';
+    }
+    // else handle the error how you would like
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre>Initial decimal: -7123450
+Value from string: 3.1415
+Value in scientific format: -7.12345e+06
+Value in scientific format with precision 20: -7.12345000000000000000e+06</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_generic_programming"><a class="anchor" href="#examples_generic_programming"></a>Generic Programming</h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 8. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/adl.cpp">example</a> demonstrates how to write generic code that accepts both built-in floating point types, and decimal floating point values from this library</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2024 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This example shows how we are able to use adl with Boost.Decimal to allow a template function
+// to use both built-in binary floating point types, as well as Boost.Decimal types
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For type decimal32_t
+#include &lt;boost/decimal/decimal64_t.hpp&gt;    // For type decimal64_t
+#include &lt;boost/decimal/decimal128_t.hpp&gt;   // For type decimal128_t
+#include &lt;boost/decimal/iostream.hpp&gt;       // For &lt;iostream&gt; support
+#include &lt;boost/decimal/cmath.hpp&gt;          // For sin function
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+template &lt;typename T&gt;
+void sin_identity(T val)
+{
+    // ADL allows builtin and decimal types to both be used
+    // Boost.Decimal is not allowed to overload std::sin so it must be provided in its own namespace
+    // You must also include using std::sin to ensure that it is found for the float, double, and long double cases.
+    // It is preferred to have using statements for the functions you intend to use instead of using namespace XXX.
+    using std::sin;
+    using boost::decimal::sin;
+
+    // sin(x) = -sin(-x)
+    // The call here MUST be unqualified, or you will get compiler errors
+    // For example calling std::sin here would not allow any of the decimal types to be used
+    std::cout &lt;&lt; "sin(" &lt;&lt; val &lt;&lt; ") = " &lt;&lt; sin(val) &lt;&lt; '\n'
+              &lt;&lt; "-sin(" &lt;&lt; -val &lt;&lt; ") = " &lt;&lt; -sin(-val) &lt;&lt; "\n\n";
+}
+
+int main()
+{
+    // Because of the two using statements in the above function we can now call it with built-in floating point,
+    // or our decimal types as show below
+
+    std::cout &lt;&lt; "Float:\n";
+    sin_identity(-0.5F);
+
+    std::cout &lt;&lt; "Double:\n";
+    sin_identity(-0.5);
+
+    std::cout &lt;&lt; "Long Double:\n";
+    sin_identity(-0.5L);
+
+    std::cout &lt;&lt; "decimal32_t:\n";
+    sin_identity(boost::decimal::decimal32_t{"-0.5"});
+
+    std::cout &lt;&lt; "decimal64_t:\n";
+    sin_identity(boost::decimal::decimal64_t{"-0.5"});
+
+    std::cout &lt;&lt; "decimal128_t:\n";
+    sin_identity(boost::decimal::decimal128_t{"-0.5"});
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expected Output:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Float:
+sin(-0.5) = -0.479426
+-sin(0.5) = -0.479426
+
+Double:
+sin(-0.5) = -0.479426
+-sin(0.5) = -0.479426
+
+Long Double:
+sin(-0.5) = -0.479426
+-sin(0.5) = -0.479426
+
+decimal32_t:
+sin(-0.5) = -0.479426
+-sin(0.5) = -0.479426
+
+decimal64_t:
+sin(-0.5) = -0.479426
+-sin(0.5) = -0.479426
+
+decimal128_t:
+sin(-0.5) = -0.479426
+-sin(0.5) = -0.479426</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_literals_constants"><a class="anchor" href="#examples_literals_constants"></a>Literals and Constants</h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 9. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/literals.cpp">example</a> demonstrates how to construct values using literals, and the usage of numerical constants that are provided by the library</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2024 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This examples demonstrates decimal floating point literals,
+// as well as numeric constants made available by the library
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;        // For type decimal32_t
+#include &lt;boost/decimal/decimal64_t.hpp&gt;        // For type decimal64_t
+#include &lt;boost/decimal/literals.hpp&gt;           // For the decimal (user defined) literals
+#include &lt;boost/decimal/numbers.hpp&gt;            // For provided numeric constants
+#include &lt;boost/decimal/iostream.hpp&gt;           // For support to &lt;iostream&gt; and &lt;iomanip&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;type_traits&gt;
+#include &lt;limits&gt;
+
+int main()
+{
+    using namespace boost::decimal::literals;   // Much like the std namespace, literals are separate form the lib
+    using boost::decimal::decimal32_t;  // Type decimal32_t
+    using boost::decimal::decimal64_t;  // Type decimal64_t
+
+    // Defaulted numeric constants are available with type decimal64_t,
+    // much like std::numbers::pi defaults to double
+    constexpr auto default_pi {boost::decimal::numbers::pi};
+    using default_type = std::remove_cv_t&lt;decltype(default_pi)&gt;;
+    static_assert(std::is_same&lt;default_type, decimal64_t&gt;::value, "Defaulted value has type decimal64_t");
+
+    // You can also specify the type explicitly as these are template constants
+    constexpr decimal32_t decimal32_pi {boost::decimal::numbers::pi_v&lt;decimal32_t&gt;};
+
+    // We can use std::setprecision from &lt;iomanip&gt; to see the real difference between the two values
+    // numeric_limits is also specialized for each type
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;decimal32_t&gt;::digits10)
+              &lt;&lt; "32-bit Pi: " &lt;&lt; decimal32_pi &lt;&lt; '\n';
+
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;decimal64_t&gt;::digits10)
+              &lt;&lt; "64-bit Pi: " &lt;&lt; default_pi &lt;&lt; '\n';
+
+    // All of our types also offer user defined literals:
+    // _df or _DF for decimal32_t
+    // _dd or _DD for decimal64_t
+    // _dl or _DL for decimal128_t
+    // For fast types add an f to the end of each (e.g. _dff = decimal_fast32_t or _DLF decimal_fast128_t)
+    //
+    // Since we have specified the type using the literal it is safe to use auto for the type
+    //
+    // We construct both from the first 40 digits of pi
+    // The constructor will parse this and then round to the proper precision automatically
+
+    constexpr auto literal32_pi {"3.141592653589793238462643383279502884197"_DF};
+    constexpr auto literal64_pi {"3.141592653589793238462643383279502884197"_DD};
+
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;decimal32_t&gt;::digits10)
+              &lt;&lt; "32-bit UDL Pi: " &lt;&lt; literal32_pi &lt;&lt; '\n';
+
+    // Unlike built-in binary floating point, floating equal is acceptable with decimal floating point
+    // Float equal will automatically address cohorts as per IEEE 754 if required (not shown in this example)
+    if (literal32_pi == decimal32_pi)
+    {
+        std::cout &lt;&lt; "Rounded UDL has the same value as the 32-bit constant" &lt;&lt; '\n';
+    }
+
+    std::cout &lt;&lt; std::setprecision(std::numeric_limits&lt;decimal64_t&gt;::digits10)
+              &lt;&lt; "64-bit UDL Pi: " &lt;&lt; literal64_pi &lt;&lt; '\n';
+
+    if (literal64_pi == default_pi)
+    {
+        std::cout &lt;&lt; "Rounded UDL has the same value as the 64-bit constant" &lt;&lt; '\n';
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expected Output:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>32-bit Pi: 3.141593
+64-bit Pi: 3.141592653589793
+32-bit UDL Pi: 3.141593
+Rounded UDL has the same value as the 32-bit constant
+64-bit UDL Pi: 3.141592653589793
+Rounded UDL has the same value as the 64-bit constant</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_format"><a class="anchor" href="#examples_format"></a>Formatting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Boost.Decimal allows you to format your output with both <code>&lt;format&gt;</code> and <code>&lt;fmt/format.h&gt;</code> depending on your compiler support.
+{fmt} support is available starting with C++14 so long as you have the library available, but <code>&lt;format&gt;</code> requires C++20 and compiler support</p>
+</div>
+<div class="sect2">
+<h3 id="examples_fmt_format"><a class="anchor" href="#examples_fmt_format"></a><code>&lt;fmt/format.hpp&gt;</code></h3>
+<div class="exampleblock">
+<div class="title">Example 10. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/fmt_format.cpp">example</a> demonstrates the various formatting options provided by the library to support usage of {fmt}</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This example demonstrates usage and formatting of decimal types with fmt
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For type decimal32_t
+#include &lt;boost/decimal/decimal64_t.hpp&gt;    // For type decimal64_t
+#include &lt;boost/decimal/fmt_format.hpp&gt;     // For {fmt} support
+#include &lt;iostream&gt;
+
+int main()
+{
+    constexpr boost::decimal::decimal64_t val1 {"3.14"};
+    constexpr boost::decimal::decimal32_t val2 {"3.141"};
+
+    // The easiest is no specification which is general format
+    // Given these values they will print in fixed format
+    std::cout &lt;&lt; "Default Format:\n";
+    std::cout &lt;&lt; fmt::format("{}", val1) &lt;&lt; '\n';
+    std::cout &lt;&lt; fmt::format("{}", val2) &lt;&lt; "\n\n";
+
+    // Next we can add a type modifier to get scientific formatting
+    std::cout &lt;&lt; "Scientific Format:\n";
+    std::cout &lt;&lt; fmt::format("{:e}", val1) &lt;&lt; '\n';
+    std::cout &lt;&lt; fmt::format("{:e}", val2) &lt;&lt; "\n\n";
+
+    // Next we can add a type modifier to get scientific formatting
+    // Here this gives one digit of precision rounded according to current rounding mode
+    std::cout &lt;&lt; "Scientific Format with Specified Precision:\n";
+    std::cout &lt;&lt; fmt::format("{:.1e}", val1) &lt;&lt; '\n';
+    std::cout &lt;&lt; fmt::format("{:.1e}", val2) &lt;&lt; "\n\n";
+
+    // Width specifies the minimum field width
+    // By default, values are right-aligned with space fill
+    std::cout &lt;&lt; "Width with Default Alignment (right-align, space fill):\n";
+    std::cout &lt;&lt; fmt::format("[{:12}]", val1) &lt;&lt; '\n';
+    std::cout &lt;&lt; fmt::format("[{:12.3e}]", val2) &lt;&lt; "\n\n";
+
+    // Alignment specifiers: &lt; (left), &gt; (right), ^ (center)
+    std::cout &lt;&lt; "Alignment Specifiers:\n";
+    std::cout &lt;&lt; fmt::format("[{:&lt;12}]", val1) &lt;&lt; " (left)\n";
+    std::cout &lt;&lt; fmt::format("[{:&gt;12}]", val1) &lt;&lt; " (right)\n";
+    std::cout &lt;&lt; fmt::format("[{:^12}]", val1) &lt;&lt; " (center)\n\n";
+
+    // Fill character can be any character placed before the alignment specifier
+    std::cout &lt;&lt; "Custom Fill Characters:\n";
+    std::cout &lt;&lt; fmt::format("[{:*&lt;12}]", val1) &lt;&lt; " (left, * fill)\n";
+    std::cout &lt;&lt; fmt::format("[{:-&gt;12}]", val1) &lt;&lt; " (right, - fill)\n";
+    std::cout &lt;&lt; fmt::format("[{:=^12}]", val1) &lt;&lt; " (center, = fill)\n\n";
+
+    // Combining fill, alignment, sign, width, precision, and type
+    std::cout &lt;&lt; "Combined Format Specifiers:\n";
+    std::cout &lt;&lt; fmt::format("[{:*&gt;+12.2e}]", val1) &lt;&lt; " (right, * fill, + sign, precision 2, scientific)\n";
+    std::cout &lt;&lt; fmt::format("[{:-&lt;+12.2f}]", val2) &lt;&lt; " (left, - fill, + sign, precision 2, fixed)\n";
+
+    return 0;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expected Output:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Default Format:
+3.14
+3.141
+
+Scientific Format:
+3.14e+00
+3.141e+00
+
+Scientific Format with Specified Precision:
+3.1e+00
+3.1e+00
+
+Width with Default Alignment (right-align, space fill):
+[        3.14]
+[   3.141e+00]
+
+Alignment Specifiers:
+[3.14        ] (left)
+[        3.14] (right)
+[    3.14    ] (center)
+
+Custom Fill Characters:
+[3.14********] (left, * fill)
+[--------3.14] (right, - fill)
+[====3.14====] (center, = fill)
+
+Combined Format Specifiers:
+[***+3.14e+00] (right, * fill, + sign, precision 2, scientific)
+[+3.14-------] (left, - fill, + sign, precision 2, fixed)</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+If you are using the convenience header <code>&lt;boost/decimal.hpp&gt;</code> the header <code>&lt;boost/decimal/fmt_format.hpp&gt;</code> is <strong>NOT</strong> automatically included since it requires an external library.
+You must include it yourself.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="examples_std_format"><a class="anchor" href="#examples_std_format"></a><code>&lt;format&gt;</code></h3>
+<div class="paragraph">
+<p>Taking the above example of {fmt} and replacing all instances of <code>namespace fmt</code> with <code>namespace std</code> gives us another working example.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 11. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/format.cpp">example</a> demonstrates how to use <code>&lt;format&gt;</code> with the library in-place or in addition to {fmt}</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This example demonstrates usage and formatting of decimal types with &lt;format&gt;
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For type decimal32_t
+#include &lt;boost/decimal/decimal64_t.hpp&gt;    // For type decimal64_t
+#include &lt;boost/decimal/format.hpp&gt;         // For &lt;format&gt; support (when available)
+#include &lt;iostream&gt;
+
+// This macro is defined in boost/decimal/format.hpp if the platform has &lt;format&gt; support
+#ifdef BOOST_DECIMAL_HAS_FORMAT_SUPPORT
+
+#include &lt;format&gt;
+
+int main()
+{
+    constexpr boost::decimal::decimal64_t val1 {"3.14"};
+    constexpr boost::decimal::decimal32_t val2 {"3.141"};
+
+    // The easiest is no specification which is general format
+    // Given these values they will print in fixed format
+    std::cout &lt;&lt; "Default Format:\n";
+    std::cout &lt;&lt; std::format("{}", val1) &lt;&lt; '\n';
+    std::cout &lt;&lt; std::format("{}", val2) &lt;&lt; "\n\n";
+
+    // Next we can add a type modifier to get scientific formatting
+    std::cout &lt;&lt; "Scientific Format:\n";
+    std::cout &lt;&lt; std::format("{:e}", val1) &lt;&lt; '\n';
+    std::cout &lt;&lt; std::format("{:e}", val2) &lt;&lt; "\n\n";
+
+    // Next we can add a type modifier to get scientific formatting
+    // Here this gives one digit of precision rounded according to current rounding mode
+    std::cout &lt;&lt; "Scientific Format with Specified Precision:\n";
+    std::cout &lt;&lt; std::format("{:.1e}", val1) &lt;&lt; '\n';
+    std::cout &lt;&lt; std::format("{:.1e}", val2) &lt;&lt; "\n\n";
+
+    // Width specifies the minimum field width
+    // By default, values are right-aligned with space fill
+    std::cout &lt;&lt; "Width with Default Alignment (right-align, space fill):\n";
+    std::cout &lt;&lt; std::format("[{:12}]", val1) &lt;&lt; '\n';
+    std::cout &lt;&lt; std::format("[{:12.3e}]", val2) &lt;&lt; "\n\n";
+
+    // Alignment specifiers: &lt; (left), &gt; (right), ^ (center)
+    std::cout &lt;&lt; "Alignment Specifiers:\n";
+    std::cout &lt;&lt; std::format("[{:&lt;12}]", val1) &lt;&lt; " (left)\n";
+    std::cout &lt;&lt; std::format("[{:&gt;12}]", val1) &lt;&lt; " (right)\n";
+    std::cout &lt;&lt; std::format("[{:^12}]", val1) &lt;&lt; " (center)\n\n";
+
+    // Fill character can be any character placed before the alignment specifier
+    std::cout &lt;&lt; "Custom Fill Characters:\n";
+    std::cout &lt;&lt; std::format("[{:*&lt;12}]", val1) &lt;&lt; " (left, * fill)\n";
+    std::cout &lt;&lt; std::format("[{:-&gt;12}]", val1) &lt;&lt; " (right, - fill)\n";
+    std::cout &lt;&lt; std::format("[{:=^12}]", val1) &lt;&lt; " (center, = fill)\n\n";
+
+    // Combining fill, alignment, sign, width, precision, and type
+    std::cout &lt;&lt; "Combined Format Specifiers:\n";
+    std::cout &lt;&lt; std::format("[{:*&gt;+12.2e}]", val1) &lt;&lt; " (right, * fill, + sign, precision 2, scientific)\n";
+    std::cout &lt;&lt; std::format("[{:-&lt;+12.2f}]", val2) &lt;&lt; " (left, - fill, + sign, precision 2, fixed)\n";
+
+    return 0;
+}
+
+#else
+
+int main()
+{
+    std::cout &lt;&lt; "&lt;format&gt; is unsupported" &lt;&lt; std::endl;
+    return 0;
+}
+
+#endif</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre>Default Format:
+3.14
+3.141
+
+Scientific Format:
+3.14e+00
+3.141e+00
+
+Scientific Format with Specified Precision:
+3.1e+00
+3.1e+00
+
+Width with Default Alignment (right-align, space fill):
+[        3.14]
+[   3.141e+00]
+
+Alignment Specifiers:
+[3.14        ] (left)
+[        3.14] (right)
+[    3.14    ] (center)
+
+Custom Fill Characters:
+[3.14********] (left, * fill)
+[--------3.14] (right, - fill)
+[====3.14====] (center, = fill)
+
+Combined Format Specifiers:
+[***+3.14e+00] (right, * fill, + sign, precision 2, scientific)
+[+3.14-------] (left, - fill, + sign, precision 2, fixed)</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="examples_print"><a class="anchor" href="#examples_print"></a><code>&lt;print&gt;</code></h3>
+<div class="exampleblock">
+<div class="title">Example 12. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/print.cpp">example</a> demonstrates how to use <code>&lt;print&gt;</code> with the library</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal.hpp&gt;
+#include &lt;print&gt;
+
+int main()
+{
+    constexpr boost::decimal::decimal64_t val1 {314, -2};
+    constexpr boost::decimal::decimal32_t val2 {3141, -3};
+
+    std::print("[{:&gt;10.3e}]\n", val1);
+    std::print("[{:*&lt;10.3e}]\n", val2);
+
+    return 0;
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre>[ 3.140e+00]
+[3.141e+00*]</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples_file"><a class="anchor" href="#examples_file"></a>Reading From and Writing To File</h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 13. This example shows how to read and write decimal values efficiently to and from file, rather than using <code>to_chars</code> and <code>from_chars</code></div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This example shows how to write and read decimal values to file efficiently
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;     // For type decimal32_t
+#include &lt;boost/decimal/bid_conversion.hpp&gt;  // For to and from BID encoded bits functions
+#include &lt;boost/decimal/iostream.hpp&gt;        // For decimal type support to &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;random&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;cstdint&gt;
+#include &lt;cstdio&gt;
+
+int main()
+{
+   using boost::decimal::decimal32_t;  // The type decimal32_t
+
+   // First we need to generate some values that we will use for further usage
+   // This constructs a decimal32_t from random significand and exponent within the domain of decimal32_t
+   std::mt19937_64 rng {42};
+   std::uniform_int_distribution&lt;std::int32_t&gt; significand_dist {-9'999'999, 9'999'999};
+   std::uniform_int_distribution&lt;std::int32_t&gt; exp_dist {-50, 50};
+
+   std::array&lt;decimal32_t, 10&gt; values;
+   for (auto&amp; v : values)
+   {
+      v = decimal32_t{significand_dist(rng), exp_dist(rng)};
+   }
+
+   // Now that we have our random decimal32_ts we will write them to file
+   // using their bitwise representations with the to_bid function
+   //
+   // This allows us to losslessly and rapidly recover them from file
+   // It is more efficient than writing the string to file with to_chars,
+   // and then recovering via the string constructor or from_chars
+
+   std::ofstream file("example_values.txt");
+   if (!file.is_open())
+   {
+      std::cerr &lt;&lt; "Failed to open file for writing" &lt;&lt; std::endl;
+      return 1;
+   }
+
+   for (const auto&amp; value : values)
+   {
+      std::uint32_t bid_value {boost::decimal::to_bid(value)};
+
+      std::cout &lt;&lt; " Current value: " &lt;&lt; std::dec &lt;&lt; value &lt;&lt; '\n'
+                &lt;&lt; "Value as bytes: " &lt;&lt; std::hex &lt;&lt; bid_value &lt;&lt; "\n\n";
+
+      file.write(reinterpret_cast&lt;char*&gt;(&amp;bid_value), sizeof(bid_value));
+   }
+   file.close();
+
+   // Now that we have written all the values to file we will read them in,
+   // and then convert them back them to the decimal values using from_bid
+   std::ifstream read_file("example_values.txt", std::ios::binary);
+   if (!read_file.is_open())
+   {
+      std::cerr &lt;&lt; "Failed to open file for reading" &lt;&lt; std::endl;
+      return 1;
+   }
+
+   std::array&lt;decimal32_t, 10&gt; recovered_values;
+   for (auto&amp; value : recovered_values)
+   {
+      std::uint32_t bid_value;
+      read_file.read(reinterpret_cast&lt;char*&gt;(&amp;bid_value), sizeof(bid_value));
+      value = boost::decimal::from_bid(bid_value);
+   }
+
+   read_file.close();
+   if (std::remove("example_values.txt"))
+   {
+      std::cerr &lt;&lt; "Failed to remove file" &lt;&lt; std::endl;
+   }
+
+   // Verify that we recovered the same values
+   bool success {true};
+   for (std::size_t i {}; i &lt; values.size(); ++i)
+   {
+      if (values[i] != recovered_values[i])
+      {
+         success = false;
+         break;
+      }
+   }
+
+   if (success)
+   {
+      std::cout &lt;&lt; "Successfully recovered all values from file" &lt;&lt; std::endl;
+   }
+   else
+   {
+      std::cout &lt;&lt; "Warning: Some values did not match after recovery" &lt;&lt; std::endl;
+   }
+
+   return 0;
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre> Current value: 0.000506
+Value as bytes: 2dcd4c57
+
+ Current value: -3.808117e+34
+Value as bytes: c0ba1b75
+
+ Current value: -1.656579e-12
+Value as bytes: a9994703
+
+ Current value: 2.040449e+10
+Value as bytes: 349f2281
+
+ Current value: -5.16665e+43
+Value as bytes: c587e239
+
+ Current value: -9.25265e+32
+Value as bytes: c00e1e51
+
+ Current value: -5.766669e-11
+Value as bytes: aa57fe0d
+
+ Current value: -7.641908e+38
+Value as bytes: c2f49b34
+
+ Current value: 6.31977e+29
+Value as bytes: 3e606e9a
+
+ Current value: 9.210438e-24
+Value as bytes: 68ec8a46
+
+Successfully recovered all values from file</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+  <div class="edit-this-page">
+  </div>
+      <nav class="pagination">
+        <span class="prev"><a href="basics.html">Basic Usage</a></span>
+        <span class="next"><a href="financial_examples.html">Financial Examples</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="./_/js/site.js" data-ui-root-path="./_"></script>
+<script async src="./_/js/vendor/highlight.js"></script>
+<script async src="./_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>

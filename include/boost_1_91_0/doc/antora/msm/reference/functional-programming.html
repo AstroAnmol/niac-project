@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="../../_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../../_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../../_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../../_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = '../../_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>Functional programming :: Boost Libraries Documentation</title>
+  <link rel="canonical" href="https://antora.cppalliance.org/master/lib/doc/msm/reference/functional-programming.html">
+    <link rel="prev" href="euml-operators-and-basic-helpers.html">
+    <link rel="next" href="common-headers.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="../../_/css/boostlook.css">
+    <link rel="stylesheet" href="../../_/css/site.css">
+    <link rel="stylesheet" href="../../_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = '../../_'</script>
+<link rel="icon" href="../../_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../../_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="../../_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="../../_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+  <script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs'; mermaid.initialize({"startOnLoad":true});</script> <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="msm" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="../index.html">Boost.MetaStateMachine</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="../index.html">Table of Contents</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="../preface.html">Preface</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../founding-idea.html">Founding idea</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../uml-short-guide.html">UML short guide</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../tutorial.html">Tutorial</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="../tutorial/basic-front-end.html">Basic front-end</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../tutorial/functor-front-end.html">Functor front-end</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../tutorial/puml-front-end.html">PUML front-end (C++20, experimental)</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../tutorial/euml-front-end.html">eUML front-end (deprecated)</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../tutorial/back-end.html">Back-end</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../tutorial/backmp11-back-end.html">Backmp11 back-end (C++17, experimental)</a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="../performance-compilers.html">Performance / Compilers</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../questions-answers-tips.html">Questions &amp; Answers, tips</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../internals.html">Internals</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../acknowledgements.html">Acknowledgements</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../version-history.html">Version history</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../reference.html">Reference</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="external-references-to-msm.html">External references to MSM</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="euml-operators-and-basic-helpers.html">eUML operators and basic helpers</a>
+        </li>
+              <li class=" is-current-page" data-depth="3">
+            <a class="nav-link" href="functional-programming.html">Functional programming</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="common-headers.html">Common headers</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="back-end-headers.html">Back-end headers</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="front-end-headers.html">Front-end headers</a>
+        </li>
+        </ul>
+  </ul>
+  </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+      <aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="../index.html" aria-label="Home: Boost.MetaStateMachine">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="../index.html">Table of Contents</a></li>
+    <li><a href="../reference.html">Reference</a></li>
+    <li><a href="functional-programming.html">Functional programming</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="euml-operators-and-basic-helpers.html">
+      <span class="material-symbols-outlined" title="Previous: eUML operators and basic helpers">arrow_back</span>
+    </a>
+    <a accesskey="u" href="../reference.html">
+      <span class="material-symbols-outlined" title="Up: Reference">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="common-headers.html">
+      <span class="material-symbols-outlined" title="Next: Common headers">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page">Functional programming</h1>
+  <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>To use these functions, you need to include:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">#include &lt;msm/front/euml/stl.hpp&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or the specified header in the following tables.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stl_algorithms_in_querying_hpp"><a class="anchor" href="#_stl_algorithms_in_querying_hpp"></a>STL algorithms in querying.hpp</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. STL algorithms in querying.hpp</caption>
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Function</th>
+<th class="tableblock halign-left valign-top">Functor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>find_(first, last, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Find_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>find_if_(first, last, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FindIf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lower_bound_(first, last, value [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LowerBound_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>upper_bound_(first, last, value [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>UpperBound_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>equal_range_(first, last, value [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>EqualRange_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>binary_search_(first, last, value [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>BinarySearch_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>min_element_(first, last[,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MinElement_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>max_element_(first, last[,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MaxElement_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>adjacent_find_(first, last[,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>AdjacentFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>find_end_(first1, last1, first2, last2 [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FindEnd_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>find_first_of_(first1, last1, first2, last2 [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FindFirstOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>equal_(first1, last1, first2 [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Equal_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>search_(first1, last1, first2, last2 [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Search_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>includes_(first1, last1, first2, last2 [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Includes_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lexicographical_compare_(first1, last1, first2, last2 [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LexicographicalCompare_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>count_(first, last, value [,size])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Count_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>count_if_(first, last, op<sup>a</sup> [,size])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>CountIf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>distance_(first, last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Distance_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mismatch_(first1, last1, first2 [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Mismatch_</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stl_algorithms_in_iteration_hpp"><a class="anchor" href="#_stl_algorithms_in_iteration_hpp"></a>STL algorithms in iteration.hpp</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. STL algorithms in iteration.hpp</caption>
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Function</th>
+<th class="tableblock halign-left valign-top">Functor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>for_each_(first, last, unary op<sup>a</sup>)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ForEach_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>accumulate_(first, last, init [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Accumulate_</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stl_algorithms_in_transformation_hpp"><a class="anchor" href="#_stl_algorithms_in_transformation_hpp"></a>STL algorithms in transformation.hpp</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. STL algorithms in transformation.hpp</caption>
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Function</th>
+<th class="tableblock halign-left valign-top">Functor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>copy_(first, last, result)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Copy_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>copy_backward_(first, last, result)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>CopyBackward_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>reverse_(first, last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Reverse_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>reverse_copy_(first, last, result)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ReverseCopy_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remove_(first, last, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Remove_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remove_if_(first, last, op<sup>a</sup>)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RemoveIf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remove_copy_(first, last, output, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RemoveCopy_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remove_copy_if_(first, last, output, op<sup>a</sup>)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RemoveCopyIf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fill_(first, last, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Fill_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fill_n_(first, size, value)<sup>b</sup></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FillN_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>generate_(first, last, generator<sup>a</sup>)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Generate_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>generate_n_(first, size, generator<sup>a</sup>)<sup>b</sup></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GenerateN_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unique_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Unique_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unique_copy_(first, last, output [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>UniqueCopy_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>random_shuffle_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RandomShuffle_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rotate_copy_(first, middle, last, output)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RotateCopy_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>partition_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Partition_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>stable_partition_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StablePartition_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>stable_sort_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StableSort_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sort_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Sort_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>partial_sort_(first, middle, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PartialSort_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>partial_sort_copy_(first, last, res_first, res_last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PartialSortCopy_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nth_element_(first, nth, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>NthElement_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>merge_(first1, last1, first2, last2, output [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Merge_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inplace_merge_(first, middle, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>InplaceMerge_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>set_union_(first1, last1, first2, last2, output [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SetUnion_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>push_heap_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PushHeap_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pop_heap_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PopHeap_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make_heap_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MakeHeap_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sort_heap_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SortHeap_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>next_permutation_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>NextPermutation_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>prev_permutation_(first, last [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PrevPermutation_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inner_product_(first1, last1, first2, init [,op1<sup>a</sup>] [,op2<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>InnerProduct_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>partial_sum_(first, last, output [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PartialSum_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>adjacent_difference_(first, last, output [,op<sup>a</sup>])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>AdjacentDifference_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>replace_(first, last, old_value, new_value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Replace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>replace_if_(first, last, op<sup>a</sup>, new_value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ReplaceIf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>replace_copy_(first, last, result, old_value, new_value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ReplaceCopy_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>replace_copy_if_(first, last, result, op<sup>a</sup>, new_value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ReplaceCopyIf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rotate_(first, middle, last)<sup>b</sup></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rotate_</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stl_container_methods_common_in_container_hpp"><a class="anchor" href="#_stl_container_methods_common_in_container_hpp"></a>STL container methods (common) in container.hpp</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. STL container methods (common) in container.hpp</caption>
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Function</th>
+<th class="tableblock halign-left valign-top">Functor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>container::reference front_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Front_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>container::reference back_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Back_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>container::iterator begin_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Begin_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>container::iterator end_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>End_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>container::reverse_iterator rbegin_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RBegin_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>container::reverse_iterator rend_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>REnd_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void push_back_(container, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Push_Back_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void pop_back_(container, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Pop_Back_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void push_front_(container, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Push_Front_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void pop_front_(container, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Pop_Front_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void clear_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Clear_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type capacity_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Capacity_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type size_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Size_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type max_size_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Max_Size_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void reserve_(container, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Reserve_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void resize_(container, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Resize_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>iterator insert_(container, pos, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Insert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void insert_(container, pos, first, last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Insert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void insert_(container, pos, number, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Insert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void swap_(container, other_container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Swap_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void erase_(container, pos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Erase_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void erase_(container, first, last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Erase_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bool empty_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Empty_</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stdlist_methods_in_container_hpp"><a class="anchor" href="#_stdlist_methods_in_container_hpp"></a>std::list methods in container.hpp</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. std::list methods in container.hpp</caption>
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Function</th>
+<th class="tableblock halign-left valign-top">Functor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_remove_(container, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListRemove_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_remove_if_(container, op<sup>a</sup>)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListRemove_If_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_merge_(container, other_list)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListMerge_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_merge_(container, other_list, op<sup>a</sup>)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListMerge_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void splice_(container, iterator, other_list)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Splice_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void splice_(container, iterator, other_list, iterator)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Splice_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void splice_(container, iterator, other_list, first, last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Splice_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_reverse_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListReverse_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_unique_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListUnique_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_unique_(container, op<sup>a</sup>)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListUnique_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_sort_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListSort_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void list_sort_(container, op<sup>a</sup>)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListSort_</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stl_associative_container_methods_in_container_hpp"><a class="anchor" href="#_stl_associative_container_methods_in_container_hpp"></a>STL associative container methods in container.hpp</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 6. Associative container methods in container.hpp</caption>
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Function</th>
+<th class="tableblock halign-left valign-top">Functor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>iterator insert_(container, pos, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Insert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void insert_(container, first, last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Insert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pair&lt;iterator, bool&gt; insert_(container, value)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Insert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void associative_erase_(container, pos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Associative_Erase_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>void associative_erase_(container, first, last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Associative_Erase_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type associative_erase_(container, key)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Associative_Erase_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>iterator associative_find_(container, key)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Associative_Find_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type associative_count_(container, key)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>AssociativeCount_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>iterator associative_lower_bound_(container, key)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Associative_Lower_Bound_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>iterator associative_upper_bound_(container, key)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Associative_Upper_Bound_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pair&lt;iterator, iterator&gt; associative_equal_range_(container, key)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Associative_Equal_Range_</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stdpair_in_container_hpp"><a class="anchor" href="#_stdpair_in_container_hpp"></a>std::pair in container.hpp</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 7. std::pair in container.hpp</caption>
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Function</th>
+<th class="tableblock halign-left valign-top">Functor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>first_type first_(pair&lt;T1, T2&gt;)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>First_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>second_type second_(pair&lt;T1, T2&gt;)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Second_</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stdstring_methods_in_container_hpp"><a class="anchor" href="#_stdstring_methods_in_container_hpp"></a>std::string methods in container.hpp</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 8. std::string methods in container.hpp</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 50%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">std::string method</th>
+<th class="tableblock halign-left valign-top">eUML function</th>
+<th class="tableblock halign-left valign-top">Functor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>substr(size_type pos, size_type size)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string substr_(container, pos, length)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Substr_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>int compare(string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>int string_compare_(container, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringCompare_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>int compare(char*)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>int string_compare_(container, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringCompare_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>int compare(size_type pos, size_type size, string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>int string_compare_(container, pos, size, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringCompare_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>int compare(size_type pos, size_type size, string, size_type length)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>int string_compare_(container, pos, size, another_string, length)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringCompare_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append(const string&amp;)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append_(container, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Append_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append(charT*)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append_(container, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Append_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append(string, size_type pos, size_type size)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append_(container, other_string, pos, size)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Append_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append(charT*, size_type size)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append_(container, another_string, length)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Append_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append(size_type size, charT)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append_(container, size, char)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Append_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append(iterator begin, iterator end)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; append_(container, begin, end)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Append_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; insert(size_type pos, charT*)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_insert_(container, pos, other_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringInsert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; insert(size_type pos, charT*, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_insert_(container, pos, other_string, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringInsert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; insert(size_type pos, size_type n, charT c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_insert_(container, pos, n, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringInsert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; insert(size_type pos, const string&amp;)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_insert_(container, pos, other_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringInsert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; insert(size_type pos, const string&amp;, size_type pos1, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_insert_(container, pos, other_string, pos1, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringInsert_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; erase(size_type pos=0, size_type n=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_erase_(container, pos, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringErase_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; assign(const string&amp;)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_assign_(container, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringAssign_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; assign(const charT*)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_assign_(container, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringAssign_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; assign(const string&amp;, size_type pos, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_assign_(container, another_string, pos, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringAssign_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; assign(const charT*, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_assign_(container, another_string, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringAssign_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; assign(size_type n, charT c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_assign_(container, n, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringAssign_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; assign(iterator first, iterator last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_assign_(container, first, last)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringAssign_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(size_type pos, size_type n, const string&amp;)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, pos, n, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(size_type pos, size_type n, const charT*, size_type n1)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, pos, n, another_string, n1)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(size_type pos, size_type n, const charT*)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, pos, n, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(size_type pos, size_type n, size_type n1, charT c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, pos, n, n1, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(iterator first, iterator last, const string&amp;)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, first, last, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(iterator first, iterator last, const charT*, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, first, last, another_string, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(iterator first, iterator last, const charT*)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, first, last, another_string)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(iterator first, iterator last, size_type n, charT c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, first, last, n, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; replace(iterator first, iterator last, iterator f, iterator l)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string&amp; string_replace_(container, first, last, f, l)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringReplace_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>const charT* c_str()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>const charT* c_str_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>CStr_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>const charT* data()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>const charT* string_data_(container)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringData_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type copy(charT* buf, size_type n, size_type pos = 0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_copy_(container, buf, n, pos)</code>; <code>size_type string_copy_(container, buf, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringCopy_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find(charT* s, size_type pos, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_find_(container, s, pos, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find(charT* s, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_find_(container, s, pos)</code>; <code>size_type string_find_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find(const string&amp; s, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_find_(container, s, pos)</code>; <code>size_type string_find_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find(charT c, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_find_(container, c, pos)</code>; <code>size_type string_find_(container, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type rfind(charT* s, size_type pos, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_rfind_(container, s, pos, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringRFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type rfind(charT* s, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_rfind_(container, s, pos)</code>; <code>size_type string_rfind_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringRFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type rfind(const string&amp; s, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_rfind_(container, s, pos)</code>; <code>size_type string_rfind_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringRFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type rfind(charT c, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type string_rfind_(container, c, pos)</code>; <code>size_type string_rfind_(container, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringRFind_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_of(charT* s, size_type pos, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_of_(container, s, pos, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindFirstOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_of(charT* s, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_of_(container, s, pos)</code>; <code>size_type find_first_of_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindFirstOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_of(const string&amp; s, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_of_(container, s, pos)</code>; <code>size_type find_first_of_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindFirstOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_of(charT c, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_of_(container, c, pos)</code>; <code>size_type find_first_of_(container, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindFirstOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_not_of(charT* s, size_type pos, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_not_of_(container, s, pos, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindFirstNotOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_not_of(charT* s, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_not_of_(container, s, pos)</code>; <code>size_type find_first_not_of_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindFirstNotOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_not_of(const string&amp; s, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_not_of_(container, s, pos)</code>; <code>size_type find_first_not_of_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindFirstNotOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_not_of(charT c, size_type pos=0)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_first_not_of_(container, c, pos)</code>; <code>size_type find_first_not_of_(container, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindFirstNotOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_of(charT* s, size_type pos, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_of_(container, s, pos, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindLastOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_of(charT* s, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_of_(container, s, pos)</code>; <code>size_type find_last_of_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindLastOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_of(const string&amp; s, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_of_(container, s, pos)</code>; <code>size_type find_last_of_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindLastOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_of(charT c, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_of_(container, c, pos)</code>; <code>size_type find_last_of_(container, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindLastOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_not_of(charT* s, size_type pos, size_type n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_not_of_(container, s, pos, n)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindLastNotOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_not_of(charT* s, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_not_of_(container, s, pos)</code>; <code>size_type find_last_of_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindLastNotOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_not_of(const string&amp; s, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_not_of_(container, s, pos)</code>; <code>size_type find_last_not_of_(container, s)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindLastNotOf_</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_not_of(charT c, size_type pos=npos)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size_type find_last_not_of_(container, c, pos)</code>; <code>size_type find_last_not_of_(container, c)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>StringFindLastNotOf_</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+  <div class="edit-this-page">
+      <a href="https://github.com/boostorg/msm/edit/develop/doc/modules/ROOT/pages/reference/functional-programming.adoc">Edit this Page</a>
+      </div>
+      <nav class="pagination">
+        <span class="prev"><a href="euml-operators-and-basic-helpers.html">eUML operators and basic helpers</a></span>
+        <span class="next"><a href="common-headers.html">Common headers</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+<script async src="../../_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>

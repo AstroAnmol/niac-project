@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="./_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = './_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>Basic Usage :: Boost.Decimal</title>
+    <link rel="prev" href="overview.html">
+    <link rel="next" href="examples.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="./_/css/boostlook.css">
+    <link rel="stylesheet" href="./_/css/site.css">
+    <link rel="stylesheet" href="./_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = './_'</script>
+<link rel="icon" href="./_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="./_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="./_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+   <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="ROOT" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="overview.html">Boost.Decimal</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="overview.html">Boost.Decimal: IEEE 754 Decimal Floating Point Numbers</a>
+        </li>
+              <li class=" is-current-page" data-depth="1">
+            <a class="nav-link" href="basics.html">Basic Usage</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="examples.html">Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_construction">Basic Construction</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_basic_math">Basic Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_conversions">Conversions</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_integer_conversions">Integer Conversions</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_binary_floating_conversions">Binary Floating Point Conversions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_promotion">Promotion and Mixed Decimal Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_charconv"><code>&lt;charconv&gt;</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_generic_programming">Generic Programming</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_literals_constants">Literals and Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_format">Formatting</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_fmt_format">{fmt}</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_std_format"><code>&lt;format&gt;</code></a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_print"><code>&lt;print&gt;</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_file">Read and Write to File</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="financial_examples.html">Financial Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_money_parsing">Parsing Pricing Data from File</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_boost_math">Boost.Math Integration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="debugger.html">Debugger Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="api_reference.html">API Reference</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_types">Types</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_structs">Structs</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_enums">Enums</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_constants">Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_macros">Macros</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="file_structure.html">Directory Structure</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="generic_decimal.html">IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal32_t.html"><code>decimal32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal64_t.html"><code>decimal64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal128_t.html"><code>decimal128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="fast_types.html">Non-IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast32_t.html"><code>decimal_fast32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast64_t.html"><code>decimal_fast64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast128_t.html"><code>decimal_fast128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="binary_floating_conversions.html">Conversion from Binary Floating Point</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cohorts.html">Cohorts</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="conversions.html">Bit Conversions</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="literals.html">Literals Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="numbers.html">Numeric Constants</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cmath.html"><code>&lt;cmath&gt;</code> Support</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#basic_cmath_ops">Basic Operations</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_exp">Exponential Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_power_funcs">Power Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_trig_funcs">Trigonometric Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_hyperbolic_funcs">Hyperbolic Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_error_funcs">Error and Gamma Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_nearest_int">Nearest Integer Floating Point</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_manipulation_funcs">Floating Point Manipulation</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_classification">Classification and Comparison</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_spec_fun">Special Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#non_standard_cmath">Non-Standard Functions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="cstdlib.html"><code>&lt;cstdlib&gt;</code> Support (<code>strtod</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="charconv.html"><code>&lt;charconv&gt;</code> Support (<code>to_/from_chars</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="format.html"><code>&lt;format&gt;</code> and {fmt} Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfenv.html"><code>&lt;cfenv&gt;</code> Support (Rounding Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfloat.html"><code>&lt;cfloat&gt;</code> Support (Eval Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cstdio.html"><code>&lt;cstdio&gt;</code> Support (<code>printf</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="functional.html"><code>&lt;functional&gt;</code> Support (<code>hash</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="limits.html"><code>&lt;limits&gt;</code> Support (<code>numeric_limits</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="strings.html"><code>&lt;string&gt;</code> Support (<code>to_string</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="config.html">Configuration Macros</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_user">User Configuration</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_automatic">Automatic Configuration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="benchmarks.html">Benchmarks</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_linux_benchmarks">x64 Linux</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_windows_benchmarks">x64 Windows</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#m4_mac_benchmarks">ARM64 macOS</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="design.html">Design Decisions and Standards Deviations</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="reference.html">References</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="copyright.html">Copyright and License</a>
+        </li>
+        </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="overview.html" aria-label="Home: Boost.Decimal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="basics.html">Basic Usage</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="overview.html">
+      <span class="material-symbols-outlined" title="Previous: Boost.Decimal: IEEE 754 Decimal Floating Point Numbers">arrow_back</span>
+    </a>
+    <a class="disabled" accesskey="u" aria-disabled="true" tabindex="-1">
+      <span class="material-symbols-outlined" title="Up:">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="examples.html">
+      <span class="material-symbols-outlined" title="Next: Examples">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page">Basic Usage</h1>
+  <div class="sect1">
+<h2 id="basics_construction_of_decimal_types"><a class="anchor" href="#basics_construction_of_decimal_types"></a>Construction of Decimal Types</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every decimal type can be constructed in a few ways:</p>
+</div>
+<div class="sect2">
+<h3 id="basics_construction_from_coefficient_and_exponent"><a class="anchor" href="#basics_construction_from_coefficient_and_exponent"></a>Construction from Coefficient and Exponent</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">namespace boost {
+namespace decimal {
+
+enum class construction_sign
+{
+    negative,
+    positive
+};
+
+template &lt;typename UnsignedInteger, typename Integer&gt;
+constexpr decimal32_t(UnsignedInteger coefficient, Integer exponent, construction_sign resultant_sign = construction_sign::positive) noexcept;
+
+template &lt;typename SignedInteger, typename Integer&gt;
+constexpr decimal32_t(SignedInteger coefficient, Integer exponent) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As you can see you are either allowed to pass a signed integer, or specify the signedness of the resulting number, but not both.
+This is designed to reduce confusion (e.g. what would be the resulting sign of <code>{-3, 0, construction_sign::negative}</code>?)</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>boost::decimal::decimal32_t a {1, 1};           // constructs 1e1 = 10
+boost::decimal::decimal32_t b {-2, -1};         // constructs -2e-2 or -0.2
+boost::decimal::decimal32_t c {2U, -1, construction_sign::negative};   // also constructs -2e-1 or -0.2 (Note: The coefficient must be an unsigned type)
+boost::decimal::decimal32_t d {5, 5};           // constructs 5x10^5
+boost::decimal::decimal32_t e {1234, -3}        // constructs 1.234 or 1234x10^-3</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Overflow and underflow are handled the same way that they are with binary floating point numbers i.e. they will construct an infinity or a zero.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">boost::decimal::decimal64_t overflow_value {100, 10000}; // Constructs +infinity
+boost::decimal::decimal64_t underflow_value {100, -10000}; // Constructs 0</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="basics_construction_from_integer"><a class="anchor" href="#basics_construction_from_integer"></a>Construction from Integer</h3>
+<div class="paragraph">
+<p>A decimal number can be explicitly constructed from an integer.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">boost::decimal::decimal32_t f {-4};</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="basics_construction_from_binary_floating_point"><a class="anchor" href="#basics_construction_from_binary_floating_point"></a>Construction from Binary Floating Point</h3>
+<div class="paragraph">
+<p>A decimal number can only be <strong>explicitly</strong> constructed from a floating point type.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">boost::decimal::decimal128_t pi {3.14};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Construction from non-finite values (e.g. <code>std::numeric_limits&lt;double&gt;::quiet_NaN()</code>) will yield the same non-finite value in the resulting decimal value.
+Overflow or underflow will construct infinity or 0.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Due to the differences in decimal and binary floating point numbers there may be a difference in the resulting representation in decimal format, and thus it is not recommended to construct from binary floating point numbers
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For more information see: <a href="examples.html#examples_construction" class="xref page">Basic Construction</a></p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="basics_fundamental_operations"><a class="anchor" href="#basics_fundamental_operations"></a>Fundamental Operations</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The fundamental operations of numerical types (e.g. <code>&gt;</code>, <code>==</code>, <code>+</code>, etc.) are provided for each type, to include mixed type arithmetic (e.g. <code>decimal32_t</code> + <code>decimal64_t</code>), and between integers and decimal types.
+For more information see: <a href="examples.html#examples_promotion" class="xref page">Promotion and Mixed Decimal Arithmetic</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="basics_rounding"><a class="anchor" href="#basics_rounding"></a>Rounding</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The default rounding mode for all operations is so-called "banker&#8217;s rounding", which is to nearest (with ties to even).
+Similar to the standard library, the active rounding mode can be changed through floating point environment variables.
+For more information see: <a href="cfenv.html" class="xref page"><code>&lt;cfenv&gt;</code> Support</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="basics_using_the_library"><a class="anchor" href="#basics_using_the_library"></a>Using the Library</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The entire library can be accessed using the convenience header <code>&lt;boost/decimal.hpp&gt;</code>.
+A short example of the basic usage:</p>
+</div>
+<div id="first_example" class="exampleblock">
+<div class="title">Example 1. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/first_example.cpp">example</a> shows the very basics on how to make a complete and working program using the decimal library</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+
+#include &lt;boost/decimal.hpp&gt;    // This includes the entire decimal library
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+
+int main()
+{
+    using namespace boost::decimal::literals; // The literals are in their own namespace like std::literals
+
+    // First we show the result of 0.1 + 0.2 using regular doubles
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(17)
+              &lt;&lt; "Using doubles:\n"
+              &lt;&lt; "0.1 + 0.2 = " &lt;&lt; 0.1 + 0.2 &lt;&lt; "\n\n";
+
+    // Construct the two decimal values
+    // We construct using the literals defined by the library
+    constexpr boost::decimal::decimal64_t a {0.1_DD};
+    constexpr boost::decimal::decimal64_t b {0.2_DD};
+
+    // Now we display the result of the same calculation using decimal64_t
+    std::cout &lt;&lt; "Using decimal64_t:\n"
+              &lt;&lt; "0.1_DD + 0.2_DD = " &lt;&lt; a + b &lt;&lt; std::endl;
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output</div>
+<div class="content">
+<pre>Using doubles:
+0.1 + 0.2 = 0.30000000000000004
+
+Using decimal64_t:
+0.1_DD + 0.2_DD = 0.3000000000000000</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+  <div class="edit-this-page">
+  </div>
+      <nav class="pagination">
+        <span class="prev"><a href="overview.html">Boost.Decimal: IEEE 754 Decimal Floating Point Numbers</a></span>
+        <span class="next"><a href="examples.html">Examples</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="./_/js/site.js" data-ui-root-path="./_"></script>
+<script async src="./_/js/vendor/highlight.js"></script>
+<script async src="./_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>

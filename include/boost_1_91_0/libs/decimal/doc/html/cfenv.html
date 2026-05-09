@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="./_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = './_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>&lt;cfenv&gt; Support :: Boost.Decimal</title>
+    <link rel="prev" href="format.html">
+    <link rel="next" href="cfloat.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="./_/css/boostlook.css">
+    <link rel="stylesheet" href="./_/css/site.css">
+    <link rel="stylesheet" href="./_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = './_'</script>
+<link rel="icon" href="./_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="./_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="./_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+   <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="ROOT" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="overview.html">Boost.Decimal</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="overview.html">Boost.Decimal: IEEE 754 Decimal Floating Point Numbers</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="basics.html">Basic Usage</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="examples.html">Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_construction">Basic Construction</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_basic_math">Basic Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_conversions">Conversions</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_integer_conversions">Integer Conversions</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_binary_floating_conversions">Binary Floating Point Conversions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_promotion">Promotion and Mixed Decimal Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_charconv"><code>&lt;charconv&gt;</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_generic_programming">Generic Programming</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_literals_constants">Literals and Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_format">Formatting</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_fmt_format">{fmt}</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_std_format"><code>&lt;format&gt;</code></a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_print"><code>&lt;print&gt;</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_file">Read and Write to File</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="financial_examples.html">Financial Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_money_parsing">Parsing Pricing Data from File</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_boost_math">Boost.Math Integration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="debugger.html">Debugger Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="api_reference.html">API Reference</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_types">Types</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_structs">Structs</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_enums">Enums</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_constants">Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_macros">Macros</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="file_structure.html">Directory Structure</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="generic_decimal.html">IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal32_t.html"><code>decimal32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal64_t.html"><code>decimal64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal128_t.html"><code>decimal128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="fast_types.html">Non-IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast32_t.html"><code>decimal_fast32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast64_t.html"><code>decimal_fast64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast128_t.html"><code>decimal_fast128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="binary_floating_conversions.html">Conversion from Binary Floating Point</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cohorts.html">Cohorts</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="conversions.html">Bit Conversions</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="literals.html">Literals Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="numbers.html">Numeric Constants</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cmath.html"><code>&lt;cmath&gt;</code> Support</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#basic_cmath_ops">Basic Operations</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_exp">Exponential Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_power_funcs">Power Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_trig_funcs">Trigonometric Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_hyperbolic_funcs">Hyperbolic Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_error_funcs">Error and Gamma Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_nearest_int">Nearest Integer Floating Point</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_manipulation_funcs">Floating Point Manipulation</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_classification">Classification and Comparison</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#cmath_spec_fun">Special Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="cmath.html#non_standard_cmath">Non-Standard Functions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="cstdlib.html"><code>&lt;cstdlib&gt;</code> Support (<code>strtod</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="charconv.html"><code>&lt;charconv&gt;</code> Support (<code>to_/from_chars</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="format.html"><code>&lt;format&gt;</code> and {fmt} Support</a>
+        </li>
+              <li class=" is-current-page" data-depth="1">
+            <a class="nav-link" href="cfenv.html"><code>&lt;cfenv&gt;</code> Support (Rounding Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfloat.html"><code>&lt;cfloat&gt;</code> Support (Eval Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cstdio.html"><code>&lt;cstdio&gt;</code> Support (<code>printf</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="functional.html"><code>&lt;functional&gt;</code> Support (<code>hash</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="limits.html"><code>&lt;limits&gt;</code> Support (<code>numeric_limits</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="strings.html"><code>&lt;string&gt;</code> Support (<code>to_string</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="config.html">Configuration Macros</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_user">User Configuration</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_automatic">Automatic Configuration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="benchmarks.html">Benchmarks</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_linux_benchmarks">x64 Linux</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_windows_benchmarks">x64 Windows</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#m4_mac_benchmarks">ARM64 macOS</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="design.html">Design Decisions and Standards Deviations</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="reference.html">References</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="copyright.html">Copyright and License</a>
+        </li>
+        </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="overview.html" aria-label="Home: Boost.Decimal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="cfenv.html"><code>&lt;cfenv&gt;</code> Support (Rounding Modes)</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="format.html">
+      <span class="material-symbols-outlined" title="Previous: <code>&lt;format&gt;</code> and {fmt} Support">arrow_back</span>
+    </a>
+    <a class="disabled" accesskey="u" aria-disabled="true" tabindex="-1">
+      <span class="material-symbols-outlined" title="Up:">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="cfloat.html">
+      <span class="material-symbols-outlined" title="Next: <code>&lt;cfloat&gt;</code> Support (Eval Modes)">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page"><code>&lt;cfenv&gt;</code> Support</h1>
+  <div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+This is an expert feature.
+If you have never used <code>std::fegetround</code> nor <code>std::fesetround</code> before, it is unlikely you will need anything described on this page
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cfenv_cfenv"><a class="anchor" href="#cfenv_cfenv"></a>&lt;cfenv&gt;</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>IEEE 754 defines 5 rounding modes for Decimal Floating Point Types.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Downward</p>
+</li>
+<li>
+<p>To nearest (with ties to even)</p>
+</li>
+<li>
+<p>To nearest from zero</p>
+</li>
+<li>
+<p>Toward zero</p>
+</li>
+<li>
+<p>Upward</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The default rounding mode is to nearest with ties to even (#2) as specified in IEEE 754 Section 4.3.3. This is also colloquially known as "Banker&#8217;s Rounding"
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Using the following <code>enum class</code> and functions you can change the rounding mode from the default at <strong>RUNTIME</strong> only if <a href="config.html#configuration_automatic" class="xref page"><code>BOOST_DECIMAL_NO_CONSTEVAL_DETECTION</code></a> is not defined.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cfenv.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+enum class rounding_mode : unsigned
+{
+    fe_dec_downward,
+    fe_dec_to_nearest,
+    fe_dec_to_nearest_from_zero,
+    fe_dec_toward_zero,
+    fe_dec_upward,
+    fe_dec_default = fe_dec_to_nearest
+};
+
+rounding_mode fegetround() noexcept;
+
+// Returns the rounding mode that has been set
+//
+// If your compiler defines BOOST_DECIMAL_NO_CONSTEVAL_DETECTION,
+// this function will return the default rounding mode
+// to alert you that the rounding mode has NOT changed
+rounding_mode fesetround(rounding_mode round) noexcept;
+
+} //namespace decimal
+} //namespace boost</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Much like <code>std::fesetround</code>, <code>boost::decimal::fesetround</code> is not thread safe.
+</td>
+</tr>
+</table>
+</div>
+<div id="examples_rounding_mode" class="exampleblock">
+<div class="title">Example 1. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/rounding_mode.cpp">example</a> demonstrates how to set, get, and effects of the global rounding mode.</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2024 - 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This example demonstrates how to set and get the global rounding mode
+// as well as the effects on numerical results
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For type decimal32_t
+#include &lt;boost/decimal/literals.hpp&gt;       // For decimal literals
+#include &lt;boost/decimal/cfenv.hpp&gt;          // For access to the rounding mode functions
+#include &lt;boost/decimal/iostream.hpp&gt;       // Decimal support to &lt;iostream&gt;
+#include &lt;iostream&gt;
+
+void print_rounding_mode(const boost::decimal::rounding_mode current_mode)
+{
+    // All 5 rounding modes are defined by the enum rounding_mode
+    using boost::decimal::rounding_mode;
+
+    switch (current_mode)
+    {
+        case rounding_mode::fe_dec_downward:
+            std::cout &lt;&lt; "fe_dec_downward\n";
+            break;
+        case rounding_mode::fe_dec_to_nearest:
+            std::cout &lt;&lt; "fe_dec_to_nearest\n";
+            break;
+        case rounding_mode::fe_dec_to_nearest_from_zero:
+            std::cout &lt;&lt; "fe_dec_to_nearest_from_zero\n";
+            break;
+        case rounding_mode::fe_dec_toward_zero:
+            std::cout &lt;&lt; "fe_dec_toward_zero\n";
+            break;
+        case rounding_mode::fe_dec_upward:
+            std::cout &lt;&lt; "fe_dec_upward\n";
+            break;
+    }
+}
+
+int main()
+{
+    // The rounding mode can only be changed at run-time if the compiler supports
+    // 1. C++20 std::is_constant_evaluated()
+    // 2. Intrinsics that do the same
+    // If neither of the above are defined the library defines BOOST_DECIMAL_NO_CONSTEVAL_DETECTION
+
+    // The current rounding mode can be queried with boost::decimal::fegetround
+    const boost::decimal::rounding_mode default_rounding_mode = boost::decimal::fegetround();
+    std::cout &lt;&lt; "The default rounding mode is: ";
+    print_rounding_mode(default_rounding_mode);
+
+    // To set a new rounding mode use boost::decimal::fesetround
+    // fesetround returns current mode after updating the global state
+    //
+    // If your compiler set defines BOOST_DECIMAL_NO_CONSTEVAL_DETECTION the global state can not be updated,
+    // so this can be a useful check to make sure that state is what you expect it to be
+    auto new_rounding_mode = boost::decimal::fesetround(boost::decimal::rounding_mode::fe_dec_upward);
+    std::cout &lt;&lt; "The current rounding mode is: ";
+    print_rounding_mode(new_rounding_mode);
+
+    #ifndef BOOST_DECIMAL_NO_CONSTEVAL_DETECTION
+
+    using namespace boost::decimal::literals;
+    using boost::decimal::decimal32_t;
+
+    const decimal32_t lhs {"5e+50"_DF};
+    const decimal32_t rhs {"4e+40"_DF};
+
+    std::cout &lt;&lt; "lhs equals: " &lt;&lt; lhs &lt;&lt; '\n'
+              &lt;&lt; "rhs equals: " &lt;&lt; rhs &lt;&lt; '\n';
+
+    // With upward rounding the result will be "5.000001e+50"_DF
+    // Even though the difference in order of magnitude is greater than the precision of the type,
+    // any addition in this mode will result in at least a one ULP difference
+    const decimal32_t upward_res {lhs + rhs};
+    std::cout &lt;&lt; "  Sum with upward rounding: " &lt;&lt; upward_res &lt;&lt; '\n';
+
+
+    new_rounding_mode = boost::decimal::fesetround(boost::decimal::rounding_mode::fe_dec_downward);
+    std::cout &lt;&lt; "The current rounding mode is: ";
+    print_rounding_mode(new_rounding_mode);
+
+    // Similar to above in the downward rounding mode any subtraction will result in at least a one ULP difference
+    const decimal32_t downward_res {lhs - rhs};
+    std::cout &lt;&lt; "Sum with downward rounding: " &lt;&lt; downward_res &lt;&lt; '\n';
+
+    #endif // BOOST_DECIMAL_NO_CONSTEVAL_DETECTION
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre>The default rounding mode is: fe_dec_to_nearest
+The current rounding mode is: fe_dec_upward
+lhs equals: 5e+50
+rhs equals: 4e+40
+  Sum with upward rounding: 5.000001e+50
+The current rounding mode is: fe_dec_downward
+Sum with downward rounding: 4.999999e+50</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>As shown, changing the rounding mode <strong>WILL</strong> change your numerical results.
+If you are coming from the Intel library (or other C-style libs) where every mathematical function takes a rounding mode, that is not the case in this library; the only way to change the rounding mode for individual operations is via the global rounding mode.
+Before attempting to change the rounding mode ensure this is actually what you want to happen.</p>
+</div>
+<div class="paragraph">
+<p>You can similarly change the default rounding mode at compile time with <strong>ANY</strong> compiler (unlike at runtime) using similarly named macros:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>BOOST_DECIMAL_FE_DEC_DOWNWARD</code></p>
+</li>
+<li>
+<p><code>BOOST_DECIMAL_FE_DEC_TO_NEAREST</code></p>
+</li>
+<li>
+<p><code>BOOST_DECIMAL_FE_DEC_TO_NEAREST_FROM_ZERO</code></p>
+</li>
+<li>
+<p><code>BOOST_DECIMAL_FE_DEC_TOWARD_ZERO</code></p>
+</li>
+<li>
+<p><code>BOOST_DECIMAL_FE_DEC_UPWARD</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>If none of the above macros are defined, the default rounding mode for compile time is the same as the default runtime (i.e. as if <code>BOOST_DECIMAL_FE_DEC_TO_NEAREST</code> were defined).
+At most <strong>ONE</strong> of these macros are allowed to be user defined.
+A <code>#error</code> will be emitted if more than one is detected.
+The macro must be defined before the inclusion of any decimal library header.
+The rounding mode set at compile time is thread-safe as it is read only.</p>
+</div>
+<div class="paragraph">
+<p>This same example can be reduced for the cases where:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Compiler does not support runtime rounding mode changes</p>
+</li>
+<li>
+<p>You want to change the compile time rounding mode</p>
+</li>
+</ol>
+</div>
+<div class="exampleblock">
+<div class="title">Example 2. This <a href="https://github.com/boostorg/decimal/blob/develop/examples/rounding_mode.cpp">example</a> demonstrates how the compile time rounding mode can be set, and it&#8217;s effects on compile time and run time evaluation.</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">// Copyright 2024 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// To define a global compile-time rounding mode
+// you must define the macro before inclusion of *ANY* decimal header
+#define BOOST_DECIMAL_FE_DEC_DOWNWARD
+
+#include &lt;boost/decimal/decimal32_t.hpp&gt;    // For type decimal32_t
+#include &lt;boost/decimal/literals.hpp&gt;       // For decimal literals
+#include &lt;boost/decimal/iostream.hpp&gt;       // For decimal &lt;iostream&gt; support
+#include &lt;boost/decimal/cfenv.hpp&gt;          // For rounding mode access
+#include &lt;iostream&gt;
+
+void print_rounding_mode(const boost::decimal::rounding_mode current_mode)
+{
+    // All 5 rounding modes are defined by the enum rounding_mode
+    using boost::decimal::rounding_mode;
+
+    switch (current_mode)
+    {
+        case rounding_mode::fe_dec_downward:
+            std::cout &lt;&lt; "fe_dec_downward\n";
+            break;
+        case rounding_mode::fe_dec_to_nearest:
+            std::cout &lt;&lt; "fe_dec_to_nearest\n";
+            break;
+        case rounding_mode::fe_dec_to_nearest_from_zero:
+            std::cout &lt;&lt; "fe_dec_to_nearest_from_zero\n";
+            break;
+        case rounding_mode::fe_dec_toward_zero:
+            std::cout &lt;&lt; "fe_dec_toward_zero\n";
+            break;
+        case rounding_mode::fe_dec_upward:
+            std::cout &lt;&lt; "fe_dec_upward\n";
+            break;
+    }
+}
+
+int main()
+{
+    using namespace boost::decimal::literals;
+    using boost::decimal::decimal32_t;
+
+    // This uses one of the same examples from our runtime rounding mode example
+    // Now we can see the effects on the generation of constants,
+    // since we can static_assert the result
+
+    constexpr decimal32_t lhs {"5e+50"_DF};
+    constexpr decimal32_t rhs {"4e+40"_DF};
+    constexpr decimal32_t downward_res {lhs - rhs};
+    static_assert(downward_res == "4.999999e+50"_DF, "Incorrectly rounded result");
+
+    std::cout &lt;&lt; "The default rounding mode is: ";
+    print_rounding_mode(boost::decimal::rounding_mode::fe_dec_default);
+
+    // Here we can see that the rounding mode has been set to something besides default
+    // without having had to call fesetround
+    //
+    // This works with all compilers unlike changing the rounding mode at run-time
+    std::cout &lt;&lt; "The current rounding mode is: ";
+    print_rounding_mode(boost::decimal::fegetround());
+}</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Expected Output</div>
+<div class="content">
+<pre>The default rounding mode is: fe_dec_to_nearest
+The current rounding mode is: fe_dec_downward</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Prior to v5.2.0 this header was <code>&lt;boost/decimal/fenv.hpp&gt;</code>, but has been changed to <code>&lt;boost/decimal/cfenv.hpp&gt;</code> for consistency with the STL naming convention.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+  <div class="edit-this-page">
+  </div>
+      <nav class="pagination">
+        <span class="prev"><a href="format.html"><code>&lt;format&gt;</code> and {fmt} Support</a></span>
+        <span class="next"><a href="cfloat.html"><code>&lt;cfloat&gt;</code> Support (Eval Modes)</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="./_/js/site.js" data-ui-root-path="./_"></script>
+<script async src="./_/js/vendor/highlight.js"></script>
+<script async src="./_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>

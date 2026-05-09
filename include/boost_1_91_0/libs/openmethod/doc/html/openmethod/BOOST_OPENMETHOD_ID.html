@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="../_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = '../_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>BOOST_OPENMETHOD_ID :: Boost.OpenMethod</title>
+  <link rel="canonical" href="https://antora.cppalliance.org/develop/lib/doc/openmethod/BOOST_OPENMETHOD_ID.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="../_/css/boostlook.css">
+    <link rel="stylesheet" href="../_/css/site.css">
+    <link rel="stylesheet" href="../_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = '../_'</script>
+<link rel="icon" href="../_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="../_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="../_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+   <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="openmethod" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="https://www.boost.org/library/master/openmethod/">Boost.OpenMethod</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="motivation.html">Motivation</a>
+        </li>
+              <li class="" data-depth="1">
+            <span class="nav-text">Basic Features</span>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="basics.html">Methods and Overriders</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="performance.html">Performance</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="smart_pointers.html">Smart Pointers</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="headers.html">Header and Implementation Files</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="namespaces.html">Namespaces</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="friends.html">Friends</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="multiple_dispatch.html">Multiple Dispatch</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <span class="nav-text">Advanced Features</span>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="core_api.html">Core API</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="registries_and_policies.html">Registries and Policies</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="custom_rtti.html">Custom RTTI</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="error_handling.html">Error Handling</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="virtual_ptr_alt.html">Virtual Pointer Alternatives</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="shared_libraries.html">Shared Libraries</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <span class="nav-text">Reference</span>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="ref_headers.html">Headers</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="ref_macros.html">Macros</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="reference/boost/openmethod.html">Namespace boost::openmethod</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="acknowledgements.html">Acknowledgements</a>
+        </li>
+        </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="motivation.html" aria-label="Home: Boost.OpenMethod">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="BOOST_OPENMETHOD_ID.html">BOOST_OPENMETHOD_ID</a></li>
+  </ul>
+</nav>
+  <div class="search-container">
+    <div id="search-field" class="field has-filter">
+      <input id="search-input" type="text" placeholder="Search the docs" >
+    </div>
+  </div>
+<div class="spirit-nav">
+    <a class="disabled" accesskey="u" aria-disabled="true" tabindex="-1">
+      <span class="material-symbols-outlined" title="Up:">arrow_upward</span>
+    </a>
+</div></div>
+    <h1 class="page">BOOST_OPENMETHOD_ID</h1>
+  <div class="sect1">
+<h2 id="_synopsis"><a class="anchor" href="#_synopsis"></a>Synopsis</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Defined in <a href="https://github.com/boostorg/openmethod/blob/6fb6332ca11417dc1b4a4ded1652759758a08109/include/boost/openmethod/macros.hpp">&lt;boost/openmethod/macros.hpp&gt;</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#define BOOST_OPENMETHOD_ID(ID) /* unspecified */</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Generates a long, obfuscated name from a short name. All the other names
+generated by macros are based on this name.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>ID</code> must be an <strong>identifier</strong>. Qualified names are not allowed.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+  <div class="edit-this-page">
+      <a href="https://github.com/boostorg/openmethod/edit/master/doc/modules/ROOT/pages/BOOST_OPENMETHOD_ID.adoc">Edit this Page</a>
+      </div>
+  </article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="../_/js/site.js" data-ui-root-path="../_"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+<script async src="../_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+<script async src="../_/js/vendor/lunr.js"></script>
+<script async src="../_/js/search-ui.js" id="search-ui-script" data-site-root-path=".."
+  data-ui-root-path="../_"></script>
+<script async src="../search-index.js"></script>
+</div>
+</div>
+  </body>
+</html>

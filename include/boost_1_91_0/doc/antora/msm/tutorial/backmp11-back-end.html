@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="../../_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../../_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../../_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="../../_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = '../../_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>Backmp11 back-end (C&#43;&#43;17, experimental) :: Boost Libraries Documentation</title>
+  <link rel="canonical" href="https://antora.cppalliance.org/master/lib/doc/msm/tutorial/backmp11-back-end.html">
+    <link rel="prev" href="back-end.html">
+    <link rel="next" href="../performance-compilers.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="../../_/css/boostlook.css">
+    <link rel="stylesheet" href="../../_/css/site.css">
+    <link rel="stylesheet" href="../../_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = '../../_'</script>
+<link rel="icon" href="../../_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../../_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="../../_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="../../_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+  <script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs'; mermaid.initialize({"startOnLoad":true});</script> <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="msm" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="../index.html">Boost.MetaStateMachine</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="../index.html">Table of Contents</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="../preface.html">Preface</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../founding-idea.html">Founding idea</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../uml-short-guide.html">UML short guide</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../tutorial.html">Tutorial</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="basic-front-end.html">Basic front-end</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="functor-front-end.html">Functor front-end</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="puml-front-end.html">PUML front-end (C++20, experimental)</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="euml-front-end.html">eUML front-end (deprecated)</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="back-end.html">Back-end</a>
+        </li>
+              <li class=" is-current-page" data-depth="3">
+            <a class="nav-link" href="backmp11-back-end.html">Backmp11 back-end (C++17, experimental)</a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="../performance-compilers.html">Performance / Compilers</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../questions-answers-tips.html">Questions &amp; Answers, tips</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../internals.html">Internals</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../acknowledgements.html">Acknowledgements</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../version-history.html">Version history</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="../reference.html">Reference</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="../reference/external-references-to-msm.html">External references to MSM</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../reference/euml-operators-and-basic-helpers.html">eUML operators and basic helpers</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../reference/functional-programming.html">Functional programming</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../reference/common-headers.html">Common headers</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../reference/back-end-headers.html">Back-end headers</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="../reference/front-end-headers.html">Front-end headers</a>
+        </li>
+        </ul>
+  </ul>
+  </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+      <aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="../index.html" aria-label="Home: Boost.MetaStateMachine">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="../index.html">Table of Contents</a></li>
+    <li><a href="../tutorial.html">Tutorial</a></li>
+    <li><a href="backmp11-back-end.html">Backmp11 back-end (C++17, experimental)</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="back-end.html">
+      <span class="material-symbols-outlined" title="Previous: Back-end">arrow_back</span>
+    </a>
+    <a accesskey="u" href="../tutorial.html">
+      <span class="material-symbols-outlined" title="Up: Tutorial">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="../performance-compilers.html">
+      <span class="material-symbols-outlined" title="Next: Performance / Compilers">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page">Backmp11 back-end (C&#43;&#43;17, experimental)</h1>
+  <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Backmp11 is a new back-end that is mostly backwards-compatible with <code>back</code>.
+It is currently in <strong>experimental</strong> stage, thus some details about the compatibility might change (feedback welcome!).
+It is named after the metaprogramming library Boost Mp11, the main contributor to the optimizations.
+Usages of MPL are replaced with Mp11 to get rid of the costly C&#43;&#43;03 emulation of variadic templates.</p>
+</div>
+<div class="paragraph">
+<p>It offers a significant improvement in runtime and memory usage, as can be seen in these benchmarks:</p>
+</div>
+<div class="paragraph">
+<p><strong>Large state machine</strong></p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top">Compile time / sec</th>
+<th class="tableblock halign-left valign-top">Compile RAM / MB</th>
+<th class="tableblock halign-left valign-top">Binary size / kB</th>
+<th class="tableblock halign-left valign-top">Runtime / sec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">back</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">815</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">68</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.8</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">back_favor_compile_time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">775</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">226</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">back11</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">37</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2682</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">84</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.8</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backmp11</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">209</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">28</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.7</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backmp11_favor_compile_time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">195</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">43</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">234</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">57</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.3</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Large hierarchical state machine</strong></p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top">Compile time / sec</th>
+<th class="tableblock halign-left valign-top">Compile RAM / MB</th>
+<th class="tableblock halign-left valign-top">Binary size / kB</th>
+<th class="tableblock halign-left valign-top">Runtime / sec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">back</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">49</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2165</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">230</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13.2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">back_favor_compile_time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">55</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1704</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">911</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&gt; 300</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backmp11</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">348</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">79</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backmp11_favor_compile_time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">261</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">97</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20.6</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backmp11_favor_compile_time_multi_cu</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~863</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">97</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">21.4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">543</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5.4</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The full code with the benchmarks and more information about them is available <a href="https://github.com/chandryan/fsm-benchmarks">in this repository</a>. The tables in the repository are frequently updated with results from the latest development branches of the benchmarked libraries.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_deprecation_information"><a class="anchor" href="#_deprecation_information"></a>Deprecation information</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Deprecations of features, APIs, and other changes with additional context are listed in the table below.</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 95%;">
+<colgroup>
+<col style="width: 26.2295%;">
+<col style="width: 8.1967%;">
+<col style="width: 65.5738%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Feature</th>
+<th class="tableblock halign-left valign-top">Deprecation / Removal</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Support for event deferral as action and public access to the deferred event container</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">1.90 / 1.91</span></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><span class="line-through">Deferring an event as an action triggered by the same event is not foreseen in UML and leads to ambiguities (the event is both consumed and deferred).</span></p>
+</div>
+<div class="paragraph">
+<p><span class="line-through"><strong>Change:</strong> The public API to defer an event will be changed to <code>protected</code>. If needed, users can inherit from <code>state_machine</code> and make the API public again, but without guarantees about correct functionality and API consistency.</span></p>
+</div>
+<div class="paragraph">
+<p>Due to a merge of queued and deferred events into a single event pool, <code>defer_event</code> can be used in more contexts and the API remains public.
+It&#8217;s still recommended to configure event deferral as a state property if possible. This enables processing of deferred events in FIFO order, provides full support for event deferral in orthogonal regions, and it is more performant because events don&#8217;t need to be dispatched for evaluation.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Public access to the event container</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.90 / 1.91</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The event container can be accessed and manipulated via public APIs. Manipulation of the container outside of the library code can lead to undefined behavior.</p>
+</div>
+<div class="paragraph">
+<p><strong>Change:</strong> The public API to access the event container will be changed to <code>protected</code>. If needed, users can inherit from <code>state_machine</code> to access the event container, but without guarantees about correct functionality and API consistency.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Renaming of <code>transition_owner</code> to <code>local_transition_owner</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.91 / 1.92</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The default setting of the <code>Fsm</code> parameter was named <code>transition_owner</code>, which was intended to reflect the same behavior as in <code>back</code>. However, <code>transition_owner</code> does have a different behavior from <code>back</code>. Furthermore, it was not implemented correctly.</p>
+</div>
+<div class="paragraph">
+<p><strong>Change:</strong> The behavior will be corrected to match <code>back</code> and the default setting will be renamed to <code>local_transition_owner</code> in 1.91. The previous setting name <code>transition_owner</code> will be deprecated in 1.91 and removed in 1.92.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removal of APIs to process queued events</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.91 / 1.92</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The event containers for queued events and deferred events have been merged into a single event pool. The APIs for processing queued events are obsolete.</p>
+</div>
+<div class="paragraph">
+<p><strong>Change:</strong> The APIs <code>process_queued_events</code>, and <code>process_single_queued_event</code> will be removed.</p>
+</div>
+<div class="paragraph">
+<p>Occurrences of the old APIs can be replaced as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>to process a single event in the event pool, use <code>process_event_pool(1)</code></p>
+</li>
+<li>
+<p>to process all events in the event pool, use <code>process_event_pool()</code></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removal of automatic enqueuing in the <code>process_event</code> API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.91 / 1.92</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The API <code>process_event</code> automatically enqueues events when the state machine is already processing. This requires instantiating <code>enqueue_event</code> for every event type, even though most instances are never called. They are only needed when <code>process_event</code> is called in actions.</p>
+</div>
+<div class="paragraph">
+<p><strong>Change:</strong> The API <code>process_event</code> will reject an event and return <code>HANDLED_FALSE</code> when called during event processing instead of automatically enqueueing it.</p>
+</div>
+<div class="paragraph">
+<p>Calls to <code>process_event</code> in actions have to be replaced with <code>enqueue_event</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_new_features"><a class="anchor" href="#_new_features"></a>New features</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_universal_visitor_api"><a class="anchor" href="#_universal_visitor_api"></a>Universal visitor API</h3>
+<div class="paragraph">
+<p>The need to define a <code>BaseState</code>, <code>accept_sig</code> and <code>accept</code> method in the front-end is obsolete.</p>
+</div>
+<div class="paragraph">
+<p>Instead there is a universal visitor API that supports traversing through the state machine in multiple modes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>only the active states or all states</p>
+</li>
+<li>
+<p>non-recursive or recursive</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">// API:
+enum class visit_mode
+{
+    // State selection (mutually exclusive).
+    active_states = 0b001,
+    all_states    = 0b010,
+
+    // Traversal mode (not set = non-recursive).
+    recursive     = 0b100,
+
+    // All valid combinations.
+    active_non_recursive = active_states,
+    active_recursive     = active_states | recursive,
+    all_non_recursive    = all_states,
+    all_recursive        = all_states | recursive
+};
+template&lt;typename Visitor&gt;
+void state_machine::visit(Visitor&amp;&amp; visitor); // Same as active_states | recursive
+template&lt;visit_mode Mode, typename Visitor&gt;
+void state_machine::visit(Visitor&amp;&amp; visitor);
+
+// Assemble your mode...
+state_machine machine;
+machine.visit
+    &lt;visit_mode::all_states | visit_mode::recursive&gt;
+    ([](auto &amp;state) {/*...*/});
+// ... or use the pre-defined constants
+machine.visit
+    &lt;visit_mode::all_recursive&gt;
+    ([](auto &amp;state) {/*...*/});</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The visitor needs to fulfill the following signature requirement for all sub-states present in the state machine:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">template&lt;typename State&gt;
+void operator()(State&amp; state);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Also these bugs are fixed:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the SM is not started yet, no active state is visited instead of the initial state(s)</p>
+</li>
+<li>
+<p>If the SM is stopped, no active state is visited instead of the last active state(s)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_method_to_check_whether_a_state_is_active"><a class="anchor" href="#_method_to_check_whether_a_state_is_active"></a>Method to check whether a state is active</h3>
+<div class="paragraph">
+<p>A new method <code>is_state_active</code> can be used to check whether a state is currently active:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">template &lt;typename State&gt;
+bool state_machine::is_state_active() const;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the type of the state appears multiple times in a hierarchical state machine, the method returns true if any of the states are active.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_support_for_simplified_functor_signatures"><a class="anchor" href="#_support_for_simplified_functor_signatures"></a>Support for simplified functor signatures</h3>
+<div class="paragraph">
+<p>Further described in <a href="functor-front-end.html#simplified_functor_signatures" class="xref page">the functor front-end documentation</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_simplified_state_machine_signature"><a class="anchor" href="#_simplified_state_machine_signature"></a>Simplified state machine signature</h3>
+<div class="paragraph">
+<p>The signature has been simplified to facilitate sharing configurations between state machines.
+The new signature looks as follows (pseudo-code, the implementation looks a little different):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">template &lt;
+    class FrontEnd,
+    class Config = default_state_machine_config,
+    class Derived = state_machine
+&gt;
+class state_machine;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can define state machine back-ends with a <code>using MyStateMachine = state_machine&lt;&#8230;&#8203;&gt;;</code> declaration or by inheriting from <code>state_machine</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_all_settings_are_bundled_in_one_config_parameter"><a class="anchor" href="#_all_settings_are_bundled_in_one_config_parameter"></a>All settings are bundled in one Config parameter</h3>
+<div class="paragraph">
+<p>The configuration of the state machine can be defined with a config structure. The default config looks as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">// Default config:
+struct default_state_machine_config
+{
+    // Tune characteristics related to compile time, runtime performance,
+    // code size, and available features.
+    using compile_policy = favor_runtime_speed;
+    // A common context that is shared by all SMs
+    // in hierarchical state machines.
+    using context = no_context;
+    // Identifier for the upper-most SM
+    // in hierarchical state machines.
+    using root_sm = no_root_sm;
+    // Type of the Fsm parameter passed in actions and guards.
+    using fsm_parameter = local_transition_owner;
+    // Which container to use for the event pool.
+    template &lt;typename T&gt;
+    using event_container = std::deque&lt;T&gt;;
+};
+
+using state_machine_config = default_state_machine_config;
+
+...
+
+// Custom config:
+struct CustomStateMachineConfig : public state_machine_config
+{
+    using compile_policy = favor_compile_time;
+};</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_state_machine_setting_for_defining_a_context"><a class="anchor" href="#_new_state_machine_setting_for_defining_a_context"></a>New state machine setting for defining a context</h3>
+<div class="paragraph">
+<p>The setting <code>context</code> sets up a context member in the state machine for dependency injection.</p>
+</div>
+<div class="paragraph">
+<p>If <code>using context = Context;</code> is defined in the config, a reference to it has to be passed to the state machine constructor as first argument.
+The following API becomes available to access it in the state machine:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">Context&amp; state_machine::get_context();
+const Context&amp; state_machine::get_context() const;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_state_machine_setting_for_defining_a_root_sm"><a class="anchor" href="#_new_state_machine_setting_for_defining_a_root_sm"></a>New state machine setting for defining a root sm</h3>
+<div class="paragraph">
+<p>The setting <code>root_sm</code> defines the type of the root state machine of hierarchical state machines. The root sm depicts the uppermost state machine.</p>
+</div>
+<div class="paragraph">
+<p>If <code>using root_sm = RootSm;</code> is defined in the config, the following API becomes available to access it from any sub-state machine:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">RootSm&amp; state_machine::get_root_sm();
+const RootSm&amp; state_machine::get_root_sm() const;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It is highly recommended to always configure the <code>root_sm</code> in hierarchical state machines, even if access to it is not required.
+This reduces the compilation time, because it enables the back-end to instantiate the full set of construction-related methods
+only for the root and it can omit them for sub-state machines.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If a <code>context</code> is used in a hierarchical state machine, then also the <code>root_sm</code> should be set.
+The <code>context</code> is then automatically accessed through the <code>root_sm</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_state_machine_setting_for_defining_the_fsm_parameter_of_actions_and_guards"><a class="anchor" href="#_new_state_machine_setting_for_defining_the_fsm_parameter_of_actions_and_guards"></a>New state machine setting for defining the <code>Fsm</code> parameter of actions and guards</h3>
+<div class="paragraph">
+<p>The setting <code>fsm_parameter</code> defines the instance of the <code>Fsm&amp; fsm</code> parameter that is passed to actions and guards in hierarchical state machines.</p>
+</div>
+<div class="paragraph">
+<p>By default it is set to <code>local_transition_owner</code>, which reflects the same behavior as in <code>back</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Actions and guards for transitions in the same transition table receive the SM instance that owns the transition (the one processing the event)</p>
+</li>
+<li>
+<p>Entry and exit actions receive the "local" transition owner from the perspective of the state being entered/exited (the immediate parent SM)</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In UML, the "transition owner" is the region or state machine that contains the transition.
+The term "local transition owner" extends this UML terminology, because the <code>Fsm</code> parameter in entry and exit actions is not necessarily the state machine containing the transition. It refers to the <em>immediate parent</em> state machine of the state being entered/exited, which is the transition owner from the local perspective of that state.</p>
+</div>
+<div class="paragraph">
+<p><strong>Example:</strong> Consider a hierarchical state machine with nested state machines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">SM1 (root)
+  └─ SM2
+      └─ SM3
+          └─ State S0 (active)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When a transition defined in SM1 causes SM2 and SM3 to exit:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>S0&#8217;s exit action receives SM3 as <code>Fsm</code> (S0&#8217;s immediate parent)</p>
+</li>
+<li>
+<p>SM3&#8217;s exit action receives SM2 as <code>Fsm</code> (SM3&#8217;s immediate parent)</p>
+</li>
+<li>
+<p>SM2&#8217;s exit action receives SM1 as <code>Fsm</code> (SM2&#8217;s immediate parent)</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>You can alternatively set it to <code>root_sm</code>, in which case always the root sm is passed as <code>Fsm</code> parameter.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If the <code>fsm_parameter</code> is set to <code>root_sm</code>, then also the <code>root_sm</code> must be set.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generic_support_for_serializers"><a class="anchor" href="#_generic_support_for_serializers"></a>Generic support for serializers</h3>
+<div class="paragraph">
+<p>The <code>state_machine</code> allows access to its private members for serialization purposes with a friend:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">// Class boost::msm::backmp11::state_machine
+template&lt;typename T, typename A0, typename A1, typename A2&gt;
+friend void serialize(T&amp;, state_machine&lt;A0, A1, A2&gt;&amp;);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A similar friend declaration is available in the <code>history_impl</code> classes.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This design allows you to provide any serializer implementation, but due to the need to access private members there is no guarantee that your implementation breaks in a new version of the back-end.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_unified_event_pool_for_queued_and_deferred_events"><a class="anchor" href="#_unified_event_pool_for_queued_and_deferred_events"></a>Unified event pool for queued and deferred events</h3>
+<div class="paragraph">
+<p>The containers for queued and deferred events have been merged into a single event pool.
+This unification results in improved processing performance if both types of events are used, because only one container needs to be traversed.</p>
+</div>
+<div class="paragraph">
+<p>It is also no longer required to set up <code>activate_deferred_events</code> in a state machine&#8217;s front-end to use <code>Defer</code> actions.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_enhanced_capabilities_of_the_deferred_events_property"><a class="anchor" href="#_enhanced_capabilities_of_the_deferred_events_property"></a>Enhanced capabilities of the <code>deferred_events</code> property</h3>
+<div class="paragraph">
+<p><strong>Better performance:</strong></p>
+</div>
+<div class="paragraph">
+<p>Deferred events are inspected with a recursive visitor to decide whether
+they remain deferred or are ready to be dispatched. This avoids the
+overhead of dispatching and re-queuing them into the event pool for
+re-evaluation.</p>
+</div>
+<div class="paragraph">
+<p><strong>Improved support in hierarchical state machines:</strong></p>
+</div>
+<div class="paragraph">
+<p>Prior to the recursive visitor mechanism, an event could have been
+forwarded to a submachine for processing and then stored in
+its event pool. Events stored in a submachine&#8217;s event pool can only be
+consumed by that submachine and its descendants; other submachines at
+the same hierarchy level are unable to receive them.</p>
+</div>
+<div class="paragraph">
+<p>With the recursive visitor mechanism, deferred events are stored in the
+event pool of the state machine that was requested to process the event.
+This is usually the root state machine, in which case all submachines
+can receive the event upon dispatch.</p>
+</div>
+<div class="paragraph">
+<p><strong>Conditional event deferral:</strong></p>
+</div>
+<div class="paragraph">
+<p>In <code>back</code> and <code>back11</code>, the events listed in a state&#8217;s <code>deferred_events</code>
+property are always deferred. In <code>backmp11</code>, deferral can be made
+conditional by defining an <code>is_event_deferred</code> method in the state:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">struct MyState : boost::msm::front::state&lt;&gt;
+{
+    using deferred_events = mp11::mp_list&lt;MyEvent&gt;;
+
+    template &lt;typename Fsm&gt;
+    bool is_event_deferred(const MyEvent&amp; event, Fsm&amp; fsm) const
+    {
+        // Return true or false to decide
+        // whether the event shall be deferred.
+        ...
+    }
+};</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resolved_issues_with_respect_to_back"><a class="anchor" href="#_resolved_issues_with_respect_to_back"></a>Resolved issues with respect to <code>back</code></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_deferring_events_in_orthogonal_regions"><a class="anchor" href="#_deferring_events_in_orthogonal_regions"></a>Deferring events in orthogonal regions</h3>
+<div class="paragraph">
+<p>Event deferral in orthogonal regions behaves as described in the UML standard:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If one active region decides to defer an event, then it is deferred for all regions instead of being processed</p>
+</li>
+<li>
+<p>The event gets processed once no more active region decides to defer it</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In <code>back</code> the event is evaluted by all regions independently. This leads to the same event being processed multiple times (and worst case to infinite recursion).</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_other_changes_with_respect_to_back"><a class="anchor" href="#_other_changes_with_respect_to_back"></a>Other changes with respect to <code>back</code></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_the_required_minimum_c_version_is_c17"><a class="anchor" href="#_the_required_minimum_c_version_is_c17"></a>The required minimum C&#43;&#43; version is C&#43;&#43;17</h3>
+<div class="paragraph">
+<p>C&#43;&#43;11 brings the strongly needed variadic template support for MSM, but later C&#43;&#43; versions provide other important features - for example C&#43;&#43;17&#8217;s <code>if constexpr (&#8230;&#8203;)</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_signature_of_the_state_machine_is_changed"><a class="anchor" href="#_the_signature_of_the_state_machine_is_changed"></a>The signature of the state machine is changed</h3>
+<div class="paragraph">
+<p>Please refer to the simplified state machine signature above for more information.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_history_policy_of_a_state_machine_is_defined_in_the_front_end_instead_of_the_back_end"><a class="anchor" href="#_the_history_policy_of_a_state_machine_is_defined_in_the_front_end_instead_of_the_back_end"></a>The history policy of a state machine is defined in the front-end instead of the back-end</h3>
+<div class="paragraph">
+<p>The definition of the history policy is closer related to the front-end, and defining it there ensures that state machine configs can be shared between back-ends.
+The definition looks as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">struct no_history {};
+
+template &lt;typename... Events&gt;
+struct shallow_history {};
+
+struct always_shallow_history {};
+
+...
+
+// User-defined state machine
+struct Playing_ : public msm::front::state_machine_def&lt;Playing_&gt;
+{
+    using history = msm::front::shallow_history&lt;end_pause&gt;;
+    ...
+};</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_public_api_of_state_machine_is_refactored"><a class="anchor" href="#_the_public_api_of_state_machine_is_refactored"></a>The public API of <code>state_machine</code> is refactored</h3>
+<div class="paragraph">
+<p>All methods that should not be part of the public API are removed from it, redundant methods are removed as well. A few other methods have been renamed.
+The following adapter pseudo-code showcases the differences to the <code>back</code> API:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">class state_machine_adapter
+{
+    using Flag_AND = backmp11::flag_and;
+
+    // The new API returns a const std::array&lt;...&gt;&amp;.
+    const int* current_state() const
+    {
+        return &amp;this-&gt;get_active_state_ids()[0];
+    }
+
+    // The history can be accessed like this,
+    // but it has to be configured in the front-end.
+    auto&amp; get_history()
+    {
+        return this-&gt;m_history;
+    }
+
+    auto&amp; get_message_queue()
+    {
+        return this-&gt;get_event_pool().events;
+    }
+
+    size_t get_message_queue_size() const
+    {
+        return this-&gt;get_event_pool().events.size();
+    }
+
+    void execute_queued_events()
+    {
+        this-&gt;process_event_pool();
+    }
+
+    void execute_single_queued_event()
+    {
+        this-&gt;process_event_pool(1);
+    }
+
+    auto&amp; get_deferred_queue()
+    {
+        return this-&gt;get_event_pool().events;
+    }
+
+    void clear_deferred_queue()
+    {
+        this-&gt;get_event_pool().events.clear();
+    }
+
+    // No adapter.
+    // Superseded by the visitor API.
+    // void visit_current_states(...) {...}
+
+    // No adapter.
+    // States can be set with `get_state&lt;...&gt;() = ...` or the visitor API.
+    // void set_states(...) {...}
+
+    // No adapter.
+    // Could be implemented with the visitor API.
+    // auto get_state_by_id(int id) {...}
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A working code example of such an adapter is available in <a href="https://github.com/boostorg/msm/blob/develop/test/Backmp11Adapter.hpp">the tests</a>.
+It can be copied and adapted if needed, though this class is internal to the tests and not planned to be supported officially.</p>
+</div>
+<div class="paragraph">
+<p>Further details about the applied API changes:</p>
+</div>
+<div class="sect3">
+<h4 id="_the_dependency_to_boostserialization_is_removed"><a class="anchor" href="#_the_dependency_to_boostserialization_is_removed"></a>The dependency to <code>boost::serialization</code> is removed</h4>
+<div class="paragraph">
+<p>The back-end aims to support serialization in general, but without providing a concrete implementation for a specific serialization library.
+If you want to use <code>boost::serialization</code> for your state machine, you can look into the <a href="https://github.com/boostorg/msm/blob/develop/test/Backmp11Adapter.hpp">state machine adapter</a> from the tests for an example how to set it up.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_the_back_ends_constructor_does_not_allow_initialization_of_states_and_set_states_is_removed"><a class="anchor" href="#_the_back_ends_constructor_does_not_allow_initialization_of_states_and_set_states_is_removed"></a>The back-end&#8217;s constructor does not allow initialization of states and <code>set_states</code> is removed</h4>
+<div class="paragraph">
+<p>There were some caveats with one constructor that was used for different use cases: On the one hand some arguments were immediately forwarded to the front-end&#8217;s constructor, on the other hand the stream operator was used to identify other arguments in the constructor as states, to copy them into the state machine. Besides the syntax of the later being rather unusual, when doing both at once the syntax becomes too difficult to understand; even more so if states within hierarchical sub state machines were initialized in this fashion.</p>
+</div>
+<div class="paragraph">
+<p>In order to keep the API of the constructor simpler and less ambiguous, it only supports forwarding arguments to the front-end and no more.
+Also the <code>set_states</code> API is removed. If setting a state is required, this can still be done (in a little more verbose, but also more direct &amp; explicit fashion) by getting a reference to the desired state via <code>get_state</code> and then assigning the desired new state to it.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_the_method_get_state_by_id_is_removed"><a class="anchor" href="#_the_method_get_state_by_id_is_removed"></a>The method <code>get_state_by_id</code> is removed</h4>
+<div class="paragraph">
+<p>If you really need to get a state by id, please use the universal visitor API to implement the function on your own.
+The <code>backmp11</code> <code>state_machine</code> has a new method to support getting the id of a state in the visitor:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">template&lt;typename State&gt;
+static constexpr int state_machine::get_state_id(const State&amp;);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_the_pointer_overload_of_get_state_is_removed"><a class="anchor" href="#_the_pointer_overload_of_get_state_is_removed"></a>The pointer overload of <code>get_state</code> is removed</h4>
+<div class="paragraph">
+<p>Similarly to the STL&#8217;s <code>std::get</code> of a tuple, the only sensible template parameter for <code>get_state</code> is <code>T</code> returning a <code>T&amp;</code>.
+The overload for a <code>T*</code> is removed and the <code>T&amp;</code> is discouraged, although still supported.
+If you need to get a state by its address, use the address operator after you have received the state by reference.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_boostany_as_kleene_event_is_replaced_by_stdany"><a class="anchor" href="#_boostany_as_kleene_event_is_replaced_by_stdany"></a><code>boost::any</code> as Kleene event is replaced by <code>std::any</code></h3>
+<div class="paragraph">
+<p>To reduce the amount of necessary header inclusions <code>backmp11</code> uses <code>std::any</code> for defining Kleene events instead of <code>boost::any</code>.
+You can still opt in to use <code>boost::any</code> by explicitly including <code>boost/msm/event_traits.h</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_euml_front_end_support_is_removed"><a class="anchor" href="#_the_euml_front_end_support_is_removed"></a>The eUML front-end support is removed</h3>
+<div class="paragraph">
+<p>The support for EUML induces longer compilation times by the need to include the Boost proto headers and applying C&#43;&#43;03 variadic template emulation. If you want to use a UML-like syntax, please try out the new PUML front-end.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_fsm_check_and_find_region_support_is_removed"><a class="anchor" href="#_the_fsm_check_and_find_region_support_is_removed"></a>The fsm check and find region support is removed</h3>
+<div class="paragraph">
+<p>The implementation of these two features depends on mpl_graph, which induces high compilation times.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_sm_ptr_support_is_removed"><a class="anchor" href="#_sm_ptr_support_is_removed"></a><code>sm_ptr</code> support is removed</h3>
+<div class="paragraph">
+<p>Not needed with the functor front-end and was already deprecated, thus removed in <code>backmp11</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_compile_policies"><a class="anchor" href="#_compile_policies"></a>Compile policies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Like <code>back</code>, this back-end supports 2 compile policies. In case of hierarchical state machines all state machines must be configured with the same compile policy.</p>
+</div>
+<div class="sect2">
+<h3 id="_favor_runtime_speed"><a class="anchor" href="#_favor_runtime_speed"></a><code>favor_runtime_speed</code></h3>
+<div class="paragraph">
+<p>This policy favors runtime speed over compile time, it evaluates all transitions and generates the dispatch table at compile time.
+The dispatch strategy can be tuned by inheriting from <code>favor_runtime_speed</code> and adapting the using directive:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">struct favor_runtime_speed
+{
+    // Dispatch strategy for processing events.
+    // Supported strategies:
+    // - flat_fold (default)
+    // - function_pointer_array
+    using dispatch_strategy = dispatch_strategy::flat_fold;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It currently supports two dispatch strategies:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Strategy</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>flat_fold</code> (default)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generates a flat fold of inline comparison branches.<br>
+All transition logic is visible to the optimizer.<br>
+Usually results in optimal runtime performance and executable size.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>function_pointer_array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generates an array of function pointers.<br>
+Guarantees O(1) dispatch, but the function pointers cannot be inlined.<br>
+Usually results in worse runtime performance and larger executable size, but slightly better compile time.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_favor_compile_time"><a class="anchor" href="#_favor_compile_time"></a><code>favor_compile_time</code></h3>
+<div class="paragraph">
+<p>This policy favors compile time over runtime speed. It evaluates transitions lazily and generates the dispatch table at runtime. Like its counterpart in <code>back</code>, it does not support Kleene events.</p>
+</div>
+<div class="paragraph">
+<p>Events are wrapped into a <code>std::any</code> when they enter event processing to reduce the number of necessary templates instances required to generate the state machine.
+The policy utilizes a hash map for dispatch, with the type index of each event as the key and an array of function pointers to the matching transitions as the value.</p>
+</div>
+<div class="paragraph">
+<p>This policy allows compiling a state machine across multiple translation units (TUs) with the help of a preprocessor macro.
+Since the back-end should compile very fast for most state machines, this is an opt-in feature.
+If you want to build your state machine across multiple TUs, you need to do the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>define <code>BOOST_MSM_BACKMP11_MANUAL_GENERATION</code> before including <code>msm/backmp11/favor_compile_time.hpp</code></p>
+</li>
+<li>
+<p>then generate your state machine back-end(s) with the macro <code>BOOST_MSM_BACKMP11_GENERATE_STATE_MACHINE(&lt;sm_type&gt;)</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can find an example for this in the <a href="https://github.com/boostorg/msm/blob/develop/test/Backmp11Visitor.cpp">visitor test</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_how_to_use_it"><a class="anchor" href="#_how_to_use_it"></a>How to use it</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The back-end should be mostly compatible with existing code. Required replacements to try it out:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>for the state machine use <code>boost::msm::backmp11::state_machine</code> in place of <code>boost::msm::back::state_machine</code> and</p>
+</li>
+<li>
+<p>for configuring the compile policy and more use <code>boost::msm::backmp11::state_machine_config</code></p>
+</li>
+<li>
+<p>if you encounter API-incompatibilities please check the <a href="#_other_changes_with_respect_to_back">details above</a> for reference</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+  <div class="edit-this-page">
+      <a href="https://github.com/boostorg/msm/edit/develop/doc/modules/ROOT/pages/tutorial/backmp11-back-end.adoc">Edit this Page</a>
+      </div>
+      <nav class="pagination">
+        <span class="prev"><a href="back-end.html">Back-end</a></span>
+        <span class="next"><a href="../performance-compilers.html">Performance / Compilers</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+<script async src="../../_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>

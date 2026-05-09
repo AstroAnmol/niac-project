@@ -1,0 +1,517 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Managed Memory Segments: Object construction</title>
+<link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
+<link rel="up" href="../interprocess.html" title="Chapter 15. Boost.Interprocess">
+<link rel="prev" href="managed_memory_segments.html" title="Managed Memory Segments">
+<link rel="next" href="managed_memory_segment_advanced_features.html" title="Managed Memory Segment Advanced Features">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../boost.png"></td>
+<td align="center"><a href="../../../index.html">Home</a></td>
+<td align="center"><a href="../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="managed_memory_segments.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../interprocess.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="managed_memory_segment_advanced_features.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="interprocess.managed_memory_segment_object_construction"></a><a class="link" href="managed_memory_segment_object_construction.html" title="Managed Memory Segments: Object construction">Managed
+    Memory Segments: Object construction</a>
+</h2></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.object_construction_api">Object
+      construction API for managed memory segments</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.named">Named
+      Object construction function family</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.anonymous">Anonymous
+      instance construction</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.unique">Unique
+      instance construction</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.synchronization">Synchronization
+      guarantees</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.managed_memory_segment_object_information">Obtaining
+      information about a constructed object</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.uses_allocator">Uses-allocator
+      protocol for object construction</a></span></dt>
+</dl></div>
+<p>
+      <span class="emphasis"><em>Note: The following features are common to all managed memory segment
+      classes, but we will use managed shared memory in our examples. We can do the
+      same with memory mapped files or other managed memory segment classes.</em></span>
+    </p>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segment_object_construction.object_construction_api"></a><a class="link" href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.object_construction_api" title="Object construction API for managed memory segments">Object
+      construction API for managed memory segments</a>
+</h3></div></div></div>
+<p>
+        <span class="bold"><strong>Boost.Interprocess</strong></span>' managed memory segments
+        allows a varied object construction styles:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            Associated with a name (<span class="emphasis"><em>named construction</em></span>). Objects
+            can be later found using the name as a key.
+          </li>
+<li class="listitem">
+            Not associated with any name (<span class="emphasis"><em>anonymous construction</em></span>).
+          </li>
+<li class="listitem">
+            Singleton-like allocation (<span class="emphasis"><em>unique construction</em></span>).
+            A single object of this type can live in the managed segment. Objects
+            can be found using their type as a key.
+          </li>
+</ul></div>
+<p>
+        The object construction API allows constructing a type <code class="computeroutput"><span class="identifier">T</span></code>
+        in a managed memory segment instance <code class="computeroutput"><span class="identifier">ms</span></code>
+        as:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            An individual object:
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
+<li class="listitem">
+                  Invoked as <code class="computeroutput"><span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">/</span><span class="identifier">unique_instance</span><span class="special">/</span><span class="identifier">anonymous_instance</span><span class="special">)(</span><span class="identifier">args</span><span class="special">...)</span></code>)
+                </li>
+<li class="listitem">
+                  <code class="computeroutput"><span class="identifier">T</span></code> is constructed
+                  as <code class="computeroutput"><span class="identifier">T</span><span class="special">(</span><span class="identifier">args</span><span class="special">...)</span></code>
+                </li>
+</ul></div>
+          </li>
+<li class="listitem">
+            An arrays of <code class="computeroutput"><span class="identifier">N</span></code> objects.
+            Elements of an array can be constructed:
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
+<li class="listitem">
+                  with the same parameters for all elements:
+                  <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: square; ">
+<li class="listitem">
+                        Invoked as <code class="computeroutput"><span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">/</span><span class="identifier">unique_instance</span><span class="special">/</span><span class="identifier">anonymous_instance</span><span class="special">)[</span><span class="identifier">N</span><span class="special">])(</span><span class="identifier">args</span><span class="special">...)</span></code>
+                      </li>
+<li class="listitem">
+                        All array elements are constructed as <code class="computeroutput"><span class="identifier">T</span><span class="special">(</span><span class="identifier">args</span><span class="special">...)</span></code>
+                      </li>
+</ul></div>
+                </li>
+<li class="listitem">
+                  with a different parameter for each element coming from a derefenced
+                  iterator <code class="computeroutput"><span class="identifier">it</span></code>
+                  <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: square; ">
+<li class="listitem">
+                        Invoked as <code class="computeroutput"><span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct_it</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">/</span><span class="identifier">unique_instance</span><span class="special">/</span><span class="identifier">anonymous_instance</span><span class="special">)[</span><span class="identifier">N</span><span class="special">])(</span><span class="identifier">it</span><span class="special">)</span></code>
+                      </li>
+<li class="listitem">
+                        Elements are constructed as <code class="computeroutput"><span class="identifier">T</span><span class="special">(*(</span><span class="identifier">it</span><span class="special">++))</span></code>
+                      </li>
+</ul></div>
+                </li>
+</ul></div>
+          </li>
+</ul></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segment_object_construction.named"></a><a class="link" href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.named" title="Named Object construction function family">Named
+      Object construction function family</a>
+</h3></div></div></div>
+<p>
+        When constructing objects in a managed memory segment (managed shared memory,
+        managed mapped files...) associated with a name, the user has a varied object
+        construction family to "construct" or to "construct if not
+        found". <span class="bold"><strong>Boost.Interprocess</strong></span> can construct
+        a single object or an array of objects.
+      </p>
+<pre class="programlisting"><span class="comment">//!Allocates and uses-allocator constructs an object of type MyType (throwing version).</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">)</span> <span class="special">(</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+
+<span class="comment">//!Allocates and uses-allocator constructs an array of objects of type MyType (throwing version).</span>
+<span class="comment">//!Each object receives the same parameters.</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">)[</span><span class="identifier">count</span><span class="special">](</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+
+<span class="comment">//!Tries to find a previously created object. If not present, allocates</span>
+<span class="comment">//!and uses-allocator constructs an object of type MyType (throwing version)</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">find_or_construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">)</span> <span class="special">(</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+
+<span class="comment">//!Tries to find a previously created object. If not present, allocates and</span>
+<span class="comment">//!uses-allocator constructs an array of objects of type MyType (throwing version). Each object</span>
+<span class="comment">//!receives the same parameters (par1, par2, ...)</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">find_or_construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">)[</span><span class="identifier">count</span><span class="special">](</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+
+<span class="comment">//!Allocates and uses-allocator constructs an array of objects of type MyType (throwing version)</span>
+<span class="comment">//!Each object receives parameters returned with the expression (*it1++, *it2++,... )</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">construct_it</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">)[</span><span class="identifier">count</span><span class="special">](</span><span class="identifier">it1</span><span class="special">,</span> <span class="identifier">it2</span><span class="special">...);</span>
+
+<span class="comment">//!Tries to find a previously created object. If not present, allocates and uses-allocator constructs</span>
+<span class="comment">//!an array of objects of type MyType (throwing version).  Each object receives</span>
+<span class="comment">//!parameters returned with the expression (*it1++, *it2++,... )</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">find_or_construct_it</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">)[</span><span class="identifier">count</span><span class="special">](</span><span class="identifier">it1</span><span class="special">,</span> <span class="identifier">it2</span><span class="special">...);</span>
+
+<span class="comment">//!Tries to find a previously created object. Returns a pointer to the object and the</span>
+<span class="comment">//!count (if it is not an array, returns 1). If not present, the returned pointer is 0</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">MyType</span> <span class="special">*,</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">&gt;</span> <span class="identifier">ret</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">find</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">);</span>
+
+<span class="comment">//!Destroys the created object, returns false if not present</span>
+<span class="keyword">bool</span> <span class="identifier">destroyed</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">destroy</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">);</span>
+
+<span class="comment">//!Destroys the created object via pointer</span>
+<span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">ptr</span><span class="special">);</span>
+</pre>
+<p>
+        All these functions have a non-throwing version, that is invoked with an
+        additional parameter std::nothrow. For example, for simple object construction:
+      </p>
+<pre class="programlisting"><span class="comment">//!Allocates and uses-allocator constructs an object of type MyType (no throwing version)</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">nothrow</span><span class="special">)</span> <span class="special">(</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segment_object_construction.anonymous"></a><a class="link" href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.anonymous" title="Anonymous instance construction">Anonymous
+      instance construction</a>
+</h3></div></div></div>
+<p>
+        Sometimes, the user doesn't want to create class objects associated with
+        a name. For this purpose, <span class="bold"><strong>Boost.Interprocess</strong></span>
+        can create anonymous objects in a managed memory segment. All named object
+        construction functions are available to uses-allocator construct anonymous
+        objects. To allocate an anonymous objects, the user must use "boost::interprocess::anonymous_instance"
+        name instead of a normal name:
+      </p>
+<pre class="programlisting"><span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="identifier">anonymous_instance</span><span class="special">)</span> <span class="special">(</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+
+<span class="comment">//Other construct variants can also be used (including non-throwing ones)</span>
+<span class="special">...</span>
+
+<span class="comment">//We can only destroy the anonymous object via pointer</span>
+<span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">ptr</span><span class="special">);</span>
+</pre>
+<p>
+        Find functions have no sense here, since anonymous objects have no name.
+        We can only destroy the anonymous object via pointer.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segment_object_construction.unique"></a><a class="link" href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.unique" title="Unique instance construction">Unique
+      instance construction</a>
+</h3></div></div></div>
+<p>
+        Sometimes, the user wants to emulate a singleton in a managed memory segment.
+        Obviously, as the managed memory segment is constructed at run-time, a user
+        must construct and destroy this object explicitly. But how can a user be
+        sure that the object is the only object of its type in the managed memory
+        segment? This can be emulated using a named object and checking if it is
+        present before trying to create one, but all processes must agree in the
+        object's name, that can also conflict with other existing names.
+      </p>
+<p>
+        To solve this, <span class="bold"><strong>Boost.Interprocess</strong></span> offers
+        a "unique object" creation in a managed memory segment. Only one
+        instance of a class can be created in a managed memory segment using this
+        "unique object" service (you can create more named objects of this
+        class, though) so it makes easier the emulation of singleton-like objects
+        across processes, for example, to design pooled, shared memory allocators.
+        The object can be searched using the type of the class as a key.
+      </p>
+<pre class="programlisting"><span class="comment">// Uses-allocator constructs a unique (segment-wide) instance of MyType</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="identifier">unique_instance</span><span class="special">)</span> <span class="special">(</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+
+<span class="comment">// Find it</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">MyType</span> <span class="special">*,</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">&gt;</span> <span class="identifier">ret</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">find</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="identifier">unique_instance</span><span class="special">);</span>
+
+<span class="comment">// Destroy it</span>
+<span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">destroy</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="identifier">unique_instance</span><span class="special">);</span>
+
+<span class="comment">// Other construct and find variants can also be used (including non-throwing ones)</span>
+<span class="comment">//...</span>
+</pre>
+<pre class="programlisting"><span class="comment">// We can also destroy the unique object via pointer</span>
+<span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_memory_segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="identifier">unique_instance</span><span class="special">)</span> <span class="special">(</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+<span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">ptr</span><span class="special">);</span>
+</pre>
+<p>
+        The find function obtains a pointer to the only object of type T that can
+        be created using this "unique instance" mechanism.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segment_object_construction.synchronization"></a><a class="link" href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.synchronization" title="Synchronization guarantees">Synchronization
+      guarantees</a>
+</h3></div></div></div>
+<p>
+        One of the features of named/unique allocations/searches/destructions is
+        that they are <span class="bold"><strong>atomic</strong></span>. Named allocations
+        use the recursive synchronization scheme defined by the internal <code class="computeroutput"><span class="identifier">mutex_family</span></code> typedef defined of the memory
+        allocation algorithm template parameter (<code class="computeroutput"><span class="identifier">MemoryAlgorithm</span></code>).
+        That is, the mutex type used to synchronize named/unique allocations is defined
+        by the <code class="computeroutput"><span class="identifier">MemoryAlgorithm</span><span class="special">::</span><span class="identifier">mutex_family</span><span class="special">::</span><span class="identifier">recursive_mutex_type</span></code> type. For shared memory,
+        and memory mapped file based managed segments this recursive mutex is defined
+        as <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1interprocess__recursive__mutex.html" title="Class interprocess_recursive_mutex">interprocess_recursive_mutex</a></code>.
+      </p>
+<p>
+        If two processes can call:
+      </p>
+<pre class="programlisting"><span class="identifier">MyType</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">find_or_construct</span><span class="special">&lt;</span><span class="identifier">MyType</span><span class="special">&gt;(</span><span class="string">"Name"</span><span class="special">)[</span><span class="identifier">count</span><span class="special">](</span><span class="identifier">par1</span><span class="special">,</span> <span class="identifier">par2</span><span class="special">...);</span>
+</pre>
+<p>
+        at the same time, but only one process will create the object and the other
+        will obtain a pointer to the created object.
+      </p>
+<p>
+        Raw allocation using <code class="computeroutput"><span class="identifier">allocate</span><span class="special">()</span></code> can be called also safely while executing
+        named/anonymous/unique allocations, just like when programming a multithreaded
+        application inserting an object in a mutex-protected map does not block other
+        threads from calling new[] while the map thread is searching the place where
+        it has to insert the new object. The synchronization does happen once the
+        map finds the correct place and it has to allocate raw memory to construct
+        the new value.
+      </p>
+<p>
+        This means that if we are creating or searching for a lot of named objects,
+        we only block creation/searches from other processes but we don't block another
+        process if that process is inserting elements in a shared memory vector.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segment_object_construction.managed_memory_segment_object_information"></a><a class="link" href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.managed_memory_segment_object_information" title="Obtaining information about a constructed object">Obtaining
+      information about a constructed object</a>
+</h3></div></div></div>
+<p>
+        Once an object is constructed using <code class="computeroutput"><span class="identifier">construct</span><span class="special">&lt;&gt;</span></code> function family, the programmer can
+        obtain information about the object using a pointer to the object. The programmer
+        can obtain the following information:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            Name of the object: If it's a named instance, the name used in the construction
+            function is returned, otherwise 0 is returned.
+          </li>
+<li class="listitem">
+            Length of the object: Returns the number of elements of the object (1
+            if it's a single value, &gt;=1 if it's an array).
+          </li>
+<li class="listitem">
+            The type of construction: Whether the object was constructed using a
+            named, unique or anonymous construction.
+          </li>
+</ul></div>
+<p>
+        Here is an example showing this functionality:
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cassert</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cstring</span><span class="special">&gt;</span>
+
+<span class="keyword">class</span> <span class="identifier">my_class</span>
+<span class="special">{</span>
+   <span class="comment">//...</span>
+<span class="special">};</span>
+
+<span class="keyword">int</span> <span class="identifier">main</span><span class="special">()</span>
+<span class="special">{</span>
+   <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">;</span>
+
+   <span class="comment">//Remove shared memory on construction and destruction</span>
+   <span class="keyword">struct</span> <span class="identifier">shm_remove</span>
+   <span class="special">{</span>
+      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
+      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
+   <span class="special">}</span> <span class="identifier">remover</span><span class="special">;</span>
+
+   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> "MyName"<span class="special">,</span> <span class="number">10000</span><span class="special">*</span><span class="keyword">sizeof</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">));</span>
+
+   <span class="comment">//Construct objects</span>
+   <span class="identifier">my_class</span> <span class="special">*</span><span class="identifier">named_object</span>  <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">my_class</span><span class="special">&gt;(</span><span class="string">"Object name"</span><span class="special">)[</span><span class="number">1</span><span class="special">]();</span>
+   <span class="identifier">my_class</span> <span class="special">*</span><span class="identifier">unique_object</span> <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">my_class</span><span class="special">&gt;(</span><span class="identifier">unique_instance</span><span class="special">)[</span><span class="number">2</span><span class="special">]();</span>
+   <span class="identifier">my_class</span> <span class="special">*</span><span class="identifier">anon_object</span>   <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">my_class</span><span class="special">&gt;(</span><span class="identifier">anonymous_instance</span><span class="special">)[</span><span class="number">3</span><span class="special">]();</span>
+
+   <span class="comment">//Now test "get_instance_name" function.</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="number">0</span> <span class="special">==</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">strcmp</span><span class="special">(</span><span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_name</span><span class="special">(</span><span class="identifier">named_object</span><span class="special">),</span> <span class="string">"Object name"</span><span class="special">));</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="number">0</span> <span class="special">==</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">strcmp</span><span class="special">(</span><span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_name</span><span class="special">(</span><span class="identifier">unique_object</span><span class="special">),</span> <span class="keyword">typeid</span><span class="special">(</span><span class="identifier">my_class</span><span class="special">).</span><span class="identifier">name</span><span class="special">()));</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="number">0</span> <span class="special">==</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_name</span><span class="special">(</span><span class="identifier">anon_object</span><span class="special">));</span>
+
+   <span class="comment">//Now test "get_instance_type" function.</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="identifier">named_type</span>     <span class="special">==</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_type</span><span class="special">(</span><span class="identifier">named_object</span><span class="special">));</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="identifier">unique_type</span>    <span class="special">==</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_type</span><span class="special">(</span><span class="identifier">unique_object</span><span class="special">));</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="identifier">anonymous_type</span> <span class="special">==</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_type</span><span class="special">(</span><span class="identifier">anon_object</span><span class="special">));</span>
+
+   <span class="comment">//Now test "get_instance_length" function.</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="number">1</span> <span class="special">==</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_length</span><span class="special">(</span><span class="identifier">named_object</span><span class="special">));</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="number">2</span> <span class="special">==</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_length</span><span class="special">(</span><span class="identifier">unique_object</span><span class="special">));</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="number">3</span> <span class="special">==</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">get_instance_length</span><span class="special">(</span><span class="identifier">anon_object</span><span class="special">));</span>
+
+   <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">named_object</span><span class="special">);</span>
+   <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">unique_object</span><span class="special">);</span>
+   <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">anon_object</span><span class="special">);</span>
+   <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_memory_segment_object_construction.uses_allocator"></a><a class="link" href="managed_memory_segment_object_construction.html#interprocess.managed_memory_segment_object_construction.uses_allocator" title="Uses-allocator protocol for object construction">Uses-allocator
+      protocol for object construction</a>
+</h3></div></div></div>
+<p>
+        Since Boost 1.91, <span class="bold"><strong>Boost.Interprocess</strong></span> uses
+        <span class="bold"><strong>Boost.Container</strong></span>'s extended <span class="bold"><strong>uses-allocator
+        construction</strong></span> utilities (see <a href="https://www.boost.org/doc/libs/latest/doc/html/container/cpp_conformance.html" target="_top">Boost.Container</a>)
+        so that constructing objects that use <span class="bold"><strong>Boost.Interprocess</strong></span>
+        allocators is simplified. As a result a user:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            Does not longer need to explicitly pass allocator arguments (or <code class="computeroutput"><span class="identifier">segment_manager</span><span class="special">*</span></code>
+            arguments that are convertible to allocators) when constructing an object
+            and its subobjects.
+          </li>
+<li class="listitem">
+            <span class="bold"><strong>Boost.Inteprocess</strong></span> allocators' <code class="computeroutput"><span class="identifier">construct</span></code> methods, in cooperation with
+            <span class="bold"><strong>Boost.Container</strong></span> containers and uses-allocator
+            utilities, take advantage of the protocol to automatically propagate
+            the state of the allocator to the uses_allocator compatible types stored
+            in those containers.
+          </li>
+<li class="listitem">
+            Containers of containers, all using <span class="bold"><strong>Boost.Interprocess</strong></span>
+            allocators, automatically propagate the allocator state recursively without
+            the user explicitly needing to do so.
+          </li>
+</ul></div>
+<p>
+        More formally, a type <code class="computeroutput"><span class="identifier">T</span></code> is
+        compatible with the <span class="bold"><strong>Boost.Interprocess</strong></span> implicit
+        allocator propagation protocol for a managed segment instance <code class="computeroutput"><span class="identifier">ms</span></code> if the following conditions are fulfilled
+        when a user tries a <code class="computeroutput"><span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">&gt;</span></code> or
+        <code class="computeroutput"><span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct_it</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">&gt;</span></code> operation
+        with argument list <code class="computeroutput"><span class="identifier">args</span><span class="special">...</span></code>:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            <code class="computeroutput"><span class="identifier">T</span><span class="special">::</span><span class="identifier">allocator_type</span></code> is one of <span class="bold"><strong>Boost.Interprocess</strong></span> allocator types (a void allocator
+            fulfills this requirement)
+          </li>
+<li class="listitem">
+            <code class="computeroutput"><span class="identifier">T</span></code> can be constructed
+            with one of the following conventions:
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
+<li class="listitem">
+                  The leading-allocator convention: <code class="computeroutput"><span class="identifier">T</span></code>
+                  is constructible as <code class="computeroutput"><span class="identifier">T</span><span class="special">(</span><span class="identifier">allocator_arg</span><span class="special">,</span> <span class="identifier">allocator_type</span><span class="special">,</span> <span class="identifier">args</span><span class="special">...)</span></code> --&gt;
+                </li>
+<li class="listitem">
+                  The trailing-allocator convention <code class="computeroutput"><span class="identifier">T</span></code>
+                  is constructible as <code class="computeroutput"><span class="identifier">T</span><span class="special">(</span><span class="identifier">args</span><span class="special">...,</span> <span class="identifier">allocator_type</span><span class="special">)</span></code>.
+                </li>
+</ul></div>
+          </li>
+</ul></div>
+<p>
+        See the following example to see the difference between a type that does
+        follow the uses-allocator protocol (<code class="computeroutput"><span class="identifier">UAType</span></code>)
+        and another that does not (<code class="computeroutput"><span class="identifier">Type</span></code>).
+        Note how when constructing <code class="computeroutput"><span class="identifier">UAType</span></code>
+        using the managed memory construction functions, the allocator is implicitly
+        passed in constructors:
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">allocators</span><span class="special">/</span><span class="identifier">allocator</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">container</span><span class="special">/</span><span class="identifier">vector</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">container</span><span class="special">/</span><span class="identifier">uses_allocator_fwd</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>  <span class="comment">//for allocator_arg_t</span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">;</span>
+
+<span class="keyword">typedef</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">segment_manager</span>  <span class="identifier">seg_mngr_t</span><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">,</span> <span class="identifier">seg_mngr_t</span><span class="special">&gt;</span>             <span class="identifier">valloc_t</span><span class="special">;</span>
+
+<span class="keyword">struct</span> <span class="identifier">Type</span>    <span class="comment">//Requires explicit allocator arguments</span>
+<span class="special">{</span>
+   <span class="keyword">typedef</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Type</span><span class="special">,</span> <span class="identifier">seg_mngr_t</span><span class="special">&gt;</span> <span class="identifier">vec_alloc_t</span><span class="special">;</span>
+   <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">vector</span> <span class="special">&lt;</span><span class="identifier">Type</span><span class="special">,</span> <span class="identifier">vec_alloc_t</span><span class="special">&gt;</span> <span class="identifier">m_vec</span><span class="special">;</span>   <span class="comment">//Recursive vector</span>
+   <span class="keyword">float</span> <span class="identifier">m_v1</span><span class="special">;</span>
+   <span class="keyword">int</span>   <span class="identifier">m_v2</span><span class="special">;</span>
+
+   <span class="identifier">Type</span><span class="special">(</span><span class="identifier">valloc_t</span> <span class="identifier">va</span><span class="special">)</span> <span class="comment">//0-arg + alloc constructor</span>
+      <span class="special">:</span> <span class="identifier">m_vec</span><span class="special">(</span><span class="identifier">va</span><span class="special">),</span> <span class="identifier">m_v1</span><span class="special">(),</span> <span class="identifier">m_v2</span><span class="special">()</span> <span class="special">{}</span>
+
+   <span class="identifier">Type</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">size</span><span class="special">,</span> <span class="identifier">valloc_t</span> <span class="identifier">va</span><span class="special">)</span> <span class="comment">//1-arg + alloc constructor</span>
+      <span class="special">:</span> <span class="identifier">m_vec</span><span class="special">(</span><span class="identifier">vec_alloc_t</span><span class="special">(</span><span class="identifier">va</span><span class="special">))</span> <span class="comment">//We can't use vector(size_type, allocator_type) as Type</span>
+      <span class="special">,</span> <span class="identifier">m_v1</span><span class="special">(),</span> <span class="identifier">m_v2</span><span class="special">()</span>         <span class="comment">//has no default constructor. Forced to one-by-one initialization.</span>
+   <span class="special">{</span>  <span class="keyword">for</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">!=</span> <span class="identifier">size</span><span class="special">;</span> <span class="special">++</span><span class="identifier">i</span><span class="special">)</span>    <span class="identifier">m_vec</span><span class="special">.</span><span class="identifier">emplace_back</span><span class="special">(</span><span class="identifier">va</span><span class="special">);</span>  <span class="special">}</span>
+
+   <span class="identifier">Type</span> <span class="special">(</span><span class="identifier">valloc_t</span> <span class="identifier">va</span><span class="special">,</span> <span class="keyword">float</span> <span class="identifier">v1</span><span class="special">,</span> <span class="keyword">int</span> <span class="identifier">v2</span><span class="special">)</span> <span class="comment">//allocator + 2-arg constructor</span>
+      <span class="special">:</span> <span class="identifier">m_vec</span><span class="special">(</span><span class="identifier">vec_alloc_t</span><span class="special">(</span><span class="identifier">va</span><span class="special">))</span> <span class="comment">//We can't use vector(size_type, allocator_type) as Type</span>
+      <span class="special">,</span> <span class="identifier">m_v1</span><span class="special">(</span><span class="identifier">v1</span><span class="special">),</span> <span class="identifier">m_v2</span><span class="special">(</span><span class="identifier">v2</span><span class="special">)</span>     <span class="comment">//has no default constructor. Forced to one-by-one initialization.</span>
+   <span class="special">{</span>  <span class="keyword">for</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">!=</span> <span class="number">2</span><span class="special">;</span> <span class="special">++</span><span class="identifier">i</span><span class="special">)</span> <span class="identifier">m_vec</span><span class="special">.</span><span class="identifier">emplace_back</span><span class="special">(</span><span class="identifier">va</span><span class="special">);</span>  <span class="special">}</span>
+<span class="special">};</span>
+
+<span class="keyword">struct</span> <span class="identifier">UAType</span>   <span class="comment">//Uses-Allocator compatible type</span>
+<span class="special">{</span>
+   <span class="keyword">typedef</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">UAType</span><span class="special">,</span> <span class="identifier">seg_mngr_t</span><span class="special">&gt;</span> <span class="identifier">vec_alloc_t</span><span class="special">;</span>
+   <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">vector</span> <span class="special">&lt;</span><span class="identifier">UAType</span><span class="special">,</span> <span class="identifier">vec_alloc_t</span><span class="special">&gt;</span> <span class="identifier">m_vec</span><span class="special">;</span>   <span class="comment">//Recursive vector</span>
+   <span class="keyword">float</span> <span class="identifier">m_v1</span><span class="special">;</span>
+   <span class="keyword">int</span>   <span class="identifier">m_v2</span><span class="special">;</span>
+
+   <span class="keyword">typedef</span> <span class="identifier">valloc_t</span> <span class="identifier">allocator_type</span><span class="special">;</span> <span class="comment">//Signals uses-allocator construction is available</span>
+
+   <span class="identifier">UAType</span><span class="special">(</span><span class="identifier">valloc_t</span> <span class="identifier">va</span><span class="special">)</span>  <span class="comment">//0 explicit args + allocator</span>
+      <span class="special">:</span> <span class="identifier">m_vec</span><span class="special">(</span><span class="identifier">vec_alloc_t</span><span class="special">(</span><span class="identifier">va</span><span class="special">)),</span> <span class="identifier">m_v1</span><span class="special">(),</span> <span class="identifier">m_v2</span><span class="special">()</span> <span class="special">{}</span>
+
+   <span class="identifier">UAType</span><span class="special">(</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">allocator_arg_t</span>
+         <span class="special">,</span> <span class="identifier">allocator_type</span> <span class="identifier">a</span> <span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">size</span><span class="special">)</span> <span class="comment">//1 explicit arg + leading-allocator convention</span>
+      <span class="special">:</span> <span class="identifier">m_vec</span><span class="special">(</span><span class="identifier">size</span><span class="special">,</span> <span class="identifier">vec_alloc_t</span><span class="special">(</span><span class="identifier">a</span><span class="special">)),</span> <span class="identifier">m_v1</span><span class="special">(),</span> <span class="identifier">m_v2</span><span class="special">()</span> <span class="special">{}</span>
+
+   <span class="identifier">UAType</span><span class="special">(</span><span class="keyword">float</span> <span class="identifier">v1</span><span class="special">,</span> <span class="keyword">int</span> <span class="identifier">v2</span><span class="special">,</span> <span class="identifier">allocator_type</span> <span class="identifier">a</span><span class="special">)</span> <span class="comment">//2 explicit args + trailing-allocator convention</span>
+      <span class="special">:</span> <span class="identifier">m_vec</span><span class="special">(</span><span class="identifier">vec_alloc_t</span><span class="special">(</span><span class="identifier">a</span><span class="special">)),</span> <span class="identifier">m_v1</span><span class="special">(</span><span class="identifier">v1</span><span class="special">),</span> <span class="identifier">m_v2</span><span class="special">(</span><span class="identifier">v2</span><span class="special">)</span> <span class="special">{}</span>
+<span class="special">};</span>
+
+<span class="keyword">int</span> <span class="identifier">main</span> <span class="special">()</span>
+<span class="special">{</span>
+   <span class="identifier">managed_shared_memory</span> <span class="identifier">ms</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> "MyName"<span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
+
+   <span class="comment">// 1 arg + allocator: Requires explicit allocator argument</span>
+   <span class="comment">//    Type(size_type, valloc_t) called</span>
+   <span class="identifier">Type</span> <span class="special">*</span><span class="identifier">ptype1</span> <span class="special">=</span> <span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span> <span class="identifier">Type</span> <span class="special">&gt;(</span><span class="identifier">anonymous_instance</span><span class="special">)(</span><span class="number">3u</span><span class="special">,</span> <span class="identifier">ms</span><span class="special">.</span><span class="identifier">get_allocator</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;());</span>
+
+   <span class="comment">// allocator + 2 arg: Requires explicit allocator-convertible argument (segment_manager*)</span>
+   <span class="comment">//    Type(valloc_t, float, int) called</span>
+   <span class="identifier">Type</span> <span class="special">*</span><span class="identifier">ptype2</span> <span class="special">=</span> <span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span> <span class="identifier">Type</span> <span class="special">&gt;(</span><span class="identifier">anonymous_instance</span><span class="special">)(</span><span class="identifier">ms</span><span class="special">.</span><span class="identifier">get_segment_manager</span><span class="special">(),</span> <span class="number">0.0f</span><span class="special">,</span> <span class="number">0</span><span class="special">);</span>
+
+   <span class="comment">// 1 explicit arg + implicit leading allocator:</span>
+   <span class="comment">//    UAType(allocator_arg_t, allocator_type, std::size_t) called</span>
+   <span class="identifier">UAType</span> <span class="special">*</span><span class="identifier">pua1</span> <span class="special">=</span> <span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">UAType</span><span class="special">&gt;(</span><span class="identifier">anonymous_instance</span><span class="special">)(</span><span class="number">3u</span><span class="special">);</span>
+
+   <span class="comment">// 2 explicit args + implicit trailing allocator:</span>
+   <span class="comment">//    UAType(float, int, allocator_type) called</span>
+   <span class="identifier">UAType</span> <span class="special">*</span><span class="identifier">pua2</span> <span class="special">=</span> <span class="identifier">ms</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">UAType</span><span class="special">&gt;(</span><span class="identifier">anonymous_instance</span><span class="special">)(</span><span class="number">0.0f</span><span class="special">,</span> <span class="number">0</span><span class="special">);</span>
+   <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+</div>
+</div>
+<div class="copyright-footer">Copyright © 2005-2024 Ion Gaztanaga<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="managed_memory_segments.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../interprocess.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="managed_memory_segment_advanced_features.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

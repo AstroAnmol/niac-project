@@ -1,0 +1,546 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Managed Heap Memory And Managed External Buffer</title>
+<link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
+<link rel="up" href="../interprocess.html" title="Chapter 15. Boost.Interprocess">
+<link rel="prev" href="managed_memory_segment_advanced_features.html" title="Managed Memory Segment Advanced Features">
+<link rel="next" href="allocators_containers.html" title="Allocators and memory allocation algorithms">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../boost.png"></td>
+<td align="center"><a href="../../../index.html">Home</a></td>
+<td align="center"><a href="../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="managed_memory_segment_advanced_features.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../interprocess.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="allocators_containers.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="interprocess.managed_heap_memory_external_buffer"></a><a class="link" href="managed_heap_memory_external_buffer.html" title="Managed Heap Memory And Managed External Buffer">Managed
+    Heap Memory And Managed External Buffer</a>
+</h2></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="managed_heap_memory_external_buffer.html#interprocess.managed_heap_memory_external_buffer.managed_external_buffer">Managed
+      External Buffer: Constructing all Boost.Interprocess objects in a user provided
+      buffer</a></span></dt>
+<dt><span class="section"><a href="managed_heap_memory_external_buffer.html#interprocess.managed_heap_memory_external_buffer.managed_heap_memory">Managed
+      Heap Memory: Boost.Interprocess machinery in heap memory</a></span></dt>
+<dt><span class="section"><a href="managed_heap_memory_external_buffer.html#interprocess.managed_heap_memory_external_buffer.managed_heap_memory_external_buffer_diff">Differences
+      between managed memory segments</a></span></dt>
+<dt><span class="section"><a href="managed_heap_memory_external_buffer.html#interprocess.managed_heap_memory_external_buffer.shared_message_queue_ex">Example:
+      Serializing a database through the message queue</a></span></dt>
+</dl></div>
+<p>
+      <span class="bold"><strong>Boost.Interprocess</strong></span> offers managed shared memory
+      between processes using <code class="computeroutput"><span class="identifier">managed_shared_memory</span></code>
+      or <code class="computeroutput"><span class="identifier">managed_mapped_file</span></code>. Two
+      processes just map the same the memory mappable resource and read from and
+      write to that object.
+    </p>
+<p>
+      Many times, we don't want to use that shared memory approach and we prefer
+      to send serialized data through network, local socket or message queues. Serialization
+      can be done through <span class="bold"><strong>Boost.Serialization</strong></span> or
+      similar library. However, if two processes share the same ABI (application
+      binary interface), we could use the same object and container construction
+      capabilities of <code class="computeroutput"><span class="identifier">managed_shared_memory</span></code>
+      or <code class="computeroutput"><span class="identifier">managed_heap_memory</span></code> to build
+      all the information in a single buffer that will be sent, for example, though
+      message queues. The receiver would just copy the data to a local buffer, and
+      it could read or modify it directly without deserializing the data . This approach
+      can be much more efficient that a complex serialization mechanism.
+    </p>
+<p>
+      Applications for <span class="bold"><strong>Boost.Interprocess</strong></span> services
+      using non-shared memory buffers:
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          Create and use STL compatible containers and allocators, in systems where
+          dynamic memory is not recommendable.
+        </li>
+<li class="listitem">
+          Build complex, easily serializable databases in a single buffer:
+          <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
+<li class="listitem">
+                To share data between threads
+              </li>
+<li class="listitem">
+                To save and load information from/to files.
+              </li>
+</ul></div>
+        </li>
+<li class="listitem">
+          Duplicate information (containers, allocators, etc...) just copying the
+          contents of one buffer to another one.
+        </li>
+<li class="listitem">
+          Send complex information and objects/databases using serial/inter-process/network
+          communications.
+        </li>
+</ul></div>
+<p>
+      To help with this management, <span class="bold"><strong>Boost.Interprocess</strong></span>
+      provides two useful classes, <code class="computeroutput"><span class="identifier">basic_managed_heap_memory</span></code>
+      and <code class="computeroutput"><span class="identifier">basic_managed_external_buffer</span></code>:
+    </p>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_heap_memory_external_buffer.managed_external_buffer"></a><a class="link" href="managed_heap_memory_external_buffer.html#interprocess.managed_heap_memory_external_buffer.managed_external_buffer" title="Managed External Buffer: Constructing all Boost.Interprocess objects in a user provided buffer">Managed
+      External Buffer: Constructing all Boost.Interprocess objects in a user provided
+      buffer</a>
+</h3></div></div></div>
+<p>
+        Sometimes, the user wants to create simple objects, STL compatible containers,
+        STL compatible strings and more, all in a single buffer. This buffer could
+        be a big static buffer, a memory-mapped auxiliary device or any other user
+        buffer.
+      </p>
+<p>
+        This would allow an easy serialization and we-ll just need to copy the buffer
+        to duplicate all the objects created in the original buffer, including complex
+        objects like maps, lists.... <span class="bold"><strong>Boost.Interprocess</strong></span>
+        offers managed memory segment classes to handle user provided buffers that
+        allow the same functionality as shared memory classes:
+      </p>
+<pre class="programlisting"><span class="comment">//Named object creation managed memory segment</span>
+<span class="comment">//All objects are constructed in a user provided buffer</span>
+<span class="keyword">template</span> <span class="special">&lt;</span>
+            <span class="keyword">class</span> <span class="identifier">CharType</span><span class="special">,</span>
+            <span class="keyword">class</span> <span class="identifier">MemoryAlgorithm</span><span class="special">,</span>
+            <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">IndexConfig</span><span class="special">&gt;</span> <span class="keyword">class</span> <span class="identifier">IndexType</span>
+         <span class="special">&gt;</span>
+<span class="keyword">class</span> <span class="identifier">basic_managed_external_buffer</span><span class="special">;</span>
+
+<span class="comment">//Named object creation managed memory segment</span>
+<span class="comment">//All objects are constructed in a user provided buffer</span>
+<span class="comment">//   Names are c-strings,</span>
+<span class="comment">//   Default memory management algorithm</span>
+<span class="comment">//    (rbtree_best_fit with no mutexes and relative pointers)</span>
+<span class="comment">//   Name-object mappings are stored in the default index type (flat_map)</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_external_buffer</span> <span class="special">&lt;</span>
+   <span class="keyword">char</span><span class="special">,</span>
+   <span class="identifier">rbtree_best_fit</span><span class="special">&lt;</span><span class="identifier">null_mutex_family</span><span class="special">,</span> <span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span> <span class="special">&gt;,</span>
+   <span class="identifier">flat_map_index</span>
+   <span class="special">&gt;</span>  <span class="identifier">managed_external_buffer</span><span class="special">;</span>
+
+<span class="comment">//Named object creation managed memory segment</span>
+<span class="comment">//All objects are constructed in a user provided buffer</span>
+<span class="comment">//   Names are wide-strings,</span>
+<span class="comment">//   Default memory management algorithm</span>
+<span class="comment">//    (rbtree_best_fit with no mutexes and relative pointers)</span>
+<span class="comment">//   Name-object mappings are stored in the default index type (flat_map)</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_external_buffer</span><span class="special">&lt;</span>
+   <span class="keyword">wchar_t</span><span class="special">,</span>
+   <span class="identifier">rbtree_best_fit</span><span class="special">&lt;</span><span class="identifier">null_mutex_family</span><span class="special">,</span> <span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">&gt;</span> <span class="special">&gt;,</span>
+   <span class="identifier">flat_map_index</span>
+   <span class="special">&gt;</span>  <span class="identifier">wmanaged_external_buffer</span><span class="special">;</span>
+</pre>
+<p>
+        To use a managed external buffer, you must include the following header:
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_external_buffer</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+<p>
+        Let's see an example of the use of managed_external_buffer:
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_external_buffer</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">allocators</span><span class="special">/</span><span class="identifier">allocator</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">container</span><span class="special">/</span><span class="identifier">list</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cstring</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">aligned_storage</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="keyword">int</span> <span class="identifier">main</span><span class="special">()</span>
+<span class="special">{</span>
+   <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">;</span>
+
+   <span class="comment">//Create the static memory who will store all objects</span>
+   <span class="keyword">const</span> <span class="keyword">int</span> <span class="identifier">memsize</span> <span class="special">=</span> <span class="number">65536</span><span class="special">;</span>
+
+   <span class="keyword">static</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">aligned_storage</span><span class="special">&lt;</span><span class="identifier">memsize</span><span class="special">&gt;::</span><span class="identifier">type</span> <span class="identifier">static_buffer</span><span class="special">;</span>
+
+   <span class="comment">//This managed memory will construct objects associated with</span>
+   <span class="comment">//a wide string in the static buffer</span>
+   <span class="identifier">wmanaged_external_buffer</span> <span class="identifier">objects_in_static_memory</span>
+      <span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> <span class="special">&amp;</span><span class="identifier">static_buffer</span><span class="special">,</span> <span class="identifier">memsize</span><span class="special">);</span>
+
+   <span class="comment">//We optimize resources to create 100 named objects in the static buffer</span>
+   <span class="identifier">objects_in_static_memory</span><span class="special">.</span><span class="identifier">reserve_named_objects</span><span class="special">(</span><span class="number">100</span><span class="special">);</span>
+
+   <span class="comment">//Alias an integer node allocator type</span>
+   <span class="comment">//This allocator will allocate memory inside the static buffer</span>
+   <span class="keyword">typedef</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">wmanaged_external_buffer</span><span class="special">::</span><span class="identifier">segment_manager</span><span class="special">&gt;</span>
+      <span class="identifier">allocator_t</span><span class="special">;</span>
+
+   <span class="comment">//Alias a STL compatible list to be constructed in the static buffer</span>
+   <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">list</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">allocator_t</span><span class="special">&gt;</span>    <span class="identifier">MyBufferList</span><span class="special">;</span>
+
+   <span class="comment">//The list must be initialized with the allocator</span>
+   <span class="comment">//All objects created with objects_in_static_memory will</span>
+   <span class="comment">//be stored in the static_buffer!</span>
+   <span class="identifier">MyBufferList</span> <span class="special">*</span><span class="identifier">list</span> <span class="special">=</span> <span class="identifier">objects_in_static_memory</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyBufferList</span><span class="special">&gt;(</span><span class="identifier">L</span><span class="string">"MyList"</span><span class="special">)</span>
+                           <span class="special">(</span><span class="identifier">objects_in_static_memory</span><span class="special">.</span><span class="identifier">get_segment_manager</span><span class="special">());</span>
+   <span class="comment">//Since the allocation algorithm from wmanaged_external_buffer uses relative</span>
+   <span class="comment">//pointers and all the pointers constructed int the static memory point</span>
+   <span class="comment">//to objects in the same segment,  we can create another static buffer</span>
+   <span class="comment">//from the first one and duplicate all the data.</span>
+   <span class="keyword">static</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">aligned_storage</span><span class="special">&lt;</span><span class="identifier">memsize</span><span class="special">&gt;::</span><span class="identifier">type</span> <span class="identifier">static_buffer2</span><span class="special">;</span>
+   <span class="identifier">std</span><span class="special">::</span><span class="identifier">memcpy</span><span class="special">(&amp;</span><span class="identifier">static_buffer2</span><span class="special">,</span> <span class="special">&amp;</span><span class="identifier">static_buffer</span><span class="special">,</span> <span class="identifier">memsize</span><span class="special">);</span>
+
+   <span class="comment">//Now open the duplicated managed memory passing the memory as argument</span>
+   <span class="identifier">wmanaged_external_buffer</span> <span class="identifier">objects_in_static_memory2</span>
+      <span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> <span class="special">&amp;</span><span class="identifier">static_buffer2</span><span class="special">,</span> <span class="identifier">memsize</span><span class="special">);</span>
+
+   <span class="comment">//Check that "MyList" has been duplicated in the second buffer</span>
+   <span class="keyword">if</span><span class="special">(!</span><span class="identifier">objects_in_static_memory2</span><span class="special">.</span><span class="identifier">find</span><span class="special">&lt;</span><span class="identifier">MyBufferList</span><span class="special">&gt;(</span><span class="identifier">L</span><span class="string">"MyList"</span><span class="special">).</span><span class="identifier">first</span><span class="special">)</span>
+      <span class="keyword">return</span> <span class="number">1</span><span class="special">;</span>
+
+   <span class="comment">//Destroy the lists from the static buffers</span>
+   <span class="identifier">objects_in_static_memory</span><span class="special">.</span><span class="identifier">destroy</span><span class="special">&lt;</span><span class="identifier">MyBufferList</span><span class="special">&gt;(</span><span class="identifier">L</span><span class="string">"MyList"</span><span class="special">);</span>
+   <span class="identifier">objects_in_static_memory2</span><span class="special">.</span><span class="identifier">destroy</span><span class="special">&lt;</span><span class="identifier">MyBufferList</span><span class="special">&gt;(</span><span class="identifier">L</span><span class="string">"MyList"</span><span class="special">);</span>
+   <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<p>
+        <span class="bold"><strong>Boost.Interprocess</strong></span> STL compatible allocators
+        can also be used to place STL compatible containers in the user segment.
+      </p>
+<p>
+        <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__external__buffer.html" title="Class template basic_managed_external_buffer">basic_managed_external_buffer</a></code>
+        can be also useful to build small databases for embedded systems limiting
+        the size of the used memory to a predefined memory chunk, instead of letting
+        the database fragment the heap memory.
+      </p>
+<p>
+        <span class="bold"><strong>Note:</strong></span> The external memory supplied by the
+        user shall be aligned to the maximum value between <code class="computeroutput"><span class="keyword">alignof</span><span class="special">(</span><span class="identifier">max_align_t</span><span class="special">)</span></code> and the alignment of the strictest over-aligned
+        type to be built inside that memory.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_heap_memory_external_buffer.managed_heap_memory"></a><a class="link" href="managed_heap_memory_external_buffer.html#interprocess.managed_heap_memory_external_buffer.managed_heap_memory" title="Managed Heap Memory: Boost.Interprocess machinery in heap memory">Managed
+      Heap Memory: Boost.Interprocess machinery in heap memory</a>
+</h3></div></div></div>
+<p>
+        The use of heap memory (new/delete) to obtain a buffer where the user wants
+        to store all his data is very common, so <span class="bold"><strong>Boost.Interprocess</strong></span>
+        provides some specialized classes that work exclusively with heap memory.
+      </p>
+<p>
+        These are the classes:
+      </p>
+<pre class="programlisting"><span class="comment">//Named object creation managed memory segment</span>
+<span class="comment">//All objects are constructed in a single buffer allocated via new[]</span>
+<span class="keyword">template</span> <span class="special">&lt;</span>
+            <span class="keyword">class</span> <span class="identifier">CharType</span><span class="special">,</span>
+            <span class="keyword">class</span> <span class="identifier">MemoryAlgorithm</span><span class="special">,</span>
+            <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">IndexConfig</span><span class="special">&gt;</span> <span class="keyword">class</span> <span class="identifier">IndexType</span>
+         <span class="special">&gt;</span>
+<span class="keyword">class</span> <span class="identifier">basic_managed_heap_memory</span><span class="special">;</span>
+
+<span class="comment">//Named object creation managed memory segment</span>
+<span class="comment">//All objects are constructed in a single buffer allocated via new[]</span>
+<span class="comment">//   Names are c-strings,</span>
+<span class="comment">//   Default memory management algorithm</span>
+<span class="comment">//    (rbtree_best_fit with no mutexes and relative pointers)</span>
+<span class="comment">//   Name-object mappings are stored in the default index type (flat_map)</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_heap_memory</span> <span class="special">&lt;</span>
+   <span class="keyword">char</span><span class="special">,</span>
+   <span class="identifier">rbtree_best_fit</span><span class="special">&lt;</span><span class="identifier">null_mutex_family</span><span class="special">&gt;,</span>
+   <span class="identifier">flat_map_index</span>
+   <span class="special">&gt;</span>  <span class="identifier">managed_heap_memory</span><span class="special">;</span>
+
+<span class="comment">//Named object creation managed memory segment</span>
+<span class="comment">//All objects are constructed in a single buffer allocated via new[]</span>
+<span class="comment">//   Names are wide-strings,</span>
+<span class="comment">//   Default memory management algorithm</span>
+<span class="comment">//    (rbtree_best_fit with no mutexes and relative pointers)</span>
+<span class="comment">//   Name-object mappings are stored in the default index type (flat_map)</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_heap_memory</span><span class="special">&lt;</span>
+   <span class="keyword">wchar_t</span><span class="special">,</span>
+   <span class="identifier">rbtree_best_fit</span><span class="special">&lt;</span><span class="identifier">null_mutex_family</span><span class="special">&gt;,</span>
+   <span class="identifier">flat_map_index</span>
+   <span class="special">&gt;</span>  <span class="identifier">wmanaged_heap_memory</span><span class="special">;</span>
+</pre>
+<p>
+        To use a managed heap memory, you must include the following header:
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_heap_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+<p>
+        The use is exactly the same as <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__external__buffer.html" title="Class template basic_managed_external_buffer">basic_managed_external_buffer</a></code>,
+        except that memory is created by the managed memory segment itself using
+        dynamic (new/delete) memory.
+      </p>
+<p>
+        <span class="bold"><strong>basic_managed_heap_memory</strong></span> also offers a
+        <code class="computeroutput"><span class="identifier">grow</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span>
+        <span class="identifier">extra_bytes</span><span class="special">)</span></code>
+        function that tries to resize internal heap memory so that we have room for
+        more objects. But <span class="bold"><strong>be careful</strong></span>, if memory
+        is reallocated, the old buffer will be copied into the new one so all the
+        objects will be binary-copied to the new buffer. To be able to use this function,
+        all pointers constructed in the heap buffer that point to objects in the
+        heap buffer must be relative pointers (for example <code class="computeroutput"><span class="identifier">offset_ptr</span></code>).
+        Otherwise, the result is undefined. Here is an example:
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">container</span><span class="special">/</span><span class="identifier">list</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_heap_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">allocators</span><span class="special">/</span><span class="identifier">allocator</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cstddef</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cassert</span><span class="special">&gt;</span>
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">list</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">managed_heap_memory</span><span class="special">::</span><span class="identifier">segment_manager</span><span class="special">&gt;</span> <span class="special">&gt;</span>
+   <span class="identifier">MyList</span><span class="special">;</span>
+
+<span class="keyword">int</span> <span class="identifier">main</span> <span class="special">()</span>
+<span class="special">{</span>
+   <span class="comment">//We will create a buffer of 1000 bytes to store a list</span>
+   <span class="identifier">managed_heap_memory</span> <span class="identifier">heap_memory</span><span class="special">(</span><span class="number">1000</span><span class="special">);</span>
+
+   <span class="identifier">MyList</span> <span class="special">*</span> <span class="identifier">mylist</span> <span class="special">=</span> <span class="identifier">heap_memory</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyList</span><span class="special">&gt;(</span><span class="string">"MyList"</span><span class="special">)</span>
+                        <span class="special">(</span><span class="identifier">heap_memory</span><span class="special">.</span><span class="identifier">get_segment_manager</span><span class="special">());</span>
+
+   <span class="comment">//Obtain handle, that identifies the list in the buffer</span>
+   <span class="identifier">managed_heap_memory</span><span class="special">::</span><span class="identifier">handle_t</span> <span class="identifier">list_handle</span> <span class="special">=</span> <span class="identifier">heap_memory</span><span class="special">.</span><span class="identifier">get_handle_from_address</span><span class="special">(</span><span class="identifier">mylist</span><span class="special">);</span>
+
+   <span class="comment">//Fill list until there is no more memory in the buffer</span>
+   try <span class="special">{</span>
+      <span class="keyword">while</span><span class="special">(</span><span class="number">1</span><span class="special">)</span> <span class="special">{</span>
+         <span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">begin</span><span class="special">(),</span> <span class="number">0</span><span class="special">);</span>
+      <span class="special">}</span>
+   <span class="special">}</span>
+   catch<span class="special">(</span><span class="keyword">const</span> <span class="identifier">bad_alloc</span> <span class="special">&amp;){</span>
+      <span class="comment">//memory is full</span>
+   <span class="special">}</span>
+   <span class="comment">//Let's obtain the size of the list</span>
+   <span class="identifier">MyList</span><span class="special">::</span><span class="identifier">size_type</span> <span class="identifier">old_size</span> <span class="special">=</span> <span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">size</span><span class="special">();</span>
+
+   <span class="comment">//To make the list bigger, let's increase the heap buffer</span>
+   <span class="comment">//in 1000 bytes more.</span>
+   <span class="identifier">heap_memory</span><span class="special">.</span><span class="identifier">grow</span><span class="special">(</span><span class="number">1000</span><span class="special">);</span>
+
+   <span class="comment">//If memory has been reallocated, the old pointer is invalid, so</span>
+   <span class="comment">//use previously obtained handle to find the new pointer.</span>
+   <span class="identifier">mylist</span> <span class="special">=</span> <span class="keyword">static_cast</span><span class="special">&lt;</span><span class="identifier">MyList</span> <span class="special">*&gt;</span>
+               <span class="special">(</span><span class="identifier">heap_memory</span><span class="special">.</span><span class="identifier">get_address_from_handle</span><span class="special">(</span><span class="identifier">list_handle</span><span class="special">));</span>
+
+   <span class="comment">//Fill list until there is no more memory in the buffer</span>
+   try <span class="special">{</span>
+      <span class="keyword">while</span><span class="special">(</span><span class="number">1</span><span class="special">)</span> <span class="special">{</span>
+         <span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">begin</span><span class="special">(),</span> <span class="number">0</span><span class="special">);</span>
+      <span class="special">}</span>
+   <span class="special">}</span>
+   catch<span class="special">(</span><span class="keyword">const</span> <span class="identifier">bad_alloc</span> <span class="special">&amp;){</span>
+      <span class="comment">//memory is full</span>
+   <span class="special">}</span>
+
+   <span class="comment">//Let's obtain the new size of the list</span>
+   <span class="identifier">MyList</span><span class="special">::</span><span class="identifier">size_type</span> <span class="identifier">new_size</span> <span class="special">=</span> <span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">size</span><span class="special">();</span>
+
+   <span class="identifier">assert</span><span class="special">(</span><span class="identifier">new_size</span> <span class="special">&gt;</span> <span class="identifier">old_size</span><span class="special">);</span>
+
+   <span class="comment">//Destroy list</span>
+   <span class="identifier">heap_memory</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">mylist</span><span class="special">);</span>
+
+   <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<p>
+        <span class="bold"><strong>Note:</strong></span> Heap memory is not guaranteed to be
+        compatible with over-aligned types so it is not supported to use memory allocation
+        algorithms or construct objects that need over-aligned memory:
+      </p>
+<pre class="programlisting"><span class="comment">// 64 byte aligned memory might not be supported</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_heap_memory</span><span class="special">&lt;</span>
+    <span class="keyword">char</span><span class="special">,</span>
+    <span class="identifier">rbtree_best_fit</span><span class="special">&lt;</span><span class="identifier">mutex_family</span><span class="special">,</span> <span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">,</span> <span class="keyword">long</span><span class="special">,</span> <span class="keyword">unsigned</span> <span class="keyword">long</span><span class="special">,</span> <span class="number">64</span><span class="special">&gt;,</span> <span class="number">64</span><span class="special">&gt;,</span>
+    <span class="identifier">iset_index</span>
+<span class="special">&gt;</span> <span class="identifier">managed_heap_with_overalignment_t</span><span class="special">;</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_heap_memory_external_buffer.managed_heap_memory_external_buffer_diff"></a><a class="link" href="managed_heap_memory_external_buffer.html#interprocess.managed_heap_memory_external_buffer.managed_heap_memory_external_buffer_diff" title="Differences between managed memory segments">Differences
+      between managed memory segments</a>
+</h3></div></div></div>
+<p>
+        All managed memory segments have similar capabilities (memory allocation
+        inside the memory segment, named object construction...), but there are some
+        remarkable differences between <span class="bold"><strong>managed_shared_memory</strong></span>,
+        <span class="bold"><strong>managed_mapped_file</strong></span> and <span class="bold"><strong>managed_heap_memory</strong></span>,
+        <span class="bold"><strong>managed_external_file</strong></span>.
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            Default specializations of managed shared memory and mapped file use
+            process-shared mutexes. Heap memory and external buffer have no internal
+            synchronization by default. The cause is that the first two are thought
+            to be shared between processes (although memory mapped files could be
+            used just to obtain a persistent object data-base for a process) whereas
+            the last two are thought to be used inside one process to construct a
+            serialized named object data-base that can be sent though serial interprocess
+            communications (like message queues, localhost network...).
+          </li>
+<li class="listitem">
+            The first two create a system-global object (a shared memory object or
+            a file) shared by several processes, whereas the last two are objects
+            that don't create system-wide resources.
+          </li>
+</ul></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="interprocess.managed_heap_memory_external_buffer.shared_message_queue_ex"></a><a class="link" href="managed_heap_memory_external_buffer.html#interprocess.managed_heap_memory_external_buffer.shared_message_queue_ex" title="Example: Serializing a database through the message queue">Example:
+      Serializing a database through the message queue</a>
+</h3></div></div></div>
+<p>
+        To see the utility of managed heap memory and managed external buffer classes,
+        the following example shows how a message queue can be used to serialize
+        a whole database constructed in a memory buffer using <span class="bold"><strong>Boost.Interprocess</strong></span>,
+        send the database through a message queue and duplicated in another buffer:
+      </p>
+<pre class="programlisting"><span class="comment">//This test creates a in memory data-base using Interprocess machinery and</span>
+<span class="comment">//serializes it through a message queue. Then rebuilds the data-base in</span>
+<span class="comment">//another buffer and checks it against the original data-base</span>
+<span class="keyword">bool</span> <span class="identifier">test_serialize_db</span><span class="special">()</span>
+<span class="special">{</span>
+   <span class="comment">//Typedef data to create a Interprocess map</span>
+   <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">&gt;</span> <span class="identifier">MyPair</span><span class="special">;</span>
+   <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">less</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">&gt;</span>   <span class="identifier">MyLess</span><span class="special">;</span>
+   <span class="keyword">typedef</span> <span class="identifier">node_allocator</span><span class="special">&lt;</span><span class="identifier">MyPair</span><span class="special">,</span> <span class="identifier">managed_external_buffer</span><span class="special">::</span><span class="identifier">segment_manager</span><span class="special">&gt;</span>
+      <span class="identifier">node_allocator_t</span><span class="special">;</span>
+   <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">map</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">,</span>
+               <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">,</span>
+               <span class="identifier">std</span><span class="special">::</span><span class="identifier">less</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">&gt;,</span>
+               <span class="identifier">node_allocator_t</span><span class="special">&gt;</span>
+               <span class="identifier">MyMap</span><span class="special">;</span>
+
+   <span class="comment">//Some constants</span>
+   <span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">BufferSize</span>  <span class="special">=</span> <span class="number">65536</span><span class="special">;</span>
+   <span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">MaxMsgSize</span>  <span class="special">=</span> <span class="number">100</span><span class="special">;</span>
+
+   <span class="comment">//Allocate a memory buffer to hold the destiny database using vector&lt;char&gt;</span>
+   <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">&gt;</span> <span class="identifier">buffer_destiny</span><span class="special">(</span><span class="identifier">BufferSize</span><span class="special">,</span> <span class="number">0</span><span class="special">);</span>
+
+   <span class="identifier">message_queue</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span>
+   <span class="special">{</span>
+      <span class="comment">//Create the message-queues</span>
+      <span class="identifier">message_queue</span> <span class="identifier">mq1</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> "MyName"<span class="special">,</span> <span class="number">1</span><span class="special">,</span> <span class="identifier">MaxMsgSize</span><span class="special">);</span>
+
+      <span class="comment">//Open previously created message-queue simulating other process</span>
+      <span class="identifier">message_queue</span> <span class="identifier">mq2</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> "MyName"<span class="special">);</span>
+
+      <span class="comment">//A managed heap memory to create the origin database</span>
+      <span class="identifier">managed_heap_memory</span> <span class="identifier">db_origin</span><span class="special">(</span><span class="identifier">buffer_destiny</span><span class="special">.</span><span class="identifier">size</span><span class="special">());</span>
+
+      <span class="comment">//Construct the map in the first buffer</span>
+      <span class="identifier">MyMap</span> <span class="special">*</span><span class="identifier">map1</span> <span class="special">=</span> <span class="identifier">db_origin</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">MyMap</span><span class="special">&gt;(</span><span class="string">"MyMap"</span><span class="special">)</span>
+                                       <span class="special">(</span><span class="identifier">MyLess</span><span class="special">(),</span>
+                                       <span class="identifier">db_origin</span><span class="special">.</span><span class="identifier">get_segment_manager</span><span class="special">());</span>
+      <span class="keyword">if</span><span class="special">(!</span><span class="identifier">map1</span><span class="special">)</span>
+         <span class="keyword">return</span> <span class="keyword">false</span><span class="special">;</span>
+
+      <span class="comment">//Fill map1 until is full</span>
+      try <span class="special">{</span>
+         <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span>
+         <span class="keyword">while</span><span class="special">(</span><span class="number">1</span><span class="special">){</span>
+            <span class="special">(*</span><span class="identifier">map1</span><span class="special">)[</span><span class="identifier">i</span><span class="special">]</span> <span class="special">=</span> <span class="identifier">i</span><span class="special">;</span>
+            <span class="special">++</span><span class="identifier">i</span><span class="special">;</span>
+         <span class="special">}</span>
+      <span class="special">}</span>
+      catch<span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">::</span><span class="identifier">bad_alloc</span> <span class="special">&amp;){}</span>
+
+      <span class="comment">//Data control data sending through the message queue</span>
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">sent</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span>
+      <span class="identifier">message_queue</span><span class="special">::</span><span class="identifier">size_type</span> <span class="identifier">recvd</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span>
+      <span class="identifier">message_queue</span><span class="special">::</span><span class="identifier">size_type</span> <span class="identifier">total_recvd</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span>
+      <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="identifier">priority</span><span class="special">;</span>
+
+      <span class="comment">//Send whole first buffer through the mq1, read it</span>
+      <span class="comment">//through mq2 to the second buffer</span>
+      <span class="keyword">while</span><span class="special">(</span><span class="number">1</span><span class="special">){</span>
+         <span class="comment">//Send a fragment of buffer1 through mq1</span>
+       <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">bytes_to_send</span> <span class="special">=</span> <span class="identifier">MaxMsgSize</span> <span class="special">&lt;</span> <span class="special">(</span><span class="identifier">db_origin</span><span class="special">.</span><span class="identifier">get_size</span><span class="special">()</span> <span class="special">-</span> <span class="identifier">sent</span><span class="special">)</span> <span class="special">?</span>
+                                       <span class="identifier">MaxMsgSize</span> <span class="special">:</span> <span class="special">(</span><span class="identifier">db_origin</span><span class="special">.</span><span class="identifier">get_size</span><span class="special">()</span> <span class="special">-</span> <span class="identifier">sent</span><span class="special">);</span>
+         <span class="identifier">mq1</span><span class="special">.</span><span class="identifier">send</span><span class="special">(</span> <span class="special">&amp;</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="identifier">db_origin</span><span class="special">.</span><span class="identifier">get_address</span><span class="special">())[</span><span class="identifier">sent</span><span class="special">]</span>
+               <span class="special">,</span> <span class="identifier">bytes_to_send</span>
+               <span class="special">,</span> <span class="number">0</span><span class="special">);</span>
+         <span class="identifier">sent</span> <span class="special">+=</span> <span class="identifier">bytes_to_send</span><span class="special">;</span>
+         <span class="comment">//Receive the fragment through mq2 to buffer_destiny</span>
+       <span class="identifier">mq2</span><span class="special">.</span><span class="identifier">receive</span><span class="special">(</span> <span class="special">&amp;</span><span class="identifier">buffer_destiny</span><span class="special">[</span><span class="identifier">total_recvd</span><span class="special">]</span>
+                <span class="special">,</span> <span class="identifier">BufferSize</span> <span class="special">-</span> <span class="identifier">recvd</span>
+                  <span class="special">,</span> <span class="identifier">recvd</span>
+                  <span class="special">,</span> <span class="identifier">priority</span><span class="special">);</span>
+         <span class="identifier">total_recvd</span> <span class="special">+=</span> <span class="identifier">recvd</span><span class="special">;</span>
+
+         <span class="comment">//Check if we have received all the buffer</span>
+         <span class="keyword">if</span><span class="special">(</span><span class="identifier">total_recvd</span> <span class="special">==</span> <span class="identifier">BufferSize</span><span class="special">){</span>
+            <span class="keyword">break</span><span class="special">;</span>
+         <span class="special">}</span>
+      <span class="special">}</span>
+
+      <span class="comment">//The buffer will contain a copy of the original database</span>
+      <span class="comment">//so let's interpret the buffer with managed_external_buffer</span>
+      <span class="identifier">managed_external_buffer</span> <span class="identifier">db_destiny</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> <span class="special">&amp;</span><span class="identifier">buffer_destiny</span><span class="special">[</span><span class="number">0</span><span class="special">],</span> <span class="identifier">BufferSize</span><span class="special">);</span>
+
+      <span class="comment">//Let's find the map</span>
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">MyMap</span> <span class="special">*,</span> <span class="identifier">managed_external_buffer</span><span class="special">::</span><span class="identifier">size_type</span><span class="special">&gt;</span> <span class="identifier">ret</span> <span class="special">=</span> <span class="identifier">db_destiny</span><span class="special">.</span><span class="identifier">find</span><span class="special">&lt;</span><span class="identifier">MyMap</span><span class="special">&gt;(</span><span class="string">"MyMap"</span><span class="special">);</span>
+      <span class="identifier">MyMap</span> <span class="special">*</span><span class="identifier">map2</span> <span class="special">=</span> <span class="identifier">ret</span><span class="special">.</span><span class="identifier">first</span><span class="special">;</span>
+
+      <span class="comment">//Check if we have found it</span>
+      <span class="keyword">if</span><span class="special">(!</span><span class="identifier">map2</span><span class="special">){</span>
+         <span class="keyword">return</span> <span class="keyword">false</span><span class="special">;</span>
+      <span class="special">}</span>
+
+      <span class="comment">//Check if it is a single variable (not an array)</span>
+      <span class="keyword">if</span><span class="special">(</span><span class="identifier">ret</span><span class="special">.</span><span class="identifier">second</span> <span class="special">!=</span> <span class="number">1</span><span class="special">){</span>
+         <span class="keyword">return</span> <span class="keyword">false</span><span class="special">;</span>
+      <span class="special">}</span>
+
+      <span class="comment">//Now let's compare size</span>
+      <span class="keyword">if</span><span class="special">(</span><span class="identifier">map1</span><span class="special">-&gt;</span><span class="identifier">size</span><span class="special">()</span> <span class="special">!=</span> <span class="identifier">map2</span><span class="special">-&gt;</span><span class="identifier">size</span><span class="special">()){</span>
+         <span class="keyword">return</span> <span class="keyword">false</span><span class="special">;</span>
+      <span class="special">}</span>
+
+      <span class="comment">//Now let's compare all db values</span>
+     <span class="identifier">MyMap</span><span class="special">::</span><span class="identifier">size_type</span> <span class="identifier">num_elements</span> <span class="special">=</span> <span class="identifier">map1</span><span class="special">-&gt;</span><span class="identifier">size</span><span class="special">();</span>
+     <span class="keyword">for</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="identifier">num_elements</span><span class="special">;</span> <span class="special">++</span><span class="identifier">i</span><span class="special">){</span>
+         <span class="keyword">if</span><span class="special">((*</span><span class="identifier">map1</span><span class="special">)[</span><span class="identifier">i</span><span class="special">]</span> <span class="special">!=</span> <span class="special">(*</span><span class="identifier">map2</span><span class="special">)[</span><span class="identifier">i</span><span class="special">]){</span>
+            <span class="keyword">return</span> <span class="keyword">false</span><span class="special">;</span>
+         <span class="special">}</span>
+      <span class="special">}</span>
+
+      <span class="comment">//Destroy maps from db-s</span>
+      <span class="identifier">db_origin</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">map1</span><span class="special">);</span>
+      <span class="identifier">db_destiny</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">map2</span><span class="special">);</span>
+   <span class="special">}</span>
+   <span class="identifier">message_queue</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span>
+   <span class="keyword">return</span> <span class="keyword">true</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+</div>
+</div>
+<div class="copyright-footer">Copyright © 2005-2024 Ion Gaztanaga<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="managed_memory_segment_advanced_features.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../interprocess.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="allocators_containers.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

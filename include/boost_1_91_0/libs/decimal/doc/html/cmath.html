@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>html.fonts-loading{visibility:hidden;opacity:0}</style>
+<script>document.documentElement.classList.add('fonts-loading');</script>
+
+<link rel="preload" href="./_/font/NotoSansDisplay.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/NotoSansDisplay-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceNeon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="./_/font/MonaspaceXenon-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+<script>
+(function() {
+  'use strict';
+  
+  var revealed = false;
+  
+  var reveal = function() {
+    if (revealed) return;
+    revealed = true;
+    document.documentElement.classList.remove('fonts-loading');
+  };
+  
+  setTimeout(reveal, 3000);
+  
+  if (!('FontFace' in window) || !('fonts' in document)) {
+    setTimeout(reveal, 100);
+    return;
+  }
+  
+  var uiRoot = './_';
+  var fonts = [
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay.woff2',
+      descriptors: { style: 'normal', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Noto Sans', 
+      url: uiRoot + '/font/NotoSansDisplay-Italic.woff2',
+      descriptors: { style: 'italic', weight: '100 900', stretch: '62.5% 100%' }
+    },
+    { 
+      family: 'Monaspace Neon', 
+      url: uiRoot + '/font/MonaspaceNeon-Var.woff2',
+      descriptors: { style: 'normal', weight: '400' }
+    },
+    { 
+      family: 'Monaspace Xenon', 
+      url: uiRoot + '/font/MonaspaceXenon-Var.woff2',
+      descriptors: { style: 'italic', weight: '400' }
+    }
+  ];
+  
+  var loadPromises = fonts.map(function(f) {
+    try {
+      var face = new FontFace(f.family, 'url("' + f.url + '")', f.descriptors);
+      return face.load().then(function(loaded) {
+        document.fonts.add(loaded);
+        return loaded;
+      }).catch(function() {
+        return null;
+      });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  });
+  
+  Promise.all(loadPromises)
+    .then(function() {
+      return document.fonts.ready;
+    })
+    .then(reveal)
+    .catch(reveal);
+})();
+</script>    <title>&lt;cmath&gt; Support :: Boost.Decimal</title>
+    <link rel="prev" href="numbers.html">
+    <link rel="next" href="cstdlib.html">
+  <meta name="generator" content="Antora 3.1.14">
+    <link rel="stylesheet" href="./_/css/boostlook.css">
+    <link rel="stylesheet" href="./_/css/site.css">
+    <link rel="stylesheet" href="./_/css/vendor/tabs.css">
+    <script>
+    (function() {
+      if (window.self !== window.top) return;
+      var theme = localStorage.getItem('antora-theme');
+      if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+    </script>
+    <script>var uiRootPath = './_'</script>
+<link rel="icon" href="./_/img/favicons/favicon.ico" type="image/x-icon">
+    <!-- Favicon configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./_/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./_/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./_/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="./_/img/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="./_/img/favicons/favicon.ico">
+  </head>
+  <body class="article toc2 toc-left">
+    <div class="boostlook">
+   <div id="header">
+      <div id="toc" class="nav-container toc2" data-component="ROOT" data-version="">
+  <aside class="nav">
+    <button class="nav-close"></button>
+    <div class="panels">
+      <div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+      <div class="title-row">
+        <h3 class="title"><a href="overview.html">Boost.Decimal</a></h3>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme" style="display:none">
+  <i class="fas fa-sun theme-icon-light"></i>
+  <i class="fas fa-moon theme-icon-dark"></i>
+</button>      </div>
+      <ul class="nav-list">
+        <ul class="nav-list">
+        <li class="" data-depth="1">
+            <a class="nav-link" href="overview.html">Boost.Decimal: IEEE 754 Decimal Floating Point Numbers</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="basics.html">Basic Usage</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="examples.html">Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_construction">Basic Construction</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_basic_math">Basic Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_conversions">Conversions</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_integer_conversions">Integer Conversions</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_binary_floating_conversions">Binary Floating Point Conversions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_promotion">Promotion and Mixed Decimal Arithmetic</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_charconv"><code>&lt;charconv&gt;</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_generic_programming">Generic Programming</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_literals_constants">Literals and Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_format">Formatting</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_fmt_format">{fmt}</a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_std_format"><code>&lt;format&gt;</code></a>
+        </li>
+              <li class="" data-depth="3">
+            <a class="nav-link" href="examples.html#examples_print"><code>&lt;print&gt;</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="2">
+            <a class="nav-link" href="examples.html#examples_file">Read and Write to File</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="financial_examples.html">Financial Examples</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_money_parsing">Parsing Pricing Data from File</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="financial_examples.html#examples_boost_math">Boost.Math Integration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="debugger.html">Debugger Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="api_reference.html">API Reference</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_types">Types</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_structs">Structs</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_enums">Enums</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_constants">Constants</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="api_reference.html#api_ref_macros">Macros</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="file_structure.html">Directory Structure</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="generic_decimal.html">IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal32_t.html"><code>decimal32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal64_t.html"><code>decimal64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal128_t.html"><code>decimal128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="fast_types.html">Non-IEEE 754 Decimal Types</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast32_t.html"><code>decimal_fast32_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast64_t.html"><code>decimal_fast64_t</code></a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="decimal_fast128_t.html"><code>decimal_fast128_t</code></a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="binary_floating_conversions.html">Conversion from Binary Floating Point</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cohorts.html">Cohorts</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="conversions.html">Bit Conversions</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="literals.html">Literals Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="numbers.html">Numeric Constants</a>
+        </li>
+              <li class=" is-current-page" data-depth="1">
+            <a class="nav-link" href="cmath.html"><code>&lt;cmath&gt;</code> Support</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="#basic_cmath_ops">Basic Operations</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_exp">Exponential Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_power_funcs">Power Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_trig_funcs">Trigonometric Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_hyperbolic_funcs">Hyperbolic Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_error_funcs">Error and Gamma Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_nearest_int">Nearest Integer Floating Point</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_manipulation_funcs">Floating Point Manipulation</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_classification">Classification and Comparison</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#cmath_spec_fun">Special Functions</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="#non_standard_cmath">Non-Standard Functions</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="cstdlib.html"><code>&lt;cstdlib&gt;</code> Support (<code>strtod</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="charconv.html"><code>&lt;charconv&gt;</code> Support (<code>to_/from_chars</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="format.html"><code>&lt;format&gt;</code> and {fmt} Support</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfenv.html"><code>&lt;cfenv&gt;</code> Support (Rounding Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cfloat.html"><code>&lt;cfloat&gt;</code> Support (Eval Modes)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="cstdio.html"><code>&lt;cstdio&gt;</code> Support (<code>printf</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="functional.html"><code>&lt;functional&gt;</code> Support (<code>hash</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="limits.html"><code>&lt;limits&gt;</code> Support (<code>numeric_limits</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="strings.html"><code>&lt;string&gt;</code> Support (<code>to_string</code>)</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="config.html">Configuration Macros</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_user">User Configuration</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="config.html#configuration_automatic">Automatic Configuration</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="benchmarks.html">Benchmarks</a>
+        </li>
+        <ul class="nav-list">
+        <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_linux_benchmarks">x64 Linux</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#x64_windows_benchmarks">x64 Windows</a>
+        </li>
+              <li class="" data-depth="2">
+            <a class="nav-link" href="benchmarks.html#m4_mac_benchmarks">ARM64 macOS</a>
+        </li>
+        </ul>
+        <li class="" data-depth="1">
+            <a class="nav-link" href="design.html">Design Decisions and Standards Deviations</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="reference.html">References</a>
+        </li>
+              <li class="" data-depth="1">
+            <a class="nav-link" href="copyright.html">Copyright and License</a>
+        </li>
+        </ul>
+  </ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+  </div>  <div id="content">
+    <article class="doc max-width-reset">
+  <div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="overview.html" aria-label="Home: Boost.Decimal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 -960 960 960" fill="#000000" aria-hidden="true"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+      </a>
+    </li>
+    <li><a href="cmath.html"><code>&lt;cmath&gt;</code> Support</a></li>
+  </ul>
+</nav>
+<div class="spirit-nav">
+    <a accesskey="p" href="numbers.html">
+      <span class="material-symbols-outlined" title="Previous: Numeric Constants">arrow_back</span>
+    </a>
+    <a class="disabled" accesskey="u" aria-disabled="true" tabindex="-1">
+      <span class="material-symbols-outlined" title="Up:">arrow_upward</span>
+    </a>
+    <a accesskey="n" href="cstdlib.html">
+      <span class="material-symbols-outlined" title="Next: <code>&lt;cstdlib&gt;</code> Support (<code>strtod</code>)">arrow_forward</span>
+    </a>
+</div></div>
+    <h1 class="page"><code>&lt;cmath&gt;</code> Support</h1>
+  <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Decimal contains overloads for all functions from <code>&lt;cmath&gt;</code>, and they have the same handling as built-in floating point types.
+They are also all constexpr with C++14 unlike the built-in floating point types which require either C++23 or 26.
+Additionally, all functions are marked <code>noexcept</code>.</p>
+</div>
+<div class="paragraph">
+<p>All of these functions are impacted by the global rounding mode as described in <a href="cfenv.html" class="xref page">rounding modes</a> as well as the <code>DEC_FLT_EVAL_METHOD</code> from <a href="cfloat.html" class="xref page">evaluation methods</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_basic_operations"><a class="anchor" href="#cmath_basic_operations"></a>Basic Operations</h2>
+<div class="sectionbody">
+<table id="basic_cmath_ops" class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/fabs">abs</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Absolute Value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/fabs">fabs</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Floating Point Absolute Value (Identical to <code>abs</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/fmod">fmod</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Floating Point Modulo Operation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/remainder">remainder</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Signed Floating Point Modulo</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/remquo">remquo</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Signed remainder and at least three bits of division result (quotient)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/fma">fma</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fused Multiply - Add</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/fmax">fmax</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns maximum value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/fmin">fmin</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns minimum value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/fdim">fdim</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns unsigned difference of two values</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/nan">nan</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generates Quiet NANs with Payload</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/nan">snan</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generates Signaling NANs with Payload (Non-Standard)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType abs(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType fabs(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType abs(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType fmod(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType remainder(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType remquo(DecimalType x, DecimalType y, int* quo) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType fma(DecimalType x, DecimalType y, DecimalType z) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType fmax(DecimalType x, DecimalType y, int* quo) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType fmin(DecimalType x, DecimalType y, int* quo) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType fdim(DecimalType x, DecimalType y, int* quo) noexcept;
+
+constexpr decimal32_t nand32(const char* arg) noexcept;
+constexpr decimal64_t nand64(const char* arg) noexcept;
+constexpr decimal128_t nand128(const char* arg) noexcept;
+
+constexpr decimal_fast32_t nand32f(const char* arg) noexcept;
+constexpr decimal_fast64_t nand64f(const char* arg) noexcept;
+constexpr decimal_fast128_t nand128f(const char* arg) noexcept;
+
+constexpr decimal32_t snand32(const char* arg) noexcept;
+constexpr decimal64_t snand64(const char* arg) noexcept;
+constexpr decimal128_t snand128(const char* arg) noexcept;
+
+constexpr decimal_fast32_t snand32f(const char* arg) noexcept;
+constexpr decimal_fast64_t snand64f(const char* arg) noexcept;
+constexpr decimal_fast128_t snand128f(const char* arg) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_exp"><a class="anchor" href="#cmath_exp"></a>Exponential Functions</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/exp">exp</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns <code>e</code> to the given power</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/exp2">exp2</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns <code>2</code> to the given power</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/expm1">expm1</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns (<code>e^x</code> - 1)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/log">log</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the natural logarithm of the value (base <code>e</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/log10">log10</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the log base 10 of the value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/log2">log2</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the log base 2 of the value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/log1p">log1p</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns ln(1 + x)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType exp(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType exp2(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType expm1(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType log(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType log10(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType log2(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType log1p(DecimalType x) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_power_funcs"><a class="anchor" href="#cmath_power_funcs"></a>Power Functions</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/pow">pow</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns x^y</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/sqrt">sqrt</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the square root of the value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/cbrt">cbrt</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the cube root of the value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/hypot">hypot</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns sqrt(x^2 + y^2) or sqrt(x^2 + y^2 + z^2) depending on number of arguments</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType pow(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType sqrt(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType cbrt(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType hypot(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType hypot(DecimalType x, DecimalType y, DecimalType z) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_trig_funcs"><a class="anchor" href="#cmath_trig_funcs"></a>Trigonometric Functions</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/sin">sin</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes sin(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/cos">cos</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes cos(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/tan">tan</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes tan(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/asin">asin</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes arcsin(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/acos">acos</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes arccos(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/atan">atan</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes arctan(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/atan2">atan2</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes arctan(x) using signs as quadrants</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType sin(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType cos(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType tan(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType asin(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType acos(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType atan(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType atan2(DecimalType x, DecimalType y) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_hyperbolic_funcs"><a class="anchor" href="#cmath_hyperbolic_funcs"></a>Hyperbolic Functions</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/sinh">sinh</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes hyperbolic sin sinh(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/cosh">cosh</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes hyperbolic cos cosh(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/tanh">tanh</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes hyperbolic tan tanh(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/asinh">asinh</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes hyperbolic arcsin asinh(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/acosh">acosh</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes hyperbolic arccos acosh(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/atanh">atanh</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes hyperbolic arctan atanh(x)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType sinh(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType cosh(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType tanh(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType asinh(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType acosh(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType atanh(DecimalType x) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_error_funcs"><a class="anchor" href="#cmath_error_funcs"></a>Error and Gamma Functions</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/erf">erf</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the error function erf(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/erfc">erfc</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the complementary error function erfc(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/tgamma">tgamma</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the gamma function gamma(x)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/lgamma">lgamma</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the natural log of the gamma function ln(gamma(x))</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType erf(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType erfc(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType tgamma(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType lgamma(DecimalType x) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_nearest_int"><a class="anchor" href="#cmath_nearest_int"></a>Nearest integer floating point operations</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/ceil">ceil</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the nearest integer not less than the given value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/floor">floor</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the nearest integer not greater than the given value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/trunc">trunc</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the nearest integer not greater in magnitude than the given value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/round">round</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the nearest integer represented in same decimal format rounding away from zero</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/round">lround</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the nearest <code>long</code> rounding away from zero</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/round">llround</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the nearest <code>long long</code> rounding away from zero</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/nearbyint">nearbyint</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computest the nearest integer represented in same decimal format subject to <a href="cfenv.html" class="xref page">current fenv rounding mode</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/lrint">lrint</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computest the nearest <code>long</code> subject to <a href="cfenv.html" class="xref page">current fenv rounding mode</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/llrint">llrint</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computest the nearest <code>long long</code> subject to <a href="cfenv.html" class="xref page">current fenv rounding mode</a></p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType ceil(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType floor(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType trunc(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType round(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr long lround(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr long long llround(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType nearbyint(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType rint(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr long lrint(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr long long llrint(DecimalType x) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_manipulation_funcs"><a class="anchor" href="#cmath_manipulation_funcs"></a>Floating Point Manipulation Functions</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/frexp">frexp</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns significand and base 2 exponent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/ldexp">ldexp</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multiplies a number by 2^x</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/modf">modf</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decomposes a number into integer and fractional parts</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/scalbn">scalbn</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multiplies a decimal number by <code>FLT_RADIX</code> (10) raised to an <code>int</code> power</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/scalbn">scalbln</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multiplies a decimal number by <code>FLT_RADIX</code> (10) raised to an <code>long</code> power</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/ilogb">ilogb</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Extracts <code>int</code> exponent of a number</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/logb">logb</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Extracts Decimal Type exponent of a number</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/nextafter">nextafter</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Next representable decimal type value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/nextafter">nexttowards</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Next representable decimal type value towards a <code>long double</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/copysign">copysign</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Copies the sign of a decimal value</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType frexp(DecimalType x, int* exp) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType ldexp(DecimalType x, int exp) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType modf(DecimalType x, DecimalType* iptr) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType scalbn(DecimalType x, int exp) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType scalbln(DecimalType x, long exp) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr int ilogb(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType logb(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType nextafter(DecimalType from, DecimalType to) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType nexttoward(DecimalType from, long double to) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType copysign(DecimalType mag, DecimalType sgn) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_classification"><a class="anchor" href="#cmath_classification"></a>Classification and Comparison</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/fpclassify">fpclassify</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Categorizes a value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/isfinite">isfinite</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if a given value is finite</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/isinf">isinf</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if a given value is infinite</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/isnan">isnan</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if a given value is a NAN</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/isnormal">isnormal</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if a given value is normal</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/signbit">signbit</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks the sign of a value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/isgreater">isgreater</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if the LHS (Left-hand side or first parameter) is greater than the RHS (Right-hand side or second parameter)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/isgreaterequal">isgreaterequal</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if the LHS is greater than or equal to the RHS</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/isless">isless</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if the LHS is less than the RHS</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/islesequal">islessequal</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if the LHS is less than or equal to the RHS</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/math/isunordered">isunordered</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checks if the LHS and RHS are unordered (i.e. if one or both are NAN)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr int fpclassify(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool isfinite(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool isinf(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool isnan(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool isnormal(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool signbit(DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool isgreater(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool isgreaterequal(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool isless(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool islessgreater(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr bool isunordered(DecimalType x, DecimalType y) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cmath_spec_fun"><a class="anchor" href="#cmath_spec_fun"></a>Special Functions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These are the special functions that were added in C++17.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This section does not currently contain all functions specified by C++17, but it does contain the ones that are more commonly useful like the Beta Function.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The following functions have been implemented for decimal types:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/assoc_laguerre">assoc_laguerre</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Associated Laguerre Polynomials</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/assoc_legendre">assoc_legendre</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Associated Legendre Polynomials</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/beta">beta</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calculates the beta function</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/comp_ellint_1">comp_ellint_1</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calculates the complete elliptic integrals of the first kind</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/comp_ellint_2">comp_ellint_2</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calculates the complete elliptic integrals of the second kind</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/comp_ellint_1">ellint_1</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calculates the incomplete elliptic integrals of the first kind</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/comp_ellint_2">ellint_2</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calculates the incomplete elliptic integrals of the second kind</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/hermite">hermite</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hermite Polynomials</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/laguerre">laguerre</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Laguerre Polynomials</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/legendre">legendre</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Legendre Polynomials</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://en.cppreference.com/w/cpp/numeric/special_functions/riemann_zeta">riemann_zeta</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Computes the Riemann Zeta function</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType assoc_laguerre(unsigned int n, unsigned int m, DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType assoc_legendre(unsigned int n, unsigned int m, DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType beta(DecimalType x, DecimalType y) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr auto comp_ellint_1(DecimalType k) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr auto comp_ellint_2(DecimalType k) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr auto ellint_1(DecimalType k, DecimalType phi) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr auto ellint_2(DecimalType k, DecimalType phi) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType hermite(unsigned int n, DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType laguerre(unsigned int n, DecimalType x) noexcept;
+
+template &lt;typename DecimalType&gt;
+constexpr DecimalType legendre(unsigned int n, DecimalType x) noexcept;
+
+template &lt;typename DecimalType, typename IntegralType&gt;
+constexpr DecimalType riemann_zeta(IntegralType n) noexcept;
+
+} //namespace decimal
+} //namespace boost</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="non_standard_cmath"><a class="anchor" href="#non_standard_cmath"></a>Non-standard Functions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following are convenience functions, or are prescribed in IEEE 754-2019 as required for decimal floating point types.</p>
+</div>
+<div class="sect2">
+<h3 id="cmath_issignaling"><a class="anchor" href="#cmath_issignaling"></a><code>issignaling</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">template &lt;typename Decimal&gt;
+constexpr bool issignaling(Decimal x) noexcept;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Effects: If x is an sNaN returns true, otherwise returns false.
+This function does not signal even if x is an sNaN per IEEE 754 section 5.7.2.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cmath_read_payload"><a class="anchor" href="#cmath_read_payload"></a><code>read_payload</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">template &lt;typename Decimal&gt;
+constexpr auto read_payload(Decimal x) noexcept
+    -&gt; typename T::significand_type;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Effects: if x is either a qNaN or an sNaN, returns the payload of the NaN, otherwise returns 0.</p>
+</div>
+<div class="paragraph">
+<p>This function allows the payloads of nans that are set by the functions <a href="#basic_cmath_ops"><code>nan</code></a> or <a href="#basic_cmath_ops"><code>snan</code></a> to be returned.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cmath_samequantum"><a class="anchor" href="#cmath_samequantum"></a><code>samequantum</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename Decimal&gt;
+constexpr bool samequantum(Decimal x, Decimal y) noexcept;
+
+constexpr bool samequantumd32(decimal32_t x, decimal32_t y) noexcept;
+constexpr bool samequantumd64(decimal64_t x, decimal64_t y) noexcept;
+constexpr bool samequantumd128(decimal128_t x, decimal128_t y) noexcept;
+
+} // namespace decimal
+} // namepsace boost</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Effects: Determines if the quantum (unbiased) exponents of x and y are the same.</p>
+</div>
+<div class="paragraph">
+<p>If both x and y are NaN, or infinity, they have the same quantum exponents.</p>
+</div>
+<div class="paragraph">
+<p>If exactly one operand is infinity or exactly one operand is NaN, they do not have the same quantum exponents.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cmath_quantexp"><a class="anchor" href="#cmath_quantexp"></a><code>quantexp</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename Decimal&gt;
+constexpr int quantexp(Decimal x) noexcept;
+
+constexpr int quantexp32(decimal32_t x) noexcept;
+constexpr int quantexp64(decimal64_t x) noexcept;
+constexpr int quantexp128(decimal128_t x) noexcept;
+
+} // namespace decimal
+} // namepsace boost</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Effects: if x is finite, returns its quantum exponent.</p>
+</div>
+<div class="paragraph">
+<p>Otherwise, <code>INT_MIN</code> is returned.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cmath_quantized"><a class="anchor" href="#cmath_quantized"></a><code>quantized</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename Decimal&gt;
+constexpr Decimal quantized(Decimal x, Decimal y) noexcept;
+
+constexpr decimal32_t quantized32(decimal32_t x, decimal32_t y) noexcept;
+constexpr decimal64_t quantized64(decimal64_t x, decimal64_t y) noexcept;
+constexpr decimal128_t quantized128(decimal128_t x, decimal128_t y) noexcept;
+
+} // namespace decimal
+} // namepsace boost</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Returns: a number that is equal in value (except for any rounding) and sign to x, and which has an exponent set to be equal to the exponent of y.</p>
+</div>
+<div class="paragraph">
+<p>If the exponent is being increased, the value is correctly rounded according to the current rounding mode;</p>
+</div>
+<div class="paragraph">
+<p>If the result does not have the same value as x, the "inexact" floating-point exception is raised.</p>
+</div>
+<div class="paragraph">
+<p>If the exponent is being decreased and the significand of the result has more digits than the type would allow, the "invalid" floating-point exception is raised and the result is sNaN.</p>
+</div>
+<div class="paragraph">
+<p>If one or both operands are NaN the result is sNaN.</p>
+</div>
+<div class="paragraph">
+<p>Otherwise, if only one operand is infinity, the "invalid" floating-point exception is raised and the result is sNaN.</p>
+</div>
+<div class="paragraph">
+<p>If both operands are infinity, the result is infinity, with the same sign as x.</p>
+</div>
+<div class="paragraph">
+<p>The quantize functions do not signal underflow.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cmath_frexp10"><a class="anchor" href="#cmath_frexp10"></a><code>frexp10</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename Decimal&gt;
+constexpr auto frexp10(Decimal num, int* expptr) noexcept;
+
+} // namespace decimal
+} // namepsace boost</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This function is very similar to <a href="https://en.cppreference.com/w/cpp/numeric/math/frexp">frexp</a>, but returns the significand and an integral power of 10 since the <code>FLT_RADIX</code> of this type is 10.
+The significand is normalized to the number of digits of precision the type has (e.g. for decimal32_t it is [1'000'000, 9'999'999]).
+For further discussion on normalized form see the page on <a href="cohorts.html" class="xref page">cohorts</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cmath_normalize"><a class="anchor" href="#cmath_normalize"></a><code>normalize</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename Decimal&gt;
+constexpr Decimal normalize(Decimal val) noexcept;
+
+} // namespace decimal
+} // namepsace boost</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Similar to the <code>frexp10</code> function above, but rather than returning the normalized significand, and exponent of the Decimal number, it returns a normalized number.
+This removes the effects of <a href="cohorts.html" class="xref page">cohorts</a> on the IEEE 754 compliant types which for the example of <code>decimal32_t</code> means the significand will be in the range [1'000'000, 9'999'999].
+This function has <strong>NO</strong> effect on fast types since they are always normalized internally.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cmath_rescale"><a class="anchor" href="#cmath_rescale"></a><code>rescale</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename Decimal&gt;
+constexpr Decimal rescale(Decimal val, int precision = 0);
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The function returns the decimal type with number of fractional digits equal to the value of precision.
+<code>rescale</code> is similar to <a href="https://en.cppreference.com/w/cpp/numeric/math/trunc">trunc</a>, and with the default precision argument of 0 it is identical.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This function was previously known as <code>trunc_to</code> which was deprecated in v5.0.0 and removed in v6.0.0
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cmath_comparetotal"><a class="anchor" href="#cmath_comparetotal"></a><code>comparetotal</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-c++ hljs" data-lang="c++">#include &lt;boost/decimal/cmath.hpp&gt;
+
+namespace boost {
+namespace decimal {
+
+template &lt;typename DecimalType&gt;
+constexpr bool comparetotal(DecimalType x, DecimalType y) noexcept;
+
+} // namespace decimal
+} // namespace boost</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This function is an extended version of normal ordering to take into account payloads of NANs, and canonical forms.</p>
+</div>
+<div class="paragraph">
+<p>Effects:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If x &lt; y returns <code>true</code></p>
+</li>
+<li>
+<p>If x &gt; y returns <code>false</code></p>
+</li>
+<li>
+<p>If x == y:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>-0 &lt; +0 is <code>true</code></p>
+</li>
+<li>
+<p>+0 &lt; -0 is <code>false</code></p>
+</li>
+<li>
+<p>If x and y have the same sign:</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p>If x and y are both negative, <code>comparetotal(x, y)</code> is <code>true</code> IFF the exponent of x >= exponent of y</p>
+</li>
+<li>
+<p>Otherwise, <code>comparetotal(x, y)</code> is <code>true</code> IFF the exponent of x <= y</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>If x and y are unordered because x or y is a NAN:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><code>comparetotal(-NAN, y)</code> is <code>true</code></p>
+</li>
+<li>
+<p><code>comparetotal(x, +NAN)</code> is <code>true</code></p>
+</li>
+<li>
+<p>If x and y are both NAN:</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p><code>comparetotal(-NAN, +NAN)</code> returns <code>true</code></p>
+</li>
+<li>
+<p><code>comparetotal(+SNAN, +QNAN)</code> returns <code>true</code></p>
+</li>
+<li>
+<p><code>comparetotal(-QNAN, -SNAN)</code> returns <code>true</code></p>
+</li>
+<li>
+<p><code>comparetotal(NAN, NAN)</code></p>
+<div class="olist upperalpha">
+<ol class="upperalpha" type="A">
+<li>
+<p>If both <code>NAN</code> are positive returns <code>true</code> if the payload of <code>x</code> is less than the payload of <code>y</code></p>
+</li>
+<li>
+<p>If both <code>NAN</code> are negative returns <code>true</code> if the payload of <code>x</code> is greater than the payload of <code>y</code></p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+  <div class="edit-this-page">
+  </div>
+      <nav class="pagination">
+        <span class="prev"><a href="numbers.html">Numeric Constants</a></span>
+        <span class="next"><a href="cstdlib.html"><code>&lt;cstdlib&gt;</code> Support (<code>strtod</code>)</a></span>
+    </nav>
+</article>
+</div>
+  <div id="footer">
+  <script id="site-script" src="./_/js/site.js" data-ui-root-path="./_"></script>
+<script async src="./_/js/vendor/highlight.js"></script>
+<script async src="./_/js/vendor/tabs.js" data-sync-storage-key="preferred-tab"></script>
+</div>
+</div>
+  </body>
+</html>
