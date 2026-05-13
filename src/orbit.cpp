@@ -657,42 +657,28 @@ void Orbit::propagate_2BP_odeint(Eigen::VectorXd times, int EOM_int, std::string
     // Use adaptive stepper with dense output (Runge-Kutta 5(4) Dormand-Prince)
     runge_kutta_dopri5<state_type> stepper;
     
-    // Calculate reasonable internal step size
-    double t_start = times(0);
-    double t_end = times(n_times - 1);
-    double internal_step = (t_end - t_start) * 0.01;
+    // Integrate at exact requested times to avoid duplicate states
+    // Convert Eigen vector to std::vector for integrate_times
+    std::vector<double> times_vec(times.data(), times.data() + times.size());
     
-    // Integrate with dense output
-    integrate_adaptive(stepper, system, x, t_start, t_end, internal_step, observer);
+    integrate_times(stepper, system, x, times_vec.begin(), times_vec.end(), 
+                    (times(1) - times(0)) * 0.1, observer);
     
-    // Now interpolate/find values at requested time points
+    // Data at exact requested times is now in all_times, all_R, all_V, etc.
+    // Copy to output matrices (should be exact matches now)
     for(int i = 0; i < n_times; ++i){
-        double target_time = times(i);
-        
-        // Find the closest time index
-        int closest_idx = 0;
-        double min_diff = std::abs(all_times[0] - target_time);
-        
-        for(size_t j = 1; j < all_times.size(); ++j){
-            double diff = std::abs(all_times[j] - target_time);
-            if(diff < min_diff){
-                min_diff = diff;
-                closest_idx = j;
-            }
-        }
-        
-        // Copy data from closest time point
-        R_propagated.col(i) = all_R[closest_idx];
-        V_propagated.col(i) = all_V[closest_idx];
-        Acc_propagated.col(i) = all_acc[closest_idx];
-        H_propagated.col(i) = all_h[closest_idx];
-        energy_propagated(i) = all_energies[closest_idx];
-        a_propagated(i) = all_a[closest_idx];
-        e_propagated(i) = all_e[closest_idx];
-        i_propagated(i) = all_i[closest_idx];
-        RAAN_propagated(i) = all_RAAN[closest_idx];
-        AoP_propagated(i) = all_AoP[closest_idx];
-        nu_propagated(i) = all_nu[closest_idx];
+        // all_times should now contain exact requested times
+        R_propagated.col(i) = all_R[i];
+        V_propagated.col(i) = all_V[i];
+        Acc_propagated.col(i) = all_acc[i];
+        H_propagated.col(i) = all_h[i];
+        energy_propagated(i) = all_energies[i];
+        a_propagated(i) = all_a[i];
+        e_propagated(i) = all_e[i];
+        i_propagated(i) = all_i[i];
+        RAAN_propagated(i) = all_RAAN[i];
+        AoP_propagated(i) = all_AoP[i];
+        nu_propagated(i) = all_nu[i];
     }
     
     // Write results to CSV file
