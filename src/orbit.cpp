@@ -196,18 +196,31 @@ void Orbit::print_rotMat(){
 //convert Orbital elements to cartesian
 void Orbit::OE_to_cartesian(){
     double p, r;
+    const double tol = 1e-10;
 
-    p=a*(1-e*e);
-    r=p/(1+e*cos(nu));
+    // Semi-latus rectum
+    p = a * (1 - e*e);
+    
+    // Validate p > 0 to avoid division by zero or NaN
+    if (p <= tol) {
+        // Degenerate orbit - set to zero state
+        Rp.setZero();
+        Vp.setZero();
+    } else {
+        // Radius in perifocal frame
+        r = p / (1 + e*cos(nu));
 
-    //defining perifocal coordinates
-    Rp(0)=r*cos(nu);
-    Rp(1)=r*sin(nu);
-    Rp(2)=0;
+        //defining perifocal coordinates
+        Rp(0) = r*cos(nu);
+        Rp(1) = r*sin(nu);
+        Rp(2) = 0;
 
-    Vp(0)=sqrt(mu/p)*(-sin(nu));
-    Vp(1)=sqrt(mu/p)*(e+cos(nu));
-    Vp(2)=0;
+        // Velocity in perifocal frame
+        double v_mag = sqrt(mu/p);
+        Vp(0) = v_mag * (-sin(nu));
+        Vp(1) = v_mag * (e + cos(nu));
+        Vp(2) = 0;
+    }
 
     //defining the rotation matrix
     Eigen::Matrix3d R3Omega;
@@ -241,39 +254,68 @@ void Orbit::cartesian_to_OE(){
     Eigen::Vector3d E;
 
     double v, r;
+    const double tol = 1e-10;
 
     //calculating H vector and N vector
-    H= R.cross(V);
-    N << -H[1],H[0],0; //k X H
+    H = R.cross(V);
+    double H_mag = H.norm();
+    N << -H[1], H[0], 0; //k X H
+    double N_mag = N.norm();
 
     // norm of V and R
-    r=R.norm();
-    v=V.norm();
+    r = R.norm();
+    v = V.norm();
 
     //Calculate a
-    a= -mu/(2*((v*v/2)- (mu/r) ));
+    a = -mu / (2 * ((v*v/2) - (mu/r)));
 
     //calculate E vector and e
-    E=1/mu * ( (v*v - mu/r)*R - (R.dot(V))*V);
-    e= E.norm();
+    E = (1/mu) * ((v*v - mu/r)*R - (R.dot(V))*V);
+    e = E.norm();
 
     //calculate i
-    i=acos(H[2]/H.norm());
+    if (H_mag > tol) {
+        i = acos(std::max(-1.0, std::min(1.0, H[2] / H_mag)));
+    } else {
+        i = 0;  // Degenerate case
+    }
 
     //calculate RAAN
-    RAAN = acos(N[0]/N.norm());
-    if(N[1]<0){
-        RAAN=2*M_PI-RAAN;
+    if (N_mag > tol) {
+        RAAN = acos(std::max(-1.0, std::min(1.0, N[0] / N_mag)));
+        if (N[1] < 0) {
+            RAAN = 2*M_PI - RAAN;
+        }
+    } else {
+        // Equatorial orbit - RAAN is undefined
+        RAAN = 0;
     }
+
     //calculate AoP
-    AoP=acos(N.dot(E)/(N.norm()*e));
-    if (E[2]<0){
-        AoP=2*M_PI-AoP;
+    if (N_mag > tol && e > tol) {
+        AoP = acos(std::max(-1.0, std::min(1.0, N.dot(E) / (N_mag * e))));
+        if (E[2] < 0) {
+            AoP = 2*M_PI - AoP;
+        }
+    } else if (e > tol) {
+        // Equatorial orbit - use different reference
+        AoP = atan2(E[1], E[0]);
+        if (AoP < 0) AoP += 2*M_PI;
+    } else {
+        // Circular orbit - AoP is undefined
+        AoP = 0;
     }
+
     //calculate nu
-    nu=acos(E.dot(R)/(e*r));
-    if (R.dot(V)<0){
-        nu=2*M_PI-nu;
+    if (e > tol) {
+        nu = acos(std::max(-1.0, std::min(1.0, E.dot(R) / (e * r))));
+        if (R.dot(V) < 0) {
+            nu = 2*M_PI - nu;
+        }
+    } else {
+        // Circular orbit - use position angle
+        nu = atan2(R[1], R[0]);
+        if (nu < 0) nu += 2*M_PI;
     }
 }
 
@@ -332,6 +374,7 @@ Eigen::VectorXd Orbit::EoM(Eigen::Vector3d r, Eigen::Vector3d v, int EOM_int){
 }
 
 //Private function to covert any cartesian coordinates to Orbital Elements
+// Handles special cases: equatorial orbits, circular orbits, and floating point precision
 Eigen::ArrayXXd Orbit::cartesian_to_OE_I(Eigen::Vector3d x, Eigen::Vector3d y){
     Eigen::Vector3d H;
     Eigen::Vector3d N;
@@ -340,46 +383,77 @@ Eigen::ArrayXXd Orbit::cartesian_to_OE_I(Eigen::Vector3d x, Eigen::Vector3d y){
     double v, r;
     double a1, e1, i1, RAAN1, AoP1, nu1;
 
+    const double tol = 1e-10;  // Tolerance for near-zero values
+
     //calculating H vector and N vector
-    H= x.cross(y);
-    N<<-H[1],H[0],0; //k X H
+    H = x.cross(y);
+    double H_mag = H.norm();
+    N << -H[1], H[0], 0; //k X H
+    double N_mag = N.norm();
 
     // norm of V and R
-    r=x.norm();
-    v=y.norm();
+    r = x.norm();
+    v = y.norm();
 
     //Calculate a
-    a1= -mu/(2*((v*v/2)- (mu/r) ));
+    a1 = -mu / (2 * ((v*v/2) - (mu/r)));
 
     //calculate E vector and e
-    E=1/mu * ( (v*v - mu/r)*x - (x.dot(y))*y);
-    e1= E.norm();
+    E = (1/mu) * ((v*v - mu/r)*x - (x.dot(y))*y);
+    e1 = E.norm();
 
     //calculate i
-    i1=acos(H[2]/H.norm());
+    if (H_mag > tol) {
+        i1 = acos(std::max(-1.0, std::min(1.0, H[2] / H_mag)));
+    } else {
+        i1 = 0;  // Degenerate case
+    }
 
     //calculate RAAN
-    RAAN1 = acos(N[0]/N.norm());
-    if(N[1]<0){
-        RAAN1=2*M_PI-RAAN1;
+    if (N_mag > tol) {
+        RAAN1 = acos(std::max(-1.0, std::min(1.0, N[0] / N_mag)));
+        if (N[1] < 0) {
+            RAAN1 = 2*M_PI - RAAN1;
+        }
+    } else {
+        // Equatorial orbit - RAAN is undefined
+        RAAN1 = 0;
     }
+
     //calculate AoP
-    AoP1=acos(N.dot(E)/(N.norm()*e1));
-    if (E[2]<0){
-        AoP1=2*M_PI-AoP1;
+    if (N_mag > tol && e1 > tol) {
+        AoP1 = acos(std::max(-1.0, std::min(1.0, N.dot(E) / (N_mag * e1))));
+        if (E[2] < 0) {
+            AoP1 = 2*M_PI - AoP1;
+        }
+    } else if (e1 > tol) {
+        // Equatorial orbit - use different reference
+        AoP1 = atan2(E[1], E[0]);
+        if (AoP1 < 0) AoP1 += 2*M_PI;
+    } else {
+        // Circular orbit - AoP is undefined
+        AoP1 = 0;
     }
+
     //calculate nu
-    nu1=acos(E.dot(x)/(e1*r));
-    if (x.dot(y)<0){
-        nu1=2*M_PI-nu1;
+    if (e1 > tol) {
+        nu1 = acos(std::max(-1.0, std::min(1.0, E.dot(x) / (e1 * r))));
+        if (x.dot(y) < 0) {
+            nu1 = 2*M_PI - nu1;
+        }
+    } else {
+        // Circular orbit - use position angle
+        nu1 = atan2(x[1], x[0]);
+        if (nu1 < 0) nu1 += 2*M_PI;
     }
+
     Eigen::ArrayXXd OE1(6,1);
-    OE1(0,0)=a1;
-    OE1(1,0)=e1;
-    OE1(2,0)=i1;
-    OE1(3,0)=RAAN1;
-    OE1(4,0)=AoP1;
-    OE1(5,0)=nu1;
+    OE1(0,0) = a1;
+    OE1(1,0) = e1;
+    OE1(2,0) = i1;
+    OE1(3,0) = RAAN1;
+    OE1(4,0) = AoP1;
+    OE1(5,0) = nu1;
     return OE1;
 }
 
@@ -681,32 +755,58 @@ void Orbit::propagate_2BP_odeint(Eigen::VectorXd times, int EOM_int, std::string
         nu_propagated(i) = all_nu[i];
     }
     
-    // Write results to CSV file
+    // Eigen Matrix print format to write csv files
+    Eigen::IOFormat csv(10, 0, ", ", "\n", "", "", "", "");
+    // Write file with all data
+    Eigen::ArrayXXd Matrice(n_times, 20);
+    
+    // time
+    for(int i = 0; i < n_times; ++i)
+        Matrice(i, 0) = times(i);
+    
+    // orbital elements
+    Matrice.col(1) = a_propagated;
+    Matrice.col(2) = e_propagated;
+    Matrice.col(3) = i_propagated * 180.0 / M_PI;
+    Matrice.col(4) = RAAN_propagated * 180.0 / M_PI;
+    Matrice.col(5) = AoP_propagated * 180.0 / M_PI;
+    Matrice.col(6) = nu_propagated * 180.0 / M_PI;
+    
+    // energy
+    Matrice.col(7) = energy_propagated;
+    
+    // Radius
+    for(int i = 0; i < n_times; ++i){
+        Matrice(i, 8) = R_propagated(0, i);
+        Matrice(i, 9) = R_propagated(1, i);
+        Matrice(i, 10) = R_propagated(2, i);
+    }
+    
+    // Velocity
+    for(int i = 0; i < n_times; ++i){
+        Matrice(i, 11) = V_propagated(0, i);
+        Matrice(i, 12) = V_propagated(1, i);
+        Matrice(i, 13) = V_propagated(2, i);
+    }
+    
+    // Acceleration
+    for(int i = 0; i < n_times; ++i){
+        Matrice(i, 14) = Acc_propagated(0, i);
+        Matrice(i, 15) = Acc_propagated(1, i);
+        Matrice(i, 16) = Acc_propagated(2, i);
+    }
+    
+    // Angular Momentum
+    for(int i = 0; i < n_times; ++i){
+        Matrice(i, 17) = H_propagated(0, i);
+        Matrice(i, 18) = H_propagated(1, i);
+        Matrice(i, 19) = H_propagated(2, i);
+    }
+    
+    // Write to file
     std::ofstream theFile;
     theFile.open("Results/" + name + "_file.csv");
     theFile << "Time (sec),Semi-Major Axis (km),Eccentricity,Inclination (deg),RAAN (deg),Argument of Periapsis (deg),True Anomaly (deg),Orbital Energy (km^2/sec^2),Radius_1 (km),Radius_2 (km),Radius_3 (km),Velocity_1 (km/s),Velocity_2 (km/s),Velocity_3 (km/s),Acceleration_1 (km/s^2),Acceleration_2 (km/s^2),Acceleration_3 (km/s^2),Angular_Momemntum_1 (km^2/s),Angular_Momemntum_2 (km^2/s),Angular_Momemntum_3 (km^2/s)" << std::endl;
-    
-    for(int i = 0; i < n_times; ++i){
-        theFile << times(i) << ", "
-                << a_propagated(i) << ", "
-                << e_propagated(i) << ", "
-                << i_propagated(i) * 180.0 / M_PI << ", "
-                << RAAN_propagated(i) * 180.0 / M_PI << ", "
-                << AoP_propagated(i) * 180.0 / M_PI << ", "
-                << nu_propagated(i) * 180.0 / M_PI << ", "
-                << energy_propagated(i) << ", "
-                << R_propagated(0, i) << ", "
-                << R_propagated(1, i) << ", "
-                << R_propagated(2, i) << ", "
-                << V_propagated(0, i) << ", "
-                << V_propagated(1, i) << ", "
-                << V_propagated(2, i) << ", "
-                << Acc_propagated(0, i) << ", "
-                << Acc_propagated(1, i) << ", "
-                << Acc_propagated(2, i) << ", "
-                << H_propagated(0, i) << ", "
-                << H_propagated(1, i) << ", "
-                << H_propagated(2, i) << std::endl;
-    }
+    theFile << Matrice.format(csv) << std::endl;
     theFile.close();
 }
