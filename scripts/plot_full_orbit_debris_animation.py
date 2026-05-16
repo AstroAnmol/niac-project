@@ -40,7 +40,7 @@ def calculate_body_frame_transform(sat_r, sat_v):
     M_BF_to_ECI = np.column_stack((sat_x_BF, sat_y_BF, sat_z_BF))
     return M_BF_to_ECI
 
-def load_sim_debris_data(sim_dir):
+def load_sim_debris_data(sim_dir, output_txt_path=None):
     """Load debris data for a single simulation"""
     readme_path = os.path.join(sim_dir, "README.txt")
     detection_files = glob.glob(os.path.join(sim_dir, "detection_results_*.csv"))
@@ -52,10 +52,14 @@ def load_sim_debris_data(sim_dir):
     if true_anomaly is None:
         return None
     
-    # Read debris file path from README
+    # Read debris file path and satellite state from README
     debris_file = None
     sat_state = None
-    boom_angles = None
+    boom_angles = []
+    debris_samples = None
+    search_radius = None
+    sim_time = None
+    
     try:
         with open(readme_path, 'r') as f:
             content = f.read()
@@ -74,19 +78,70 @@ def load_sim_debris_data(sim_dir):
                             except:
                                 pass
                         break
-            # Extract boom angles if available
-            if "Boom angles:" in content:
-                boom_line = content.split("Boom angles:")[-1].split('\n')[0].strip()
-                try:
-                    boom_angles = [float(x) for x in boom_line.split() if x]
-                except:
-                    pass
     except Exception as e:
-        print(f"[DEBUG] Error reading {readme_path}: {e}")
+        # print(f"[DEBUG] Error reading {readme_path}: {e}")
         return None
     
+    # Read output.txt for search parameters and boom angles
+    if output_txt_path and os.path.exists(output_txt_path):
+        try:
+            with open(output_txt_path, 'r') as f:
+                content = f.read()
+                # Extract boom angles
+                if "Boom angles:" in content:
+                    boom_line = content.split("Boom angles:")[-1].split('\n')[0].strip()
+                    try:
+                        # Try splitting by comma first, then by whitespace
+                        if ',' in boom_line:
+                            boom_angles = [float(x.strip()) for x in boom_line.split(',') if x.strip()]
+                        else:
+                            boom_angles = [float(x.strip()) for x in boom_line.split() if x.strip()]
+                        # print(f"[DEBUG] Extracted boom_angles: {boom_angles}")
+                    except Exception as e:
+                        # print(f"[DEBUG] Failed to parse boom angles from '{boom_line}': {e}")
+                        boom_angles = []
+                # else:
+                #     print(f"[DEBUG] 'Boom angles:' not found in output.txt")
+                # Extract search parameters
+                if "Debris parameters:" in content or "debris parameters" in content.lower():
+                    for line in content.split('\n'):
+                        if "num_samples" in line.lower() or "debris samples" in line.lower():
+                            try:
+                                debris_samples = int(''.join(filter(str.isdigit, line.split('=')[-1] if '=' in line else line.split(':')[-1])))
+                                # print(f"[DEBUG] Extracted debris_samples: {debris_samples}")
+                            except Exception as e:
+                                pass
+                                # print(f"[DEBUG] Failed to parse debris_samples: {e}")
+                        if "search_radius" in line.lower() or "detection radius" in line.lower():
+                            try:
+                                part = line.split('=')[-1] if '=' in line else line.split(':')[-1]
+                                search_radius = float(''.join(c for c in part if c.isdigit() or c == '.'))
+                                # print(f"[DEBUG] Extracted search_radius: {search_radius}")
+                            except Exception as e:
+                                pass
+                                # print(f"[DEBUG] Failed to parse search_radius: {e}")
+                        if "final_time" in line.lower() or "simulation time" in line.lower():
+                            try:
+                                part = line.split('=')[-1] if '=' in line else line.split(':')[-1]
+                                sim_time = float(''.join(c for c in part if c.isdigit() or c == '.'))
+                                # print(f"[DEBUG] Extracted sim_time: {sim_time}")
+                            except Exception as e:
+                                pass
+                                # print(f"[DEBUG] Failed to parse sim_time: {e}")
+        except Exception as e:
+            pass
+            # print(f"[DEBUG] Error reading {output_txt_path}: {e}")
+    
+    # Set fallback defaults if not found in output.txt
+    if debris_samples is None:
+        debris_samples = 10000
+    if search_radius is None:
+        search_radius = 10.0
+    if sim_time is None:
+        sim_time = 2.0
+    
     if not debris_file:
-        print(f"[DEBUG] No debris file found in {os.path.basename(sim_dir)}")
+        # print(f"[DEBUG] No debris file found in {os.path.basename(sim_dir)}")
         return None
     
     # Resolve debris file path
@@ -109,8 +164,8 @@ def load_sim_debris_data(sim_dir):
                 pass
     
     if debris_df is None:
-        print(f"[DEBUG] Could not load debris file for {os.path.basename(sim_dir)}")
-        print(f"        Tried paths: {potential_paths}")
+        # print(f"[DEBUG] Could not load debris file for {os.path.basename(sim_dir)}")
+        # print(f"        Tried paths: {potential_paths}")
         return None
     
     # Load detection results
@@ -172,16 +227,31 @@ def load_sim_debris_data(sim_dir):
         'detected_count': unique_df['detected'].sum(),
         'total_count': len(unique_df),
         'detection_rate': unique_df['detected'].sum() / len(unique_df) if len(unique_df) > 0 else 0,
-        'boom_angles': boom_angles
+        'boom_angles': boom_angles,
+        'debris_samples': debris_samples,
+        'search_radius': search_radius,
+        'sim_time': sim_time
     }
 
 def load_all_sim_debris_data(results_dir):
     """Load debris data from all simulations"""
     sim_dirs = sorted(glob.glob(os.path.join(results_dir, 'Sim_*')))
     
+    # Find output.txt in results directory
+    output_txt_path = os.path.join(results_dir, 'output.txt')
+    if not os.path.exists(output_txt_path):
+        # Try parent directory
+        output_txt_path = os.path.join(os.path.dirname(results_dir), 'output.txt')
+    
+    if not os.path.exists(output_txt_path):
+        # print(f"[WARNING] output.txt not found. Trying {output_txt_path}")
+        output_txt_path = None
+    # else:
+        # print(f"[INFO] Using output.txt: {output_txt_path}")
+    
     sim_data_list = []
     for sim_dir in sim_dirs:
-        sim_data = load_sim_debris_data(sim_dir)
+        sim_data = load_sim_debris_data(sim_dir, output_txt_path)
         if sim_data is not None:
             sim_data_list.append(sim_data)
     
@@ -232,6 +302,12 @@ def create_debris_animation(sim_data_list, save=False, output_dir=None):
     scatter_origin = None
     text_info = ax2.text(0.05, 0.95, '', fontsize=11, verticalalignment='top',
                          family='monospace', transform=ax2.transAxes)
+    
+    # Calculate overall statistics
+    total_detected_all = sum(sim['detected_count'] for sim in sim_data_list)
+    total_debris_all = sum(sim['total_count'] for sim in sim_data_list)
+    mean_detected = total_detected_all / len(sim_data_list) if sim_data_list else 0
+    overall_detection_rate = total_detected_all / total_debris_all if total_debris_all > 0 else 0
     
     def animate(frame):
         nonlocal scatter_undetected, scatter_detected, scatter_origin
@@ -287,19 +363,23 @@ Debris Distribution:
   Undetected:        {len(undetected)}
   Detected:          {len(detected)}
 
+Overall Statistics:
+  Mean Detected:     {mean_detected:.1f}
+  Overall Rate:      {overall_detection_rate:.1%}
+
 Sensor Configuration:
   Boom Angles:"""
-        if sim_data['boom_angles'] and len(sim_data['boom_angles']) > 0:
+        if len(sim_data['boom_angles']) > 0:
             angles_str = ', '.join([f"{a:.1f}°" for a in sim_data['boom_angles']])
             stats_text += f"    {angles_str}\n"
         else:
             stats_text += "    N/A\n"
         
-        stats_text += """
+        stats_text += f"""
 Search Parameters:
-  Debris Samples:    10,000
-  Search Radius:     10 km
-  Sim Time:          2 s
+  Debris Samples:    {sim_data['debris_samples']:,}
+  Search Radius:     {sim_data['search_radius']:.1f} km
+  Sim Time:          {sim_data['sim_time']:.1f} s
         """
         text_info.set_text(stats_text)
         
