@@ -146,10 +146,16 @@ def load_sim_debris_data(sim_dir, output_txt_path=None):
     
     # Resolve debris file path
     results_full_orbit_path = os.path.dirname(sim_dir)
+    # The README stores paths like "Results/Debris_.../file.csv" relative to the
+    # parent of the results dir. Strip the leading path component (e.g. "Results")
+    # and resolve directly inside results_full_orbit_path (i.e. results_dir).
+    debris_file_stripped = os.path.join(*debris_file.replace('\\', '/').split('/')[1:]) \
+        if '/' in debris_file or '\\' in debris_file else debris_file
     potential_paths = [
         debris_file,
         os.path.join(results_full_orbit_path, debris_file),
         os.path.join(os.path.dirname(results_full_orbit_path), debris_file),
+        os.path.join(results_full_orbit_path, debris_file_stripped),
     ]
     
     debris_df = None
@@ -268,7 +274,7 @@ def create_debris_animation(sim_data_list, save=False, output_dir=None):
         return
     
     # Create figure with 2 subplots
-    fig = plt.figure(figsize=(16, 7))
+    fig = plt.figure(figsize=(16, 9))
     
     # 3D plot for debris cloud
     ax1 = fig.add_subplot(121, projection='3d')
@@ -388,7 +394,7 @@ Search Parameters:
     anim = FuncAnimation(fig, animate, frames=len(sim_data_list),
                         interval=100, blit=False, repeat=True)
     
-    plt.tight_layout()
+    plt.tight_layout(rect=(0, 0, 1, 0.95))
     
     if save and output_dir:
         output_path = os.path.join(output_dir, 'full_orbit_debris_animation.gif')
@@ -396,8 +402,9 @@ Search Parameters:
         writer = PillowWriter(fps=10)
         anim.save(output_path, writer=writer)
         print(f"Saved: {output_path}")
-    
-    plt.show()
+    else:
+        plt.show()
+        
     return fig, anim
 
 def main():
