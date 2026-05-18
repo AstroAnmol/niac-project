@@ -44,8 +44,8 @@ int main() {
   output_file << "Soliton parameters: angle=" << soliton_params(0) * 180.0 / M_PI << " degrees, height=" << soliton_params(1) << " km, velocity multiplier=" << soliton_params(2) << "\n";
 
   Eigen::VectorXd boom_angles(8);
-  boom_angles << 00, 90, 00, 90, 00, 90, 00, 90; // all booms at [1, 0, 0]
-  // boom_angles << 90, 90, 90, 90, 90, 90, 90, 90; // all booms at [0, 1, 0]
+  // boom_angles << 00, 90, 00, 90, 00, 90, 00, 90; // all booms at [1, 0, 0]
+  boom_angles << 90, 90, 90, 90, 90, 90, 90, 90; // all booms at [0, 1, 0]
   // boom_angles << 90, 00, 90, 00, 90, 00, 90, 00; // all booms at [0, 0, 1] 
   // boom_angles << 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0, 54.7356, 45.0; // booms at tetrahedral angles
 
